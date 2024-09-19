@@ -1,0 +1,212 @@
+<!-- component -->
+<section class="container px-4 mx-auto">
+  <div class="flex items-center justify-end space-x-2">
+    <.link patch={~p"/projects/show/#{@project.id}/edit"}>
+      <button class="flex items-center justify-center w-1/2 px-5 py-2 text-sm tracking-wide text-white transition-colors duration-200 bg-blue-500 rounded-lg shrink-0 sm:w-auto gap-x-2 hover:bg-blue-600">
+        <.icon name="hero-pencil-square" class="w-4 h-4" />
+        <span>Edit Project</span>
+      </button>
+    </.link>
+    <.link patch={~p"/projects/#{@project.id}/new_column"}>
+      <button class="flex items-center justify-center w-1/2 px-5 py-2 text-sm tracking-wide text-white transition-colors duration-200 bg-blue-500 rounded-lg shrink-0 sm:w-auto gap-x-2 hover:bg-blue-600">
+        <.icon name="hero-plus-circle" class="w-4 h-4" />
+        <span>Add Column</span>
+      </button>
+    </.link>
+    <.link patch={~p"/projects/#{@project.id}/new_task"}>
+      <button class="flex items-center justify-center w-1/2 px-5 py-2 text-sm tracking-wide text-white transition-colors duration-200 bg-blue-500 rounded-lg shrink-0 sm:w-auto gap-x-2 hover:bg-blue-600">
+        <.icon name="hero-plus-circle" class="w-4 h-4" />
+        <span>Add Task</span>
+      </button>
+    </.link>
+  </div>
+
+  <div class="mt-6 md:flex md:items-center md:justify-end">
+
+    <div class="relative flex items-center mt-4 md:mt-0">
+      <span class="absolute">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke-width="1.5"
+          stroke="currentColor"
+          class="w-5 h-5 mx-3 text-gray-400 "
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"
+          />
+        </svg>
+      </span>
+
+      <input
+        type="text"
+        placeholder="Search"
+        class="block w-full py-1.5 pr-5 text-gray-700 bg-white border border-gray-200 rounded-lg md:w-80 placeholder-gray-400/70 pl-11 rtl:pr-11 rtl:pl-5 focus:border-blue-400 focus:ring-blue-300 focus:outline-none focus:ring focus:ring-opacity-40"
+      />
+    </div>
+  </div>
+
+  <div class="flex flex-col mt-6">
+    <div class="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
+      <div class="inline-block min-w-full py-2 align-middle md:px-6 lg:px-8">
+        <div class="overflow-x-scroll border border-gray-200 md:rounded-lg">
+          <div class="flex space-x-4 p-4 max-h-[550px]" id="dragHook" phx-hook="dragHook">
+            <div
+              :for={column <- @project.columns}
+              id={"#{column.id}"}
+              class="dropzone relative flex flex-col text-gray-700 bg-white shadow-md border rounded-xl w-64 overflow-y-scroll"
+            >
+              <div class="py-4 border-b-2 rounded-xl">
+                <p class="text-center text-xl font-semibold">
+                  <%= column.name %>
+                </p>
+              </div>
+
+              <%= for task <- column.tasks do %>
+                <div class="draggable p-2" id={"##{task.id}"} draggable="true">
+                  <div class="border border-1 rounded-lg cursor-pointer">
+                    <div class="relative mx-4 mt-4 overflow-hidden text-gray-700 bg-white bg-clip-border rounded-xl w-[90%] h-24">
+                      <img
+                        src="https://images.unsplash.com/photo-1629367494173-c78a56567877?ixlib=rb-4.0.3&amp;ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&amp;auto=format&amp;fit=crop&amp;w=927&amp;q=80"
+                        alt="card-image"
+                        class="object-cover w-full h-full"
+                      />
+                    </div>
+                    <div class="p-6">
+                      <div class="flex items-center justify-between mb-2">
+                        <p class="block font-sans text-base antialiased font-medium leading-relaxed text-blue-gray-900">
+                          <%= task.title %>
+                        </p>
+                        <p class="block font-sans text-base antialiased font-medium leading-relaxed text-blue-gray-900">
+                          <%= Number.Currency.number_to_currency(task.budget) %>
+                        </p>
+                      </div>
+                      <p class="block font-sans text-sm antialiased font-normal leading-normal text-gray-700 opacity-75">
+                        <%= task.description %>
+                      </p>
+                    </div>
+                    <div class="p-6 pt-0">
+                      <.link
+                        patch={~p"/projects/#{@project.id}/edit_task/#{task.id}"}
+                        class="align-middle select-none font-sans font-bold text-center uppercase transition-all disabled:opacity-50 disabled:shadow-none disabled:pointer-events-none text-xs py-3 px-6 rounded-lg shadow-gray-900/10 hover:shadow-gray-900/20 focus:opacity-[0.85] active:opacity-[0.85] active:shadow-none block w-full bg-blue-gray-900/10 text-blue-gray-900 shadow-none hover:scale-105 hover:shadow-none focus:scale-105 focus:shadow-none active:scale-100"
+                      >
+                        Edit Task
+                      </.link>
+                    </div>
+                  </div>
+                </div>
+              <% end %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="mt-6 sm:flex sm:items-center sm:justify-between ">
+    <div class="text-sm text-gray-500">
+      Page <span class="font-medium text-gray-700">1 of 10</span>
+    </div>
+
+    <div class="flex items-center mt-4 gap-x-4 sm:mt-0">
+      <a
+        href="#"
+        class="flex items-center justify-center w-1/2 px-5 py-2 text-sm text-gray-700 capitalize transition-colors duration-200 bg-white border rounded-md sm:w-auto gap-x-2 hover:bg-gray-100"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke-width="1.5"
+          stroke="currentColor"
+          class="w-5 h-5 rtl:-scale-x-100"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            d="M6.75 15.75L3 12m0 0l3.75-3.75M3 12h18"
+          />
+        </svg>
+
+        <span>
+          previous
+        </span>
+      </a>
+
+      <a
+        href="#"
+        class="flex items-center justify-center w-1/2 px-5 py-2 text-sm text-gray-700 capitalize transition-colors duration-200 bg-white border rounded-md sm:w-auto gap-x-2 hover:bg-gray-100"
+      >
+        <span>
+          Next
+        </span>
+
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke-width="1.5"
+          stroke="currentColor"
+          class="w-5 h-5 rtl:-scale-x-100"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            d="M17.25 8.25L21 12m0 0l-3.75 3.75M21 12H3"
+          />
+        </svg>
+      </a>
+    </div>
+  </div>
+  <.modal
+    :if={@live_action in [:new_column, :edit_column]}
+    show={@live_action in [:new_column, :edit_column]}
+    id="project_modal"
+    on_cancel={JS.navigate(~p"/projects/#{@project.id}/show")}
+  >
+    <.live_component
+      module={ProjeXpertWeb.ProjectsLive.ColumnForm}
+      id={@column.id || :new}
+      title={@page_title}
+      action={@live_action}
+      project={@project}
+      column={@column}
+      current_user={@current_user}
+    />
+  </.modal>
+  <.modal
+    :if={@live_action in [:new_task, :edit_task]}
+    show={@live_action in [:new_task, :edit_task]}
+    id="project_modal"
+    on_cancel={JS.navigate(~p"/projects/#{@project.id}/show")}
+  >
+    <.live_component
+      module={ProjeXpertWeb.ProjectsLive.TaskForm}
+      id={@column.id || :new}
+      title={@page_title}
+      action={@live_action}
+      project={@project}
+      columns={@columns}
+      task={@task}
+      current_user={@current_user}
+    />
+  </.modal>
+  <.modal
+    :if={@live_action == :edit}
+    show={@live_action == :edit}
+    id="project_modal"
+    on_cancel={JS.navigate(~p"/projects/#{@project.id}/show")}
+  >
+    <.live_component
+      module={ProjeXpertWeb.ProjectsLive.Component}
+      id={@project.id}
+      title={@page_title}
+      action={@live_action}
+      project={@project}
+      current_user={@current_user}
+    />
+  </.modal>
+</section>

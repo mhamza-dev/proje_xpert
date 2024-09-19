@@ -1,0 +1,110 @@
+<header class="px-6 sm:px-8 lg:px-10 border border-b-2">
+  <div class="flex items-center justify-between h-16">
+    <div class="flex">
+      <.link href="/">
+        <img src={~p"/images/blue-logo.svg"} alt="ProjeXpert Logo" class="h-12 w-12" />
+      </.link>
+    </div>
+    <div :if={!@current_user} class="flex items-center space-x-2">
+      <.link
+        :if={@socket.view != ProjeXpertWeb.UserLoginLive}
+        href="/log_in"
+        type="button"
+        class="hidden md:inline-flex font-semibold"
+      >
+        Log In
+      </.link>
+      <.link
+        :if={@socket.view != ProjeXpertWeb.UserRegistrationLive}
+        href="/worker/register"
+        type="button"
+        class="hidden md:inline-flex font-semibold"
+      >
+        Sign Up
+      </.link>
+    </div>
+    <div :if={@current_user} class="flex items-center space-x-2">
+      <div x-data="{ open: false }">
+        <button
+          @click="open = !open"
+          @click.outside="open = false"
+          type="button"
+          class="relative flex rounded-full bg-gray-800 text-sm text-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800"
+        >
+          <img
+            class="h-12 w-12 rounded-full"
+            src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
+            alt=""
+          />
+        </button>
+        <div
+          x-show="open"
+          class="absolute right-10 z-10 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
+        >
+          <li class="block px-4 py-2 text-lg text-gray-600 hover:bg-gray-100 cursor-pointer">
+            <.icon name="hero-user-circle" class="w-6 h-6" /> Your Profile
+          </li>
+          <li class="block px-4 py-2 text-lg text-gray-600 hover:bg-gray-100 cursor-pointer">
+            <.icon name="hero-cog-8-tooth" class="w-6 h-6" /> Settings
+          </li>
+          <.link
+            href="/log_out"
+            method="delete"
+            class="block px-4 py-2 text-lg text-gray-600 hover:bg-gray-100"
+          >
+            <.icon name="hero-arrow-left-end-on-rectangle" class="w-6 h-6" /> Sign out
+          </.link>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+<main class="mt-2">
+  <.flash_group flash={@flash} />
+  <div :if={@current_user} class="flex space-x-3">
+    <!-- aside -->
+    <div>
+      <aside
+        class="flex w-72 flex-col space-y-2 border-r-2 border-gray-200 bg-white p-2"
+        style="height: 90.5vh"
+      >
+        <.link
+          href="/dashboard"
+          class={[
+            "flex items-center space-x-1 rounded-md px-2 py-3 hover:bg-gray-100 hover:text-blue-600",
+            @active_tab == :dashboard && "font-semibold bg-gray-100 text-blue-600"
+          ]}
+        >
+          <.icon name="hero-chart-bar-square" class="w-8 h-8" />
+          <span>Dashboard</span>
+        </.link>
+        <.link
+          href={~p"/projects"}
+          class={[
+            "flex items-center space-x-1 rounded-md px-2 py-3 hover:bg-gray-100 hover:text-blue-600",
+            @active_tab == :projects && "font-semibold bg-gray-100 text-blue-600"
+          ]}
+        >
+          <.icon name="hero-briefcase" class="w-8 h-8" />
+          <span>Projects</span>
+        </.link>
+        <a
+          href="#"
+          class={[
+            "flex items-center space-x-1 rounded-md px-2 py-3 hover:bg-gray-100 hover:text-blue-600",
+            @active_tab == :settings && "font-semibold bg-gray-100 text-blue-600"
+          ]}
+        >
+          <.icon name="hero-cog-8-tooth" class="w-8 h-8" />
+          <span>Settings</span>
+        </a>
+      </aside>
+    </div>
+    <div class="w-[99%]">
+      <%= @inner_content %>
+    </div>
+  </div>
+    <div :if={!@current_user}>
+      <%= @inner_content %>
+    </div>
+</main>

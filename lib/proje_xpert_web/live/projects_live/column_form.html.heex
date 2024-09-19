@@ -1,0 +1,42 @@
+<div class="bg-white flex flex-col items-center justify-center">
+  <div class="flex flex-col lg:px-10 py-8 rounded-3xl w-full">
+    <div class="font-medium self-center text-xl sm:text-3xl text-gray-900 mb-12">
+      <%= @title %>
+    </div>
+    <.form
+      :let={f}
+      for={@changeset}
+      id="project-form"
+      phx-target={@myself}
+      phx-change="validate"
+      phx-submit="save"
+    >
+      <div class="flex flex-col mb-5">
+        <div class="form-control">
+          <.input
+            label="Column Name"
+            type="text"
+            field={f[:name]}
+            placeholder="e.g: Backlog"
+            class="w-full"
+          />
+        </div>
+        <.input type="hidden" field={f[:project_id]} value={@project.id} />
+
+        <div class="mt-4 flex justify-end">
+          <button
+            type="submit"
+            phx_disable_with="Saving..."
+            disabled={!@changeset.valid?}
+            class={["flex items-center justify-center w-1/2 px-5 py-2 text-sm tracking-wide text-white transition-colors duration-200 bg-blue-500 rounded-lg shrink-0 sm:w-auto gap-x-2 hover:bg-blue-600", !@changeset.valid? && "bg-gray-400 hover:bg-gray-400 cursor-not-allowed"]}
+          >
+            <span class="mr-2 uppercase">
+              <%= if @action == :new_column, do: "Create", else: "Update" %>
+            </span>
+            <.icon name="hero-arrow-right-circle" class="w-8 h-8" />
+          </button>
+        </div>
+      </div>
+    </.form>
+  </div>
+</div>
