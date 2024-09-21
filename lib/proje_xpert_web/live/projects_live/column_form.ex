@@ -30,6 +30,12 @@ defmodule ProjeXpertWeb.ProjectsLive.ColumnForm do
   defp create_column(column_params, socket) do
     case Tasks.create_column(column_params) do
       {:ok, column} ->
+        Phoenix.PubSub.broadcast!(
+          ProjeXpert.PubSub,
+          "project:#{socket.assigns.project.id}",
+          {:column, socket.assigns.project.id}
+        )
+
         {:noreply,
          socket
          |> put_flash(:info, "Column created successfully")
@@ -43,6 +49,12 @@ defmodule ProjeXpertWeb.ProjectsLive.ColumnForm do
   defp update_column(column_params, socket) do
     case Tasks.update_column(socket.assigns.column, column_params) do
       {:ok, column} ->
+        Phoenix.PubSub.broadcast!(
+          ProjeXpert.PubSub,
+          "project:#{socket.assigns.project.id}",
+          {:column, socket.assigns.project.id}
+        )
+
         {:noreply,
          socket
          |> put_flash(:info, "Column updated successfully")

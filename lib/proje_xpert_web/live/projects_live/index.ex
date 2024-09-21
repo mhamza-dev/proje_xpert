@@ -5,7 +5,8 @@ defmodule ProjeXpertWeb.ProjectsLive.Index do
   alias ProjeXpert.Tasks.Project
 
   def mount(_params, _session, %{assigns: assigns} = socket) do
-    {:ok, stream(socket, :projects, Tasks.list_client_projects(assigns.current_user.id))}
+    function = get_projects_by_role(assigns.current_user.role)
+    {:ok, stream(socket, :projects, function.(assigns.current_user.id))}
   end
 
   def handle_params(params, _url, socket) do
@@ -53,5 +54,13 @@ defmodule ProjeXpertWeb.ProjectsLive.Index do
 
   defp get_percentage(project) do
     Enum.count(project.tasks, &(&1.status == :completed)) / Enum.count(project.tasks) * 100
+  end
+
+  defp get_projects_by_role(role) do
+    if role == :client do
+      &Tasks.list_client_projects/1
+    else
+      &Tasks.list_worker_projects/1
+    end
   end
 end

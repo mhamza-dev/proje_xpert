@@ -1,5 +1,4 @@
 defmodule ProjeXpertWeb.LiveHelpers do
-
   def camel_case_string(value) when is_atom(value) do
     value |> to_string() |> camel_case_string()
   end

@@ -24,7 +24,13 @@ defmodule ProjeXpert.Accounts.User do
     field :current_password, :string, virtual: true, redact: true
     field :confirmed_at, :utc_datetime
 
-    has_many :bids, ProjeXpert.Tasks.Bid
+    # Associations
+    has_many :bids, ProjeXpert.Tasks.Bid, foreign_key: :worker_id
+    has_many :worker_projects, ProjeXpert.Tasks.WorkerProject, foreign_key: :worker_id
+
+    many_to_many :projects, ProjeXpert.Tasks.Project,
+      join_through: ProjeXpert.Tasks.WorkerProject,
+      join_keys: [worker_id: :id, project_id: :id]
 
     timestamps(type: :utc_datetime)
   end

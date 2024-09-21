@@ -31,6 +31,11 @@ defmodule ProjeXpertWeb.ProjectsLive.TaskForm do
   defp create_task(task_params, socket) do
     case Tasks.create_task(task_params) do
       {:ok, task} ->
+        Phoenix.PubSub.broadcast!(
+          ProjeXpert.PubSub,
+          "project:#{socket.assigns.project.id}",
+          {:task, socket.assigns.project.id}
+        )
 
         {:noreply,
          socket
@@ -45,6 +50,11 @@ defmodule ProjeXpertWeb.ProjectsLive.TaskForm do
   defp update_task(task_params, socket) do
     case Tasks.update_task(socket.assigns.task, task_params) do
       {:ok, task} ->
+        Phoenix.PubSub.broadcast!(
+          ProjeXpert.PubSub,
+          "project:#{socket.assigns.project.id}",
+          {:task, socket.assigns.project.id}
+        )
 
         {:noreply,
          socket

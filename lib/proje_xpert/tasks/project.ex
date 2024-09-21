@@ -12,10 +12,15 @@ defmodule ProjeXpert.Tasks.Project do
     field :title, :string
     field :budget, :decimal
 
+    # Associations
     belongs_to :user, ProjeXpert.Accounts.User, foreign_key: :client_id
     has_many :tasks, ProjeXpert.Tasks.Task
-    has_many :workers, ProjeXpert.Tasks.User
     has_many :columns, ProjeXpert.Tasks.Column
+    has_many :worker_projects, ProjeXpert.Tasks.WorkerProject, foreign_key: :project_id
+
+    many_to_many :workers, ProjeXpert.Accounts.User,
+      join_through: ProjeXpert.Tasks.WorkerProject,
+      join_keys: [worker_id: :id, project_id: :id]
 
     timestamps(type: :utc_datetime)
   end
@@ -28,7 +33,12 @@ defmodule ProjeXpert.Tasks.Project do
   end
 
   def all_statuses, do: @statuses
-  def statuses_as_options, do: Enum.map(@statuses, fn status -> {ProjeXpertWeb.LiveHelpers.camel_case_string(status), status}end)
+
+  def statuses_as_options,
+    do:
+      Enum.map(@statuses, fn status ->
+        {ProjeXpertWeb.LiveHelpers.camel_case_string(status), status}
+      end)
 
   def valid?(status) when status in @statuses, do: true
   def valid?(_), do: false

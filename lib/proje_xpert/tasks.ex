@@ -31,7 +31,18 @@ defmodule ProjeXpert.Tasks do
 
   """
   def list_client_projects(id) do
-    Project |> where([p], p.client_id == ^id) |> preload([:user, tasks: [bids: :user]]) |> Repo.all()
+    Project
+    |> where([p], p.client_id == ^id)
+    |> preload([:user, tasks: [bids: :user]])
+    |> Repo.all()
+  end
+
+  def list_worker_projects(id) do
+    Project
+    |> join(:inner, [p], wp in assoc(p, :worker_projects))
+    |> where([_p, wp], wp.worker_id == ^id)
+    |> preload([:user, tasks: [bids: :user]])
+    |> Repo.all()
   end
 
   @doc """
@@ -48,7 +59,8 @@ defmodule ProjeXpert.Tasks do
       ** (Ecto.NoResultsError)
 
   """
-  def get_project!(id), do: Repo.get!(Project, id) |> Repo.preload([:user, columns: [tasks: [bids: :user]]])
+  def get_project!(id),
+    do: Repo.get!(Project, id) |> Repo.preload([:user, columns: [tasks: [bids: :user]]])
 
   @doc """
   Creates a project.
@@ -599,5 +611,101 @@ defmodule ProjeXpert.Tasks do
   """
   def change_column(%Column{} = column, attrs \\ %{}) do
     Column.changeset(column, attrs)
+  end
+
+  alias ProjeXpert.Tasks.WorkerProject
+
+  @doc """
+  Returns the list of worker_projects.
+
+  ## Examples
+
+      iex> list_worker_projects()
+      [%WorkerProject{}, ...]
+
+  """
+  def list_worker_projects do
+    Repo.all(WorkerProject)
+  end
+
+  @doc """
+  Gets a single worker_project.
+
+  Raises `Ecto.NoResultsError` if the Worker project does not exist.
+
+  ## Examples
+
+      iex> get_worker_project!(123)
+      %WorkerProject{}
+
+      iex> get_worker_project!(456)
+      ** (Ecto.NoResultsError)
+
+  """
+  def get_worker_project!(id), do: Repo.get!(WorkerProject, id)
+
+  @doc """
+  Creates a worker_project.
+
+  ## Examples
+
+      iex> create_worker_project(%{field: value})
+      {:ok, %WorkerProject{}}
+
+      iex> create_worker_project(%{field: bad_value})
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def create_worker_project(attrs \\ %{}) do
+    %WorkerProject{}
+    |> WorkerProject.changeset(attrs)
+    |> Repo.insert()
+  end
+
+  @doc """
+  Updates a worker_project.
+
+  ## Examples
+
+      iex> update_worker_project(worker_project, %{field: new_value})
+      {:ok, %WorkerProject{}}
+
+      iex> update_worker_project(worker_project, %{field: bad_value})
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def update_worker_project(%WorkerProject{} = worker_project, attrs) do
+    worker_project
+    |> WorkerProject.changeset(attrs)
+    |> Repo.update()
+  end
+
+  @doc """
+  Deletes a worker_project.
+
+  ## Examples
+
+      iex> delete_worker_project(worker_project)
+      {:ok, %WorkerProject{}}
+
+      iex> delete_worker_project(worker_project)
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def delete_worker_project(%WorkerProject{} = worker_project) do
+    Repo.delete(worker_project)
+  end
+
+  @doc """
+  Returns an `%Ecto.Changeset{}` for tracking worker_project changes.
+
+  ## Examples
+
+      iex> change_worker_project(worker_project)
+      %Ecto.Changeset{data: %WorkerProject{}}
+
+  """
+  def change_worker_project(%WorkerProject{} = worker_project, attrs \\ %{}) do
+    WorkerProject.changeset(worker_project, attrs)
   end
 end

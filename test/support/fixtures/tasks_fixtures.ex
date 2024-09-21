@@ -97,4 +97,16 @@ defmodule ProjeXpert.TasksFixtures do
 
     column
   end
+
+  @doc """
+  Generate a worker_project.
+  """
+  def worker_project_fixture(attrs \\ %{}) do
+    {:ok, worker_project} =
+      attrs
+      |> Enum.into(%{})
+      |> ProjeXpert.Tasks.create_worker_project()
+
+    worker_project
+  end
 end

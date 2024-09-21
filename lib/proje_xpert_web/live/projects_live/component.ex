@@ -22,6 +22,7 @@ defmodule ProjeXpertWeb.ProjectsLive.Component do
     case socket.assigns.action do
       :edit ->
         update_project(project_params, socket)
+
       :new ->
         create_project(project_params, socket)
     end
@@ -43,6 +44,12 @@ defmodule ProjeXpertWeb.ProjectsLive.Component do
   def update_project(project_params, socket) do
     case Tasks.update_project(socket.assigns.project, project_params) do
       {:ok, project} ->
+        Phoenix.PubSub.broadcast!(
+          ProjeXpert.PubSub,
+          "project:#{socket.assigns.project.id}",
+          {:project_update, socket.assigns.project.id}
+        )
+
         {:noreply,
          socket
          |> put_flash(:info, "Project updated successfully")

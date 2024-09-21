@@ -15,7 +15,7 @@
 alias ProjeXpert.Repo
 alias ProjeXpert.Accounts.User
 alias ProjeXpert.Tasks
-alias ProjeXpert.Tasks.{Bid, Chat, Column, Project, Payment, Task}
+alias ProjeXpert.Tasks.{Bid, Chat, Column, Project, Payment, Task, WorkerProject}
 
 # Create some users
 user1 =
@@ -65,8 +65,13 @@ for i <- 1..30 do
       description: "This is the description for Project #{i}.",
       status: Enum.random([:pending, :in_progress, :completed, :on_hold, :cancelled]),
       budget: Decimal.new(Enum.random(1000..10000)),
-      client_id: Enum.random([user1.id, user2.id, user3.id])
+      client_id: user1.id
     })
+
+  Repo.insert!(%WorkerProject{
+    worker_id: Enum.random([user1.id, user2.id, user3.id]),
+    project_id: project.id
+  })
 
   # For each project, create columns
   column1 =
