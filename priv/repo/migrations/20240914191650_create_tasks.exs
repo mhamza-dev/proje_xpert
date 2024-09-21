@@ -5,7 +5,6 @@ defmodule ProjeXpert.Repo.Migrations.CreateTasks do
     create table(:tasks) do
       add :title, :string
       add :description, :text
-      add :status, :string
       add :budget, :decimal
       add :deadline, :date
       add :project_id, references(:projects, on_delete: :nothing)

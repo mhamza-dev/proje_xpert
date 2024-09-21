@@ -67,8 +67,7 @@
           <div class="flex space-x-4 p-4 h-[550px] overflow-x-scroll">
             <div
               :for={column <- @project.columns}
-              id={"#{column.id}"}
-              class="relative flex flex-col text-gray-700 bg-white shadow-md border rounded-xl min-w-64 overflow-y-scroll"
+              class="relative flex flex-col text-gray-700 bg-white shadow-md border rounded-xl w-64 overflow-y-scroll"
               id="dragHook"
               phx-hook="dragHook"
             >
@@ -79,7 +78,7 @@
                     <%= column.name %>
                   </p>
                   <p class="flex h-2 w-2 items-center justify-center rounded-full bg-red-500 p-3 text-xs text-white">
-                    <%= length(column.tasks) %>
+                    <%= length(get_tasks_by_current_user(@current_user, column.tasks)) %>
                   </p>
                 </div>
                 <div class="pr-2">
@@ -90,8 +89,8 @@
                   </.link>
                 </div>
               </div>
-              <div class="dropzone">
-                <%= for task <- column.tasks do %>
+              <div id={"#{column.id}"} class="dropzone">
+                <%= for task <- get_tasks_by_current_user(@current_user, column.tasks) do %>
                   <div class="draggable p-2" id={"##{task.id}"} draggable="true">
                     <div class="border border-1 rounded-lg cursor-pointer">
                       <div class="relative mx-4 mt-4 overflow-hidden text-gray-700 bg-white bg-clip-border rounded-xl w-[90%] h-24">

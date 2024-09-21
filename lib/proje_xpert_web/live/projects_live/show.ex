@@ -10,53 +10,52 @@ defmodule ProjeXpertWeb.ProjectsLive.Show do
     {:ok, socket}
   end
 
-  def handle_params(params, _url, socket) do
-    {:noreply, apply_action(socket, socket.assigns.live_action, params)}
+  def handle_params(%{"id" => id} = params, _url, socket) do
+    {:noreply,
+     socket
+     |> assign(project: Tasks.get_project!(id),
+      columns: Enum.map(Tasks.project_columns(id), &{&1.name, &1.id}))
+     |> apply_action(socket.assigns.live_action, params)}
   end
 
-  defp apply_action(socket, :show, %{"id" => id}) do
+  defp apply_action(socket, :show, _params) do
     socket
-    |> assign(page_title: "Project Detail", project: Tasks.get_project!(id))
+    |> assign(page_title: "Project Detail")
   end
 
-  defp apply_action(socket, :edit, %{"id" => id}) do
+  defp apply_action(socket, :edit, _params) do
     socket
-    |> assign(page_title: "Edit Project", project: Tasks.get_project!(id))
+    |> assign(page_title: "Edit Project")
   end
 
-  defp apply_action(socket, :new_column, %{"id" => id}) do
+  defp apply_action(socket, :new_column, _params) do
     socket
-    |> assign(page_title: "New Column", column: %Column{}, project: Tasks.get_project!(id))
+    |> assign(page_title: "New Column", column: %Column{})
   end
 
-  defp apply_action(socket, :edit_column, %{"id" => id, "column_id" => column_id}) do
+  defp apply_action(socket, :edit_column, %{"column_id" => column_id}) do
     socket
     |> assign(
       page_title: "Edit Column",
-      column: Tasks.get_column!(column_id),
-      project: Tasks.get_project!(id)
+      column: Tasks.get_column!(column_id)
     )
   end
 
-  defp apply_action(socket, :new_task, %{"id" => id}) do
+  defp apply_action(socket, :new_task, _) do
     socket
     |> assign(
       page_title: "New Task",
       task: %Task{},
-      project: Tasks.get_project!(id),
-      column: %Column{},
-      columns: Enum.map(Tasks.project_columns(id), &{&1.name, &1.id})
+      column: %Column{}
     )
   end
 
-  defp apply_action(socket, :edit_task, %{"id" => id, "task_id" => task_id}) do
+  defp apply_action(socket, :edit_task, %{"task_id" => task_id}) do
     socket
     |> assign(
       page_title: "Edit Task",
       task: Tasks.get_task!(task_id),
-      project: Tasks.get_project!(id),
-      column: %Column{},
-      columns: Enum.map(Tasks.project_columns(id), &{&1.name, &1.id})
+      column: %Column{}
     )
   end
 

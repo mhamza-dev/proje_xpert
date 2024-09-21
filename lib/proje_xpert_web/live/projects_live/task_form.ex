@@ -2,7 +2,6 @@ defmodule ProjeXpertWeb.ProjectsLive.TaskForm do
   use ProjeXpertWeb, :live_component
 
   alias ProjeXpert.Tasks
-  alias ProjeXpert.Tasks.Task
 
   def update(%{task: task, project: project} = assigns, socket) do
     changeset = Tasks.change_task(task, %{project_id: project.id})

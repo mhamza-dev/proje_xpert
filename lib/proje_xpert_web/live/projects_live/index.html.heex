@@ -114,7 +114,7 @@
                 </td>
                 <td class="px-4 py-4 text-sm">
                   <div class="flex items-center">
-                    <% bids = get_all_bids_of_a_project(project, :accepted) %>
+                    <% bids = get_worker_ids_of_a_project(project) %>
                     <%= if Enum.count(bids) > 2 do %>
                       <% [hd | tl] = Enum.chunk_every(bids, 2) %>
                       <img

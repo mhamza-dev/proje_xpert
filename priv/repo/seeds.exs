@@ -15,7 +15,7 @@
 alias ProjeXpert.Repo
 alias ProjeXpert.Accounts.User
 alias ProjeXpert.Tasks
-alias ProjeXpert.Tasks.{Bid, Chat, Column, Project, Payment, Task, WorkerProject}
+alias ProjeXpert.Tasks.{Bid, Chat, Column, Project, Payment, Task, WorkerProject, WorkerTask}
 
 # Create some users
 user1 =
@@ -63,7 +63,7 @@ for i <- 1..30 do
     Repo.insert!(%Project{
       title: "Project #{i}",
       description: "This is the description for Project #{i}.",
-      status: Enum.random([:pending, :in_progress, :completed, :on_hold, :cancelled]),
+      status: Enum.random(Project.all_statuses),
       budget: Decimal.new(Enum.random(1000..10000)),
       client_id: user1.id
     })
@@ -94,14 +94,19 @@ for i <- 1..30 do
 
   # Add 3-5 tasks for each project, distributed across the columns
   for j <- 1..Enum.random(3..5) do
-    Repo.insert!(%Task{
-      title: "Task #{i}-#{j}",
-      description: "This is the description for Task #{i}-#{j}.",
-      status: Enum.random([:not_started, :in_progress, :completed, :on_hold, :cancelled]),
-      budget: Decimal.new(Enum.random(1000..10000)),
-      deadline: Date.utc_today(),
-      column_id: if(j == 1, do: column1.id, else: if(j == 2, do: column2.id, else: column3.id)),
-      project_id: project.id
+    task =
+      Repo.insert!(%Task{
+        title: "Task #{i}-#{j}",
+        description: "This is the description for Task #{i}-#{j}.",
+        budget: Decimal.new(Enum.random(1000..10000)),
+        deadline: Date.utc_today(),
+        column_id: if(j == 1, do: column1.id, else: if(j == 2, do: column2.id, else: column3.id)),
+        project_id: project.id
+      })
+
+    Repo.insert!(%WorkerTask{
+      worker_id: Enum.random([user2.id, user3.id]),
+      task_id: task.id
     })
   end
 end

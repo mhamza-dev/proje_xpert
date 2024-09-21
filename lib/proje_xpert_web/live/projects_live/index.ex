@@ -31,13 +31,14 @@ defmodule ProjeXpertWeb.ProjectsLive.Index do
     |> assign(:project, nil)
   end
 
-  defp get_all_bids_of_a_project(project, status) do
+  defp get_worker_ids_of_a_project(project) do
     project.tasks
-    |> Enum.map(fn task ->
-      Enum.filter(task.bids, fn bid -> bid.status == status end)
+    |> Enum.flat_map(fn task ->
+      task.worker_tasks
+      |> Enum.filter(fn wt -> wt.worker_id end)
+      |> Enum.map(& &1.worker_id)
     end)
-    |> Enum.reject(&Enum.empty?(&1))
-    |> List.flatten()
+    |> Enum.uniq()
   end
 
   defp get_tailwind_width_class(project) do
@@ -53,7 +54,7 @@ defmodule ProjeXpertWeb.ProjectsLive.Index do
   end
 
   defp get_percentage(project) do
-    Enum.count(project.tasks, &(&1.status == :completed)) / Enum.count(project.tasks) * 100
+    Enum.count(project.tasks, &(&1.column.name == "Completed")) / Enum.count(project.tasks) * 100
   end
 
   defp get_projects_by_role(role) do

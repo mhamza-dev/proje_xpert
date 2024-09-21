@@ -27,10 +27,15 @@ defmodule ProjeXpert.Accounts.User do
     # Associations
     has_many :bids, ProjeXpert.Tasks.Bid, foreign_key: :worker_id
     has_many :worker_projects, ProjeXpert.Tasks.WorkerProject, foreign_key: :worker_id
+    has_many :worker_tasks, ProjeXpert.Tasks.WorkerTask, foreign_key: :worker_id
 
     many_to_many :projects, ProjeXpert.Tasks.Project,
       join_through: ProjeXpert.Tasks.WorkerProject,
       join_keys: [worker_id: :id, project_id: :id]
+
+    many_to_many :tasks, ProjeXpert.Tasks.Task,
+    join_through: :worker_tasks,
+    join_keys: [worker_id: :id, task_id: :id]
 
     timestamps(type: :utc_datetime)
   end

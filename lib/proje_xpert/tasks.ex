@@ -5,8 +5,7 @@ defmodule ProjeXpert.Tasks do
 
   import Ecto.Query, warn: false
   alias ProjeXpert.Repo
-
-  alias ProjeXpert.Tasks.Project
+  alias ProjeXpert.Tasks.{Bid, Chat, Column, Project, Payment, Task, WorkerProject, WorkerTask}
 
   @doc """
   Returns the list of projects.
@@ -33,15 +32,18 @@ defmodule ProjeXpert.Tasks do
   def list_client_projects(id) do
     Project
     |> where([p], p.client_id == ^id)
-    |> preload([:user, tasks: [bids: :user]])
+    |> preload([:user, tasks: [:column, :worker_tasks, bids: :user]])
     |> Repo.all()
   end
 
   def list_worker_projects(id) do
     Project
-    |> join(:inner, [p], wp in assoc(p, :worker_projects))
-    |> where([_p, wp], wp.worker_id == ^id)
-    |> preload([:user, tasks: [bids: :user]])
+    # |> join(:inner, [p], wp in assoc(p, :worker_projects))
+    |> join(:inner, [p], t in assoc(p, :tasks))
+    |> join(:inner, [_p, t], wt in assoc(t, :worker_tasks))
+    |> where([_p, _t, wt], wt.worker_id == ^id)
+    |> distinct([p, _t, _wt], p.id)
+    |> preload([:user, tasks: [:column, :worker_tasks, bids: :user]])
     |> Repo.all()
   end
 
@@ -60,7 +62,9 @@ defmodule ProjeXpert.Tasks do
 
   """
   def get_project!(id),
-    do: Repo.get!(Project, id) |> Repo.preload([:user, columns: [tasks: [bids: :user]]])
+    do:
+      Repo.get!(Project, id)
+      |> Repo.preload([:user, columns: [tasks: [:worker_tasks, bids: :user]]])
 
   @doc """
   Creates a project.
@@ -126,8 +130,6 @@ defmodule ProjeXpert.Tasks do
   def change_project(%Project{} = project, attrs \\ %{}) do
     Project.changeset(project, attrs)
   end
-
-  alias ProjeXpert.Tasks.Task
 
   @doc """
   Returns the list of tasks.
@@ -223,8 +225,6 @@ defmodule ProjeXpert.Tasks do
     Task.changeset(task, attrs)
   end
 
-  alias ProjeXpert.Tasks.Bid
-
   @doc """
   Returns the list of bids.
 
@@ -318,8 +318,6 @@ defmodule ProjeXpert.Tasks do
   def change_bid(%Bid{} = bid, attrs \\ %{}) do
     Bid.changeset(bid, attrs)
   end
-
-  alias ProjeXpert.Tasks.Payment
 
   @doc """
   Returns the list of payments.
@@ -415,8 +413,6 @@ defmodule ProjeXpert.Tasks do
     Payment.changeset(payment, attrs)
   end
 
-  alias ProjeXpert.Tasks.Chat
-
   @doc """
   Returns the list of chats.
 
@@ -510,8 +506,6 @@ defmodule ProjeXpert.Tasks do
   def change_chat(%Chat{} = chat, attrs \\ %{}) do
     Chat.changeset(chat, attrs)
   end
-
-  alias ProjeXpert.Tasks.Column
 
   @doc """
   Returns the list of columns.
@@ -613,8 +607,6 @@ defmodule ProjeXpert.Tasks do
     Column.changeset(column, attrs)
   end
 
-  alias ProjeXpert.Tasks.WorkerProject
-
   @doc """
   Returns the list of worker_projects.
 
@@ -707,5 +699,99 @@ defmodule ProjeXpert.Tasks do
   """
   def change_worker_project(%WorkerProject{} = worker_project, attrs \\ %{}) do
     WorkerProject.changeset(worker_project, attrs)
+  end
+
+  @doc """
+  Returns the list of worker_tasks.
+
+  ## Examples
+
+      iex> list_worker_tasks()
+      [%WorkerTask{}, ...]
+
+  """
+  def list_worker_tasks do
+    Repo.all(WorkerTask)
+  end
+
+  @doc """
+  Gets a single worker_task.
+
+  Raises `Ecto.NoResultsError` if the Worker task does not exist.
+
+  ## Examples
+
+      iex> get_worker_task!(123)
+      %WorkerTask{}
+
+      iex> get_worker_task!(456)
+      ** (Ecto.NoResultsError)
+
+  """
+  def get_worker_task!(id), do: Repo.get!(WorkerTask, id)
+
+  @doc """
+  Creates a worker_task.
+
+  ## Examples
+
+      iex> create_worker_task(%{field: value})
+      {:ok, %WorkerTask{}}
+
+      iex> create_worker_task(%{field: bad_value})
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def create_worker_task(attrs \\ %{}) do
+    %WorkerTask{}
+    |> WorkerTask.changeset(attrs)
+    |> Repo.insert()
+  end
+
+  @doc """
+  Updates a worker_task.
+
+  ## Examples
+
+      iex> update_worker_task(worker_task, %{field: new_value})
+      {:ok, %WorkerTask{}}
+
+      iex> update_worker_task(worker_task, %{field: bad_value})
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def update_worker_task(%WorkerTask{} = worker_task, attrs) do
+    worker_task
+    |> WorkerTask.changeset(attrs)
+    |> Repo.update()
+  end
+
+  @doc """
+  Deletes a worker_task.
+
+  ## Examples
+
+      iex> delete_worker_task(worker_task)
+      {:ok, %WorkerTask{}}
+
+      iex> delete_worker_task(worker_task)
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def delete_worker_task(%WorkerTask{} = worker_task) do
+    Repo.delete(worker_task)
+  end
+
+  @doc """
+  Returns an `%Ecto.Changeset{}` for tracking worker_task changes.
+
+  ## Examples
+
+      iex> change_worker_task(worker_task)
+      %Ecto.Changeset{data: %WorkerTask{}}
+
+  """
+  def change_worker_task(%WorkerTask{} = worker_task, attrs \\ %{}) do
+    WorkerTask.changeset(worker_task, attrs)
   end
 end

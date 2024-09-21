@@ -28,7 +28,7 @@
             label="Status"
             type="select"
             field={f[:status]}
-            options={Task.statuses_as_options()}
+            options={@columns}
             prompt="Select Status"
             class="w-[250px]"
           />
@@ -46,16 +46,6 @@
             type="textarea"
             field={f[:description]}
             placeholder="e.g: Backlog"
-            class="w-full"
-          />
-        </div>
-        <div class="form-control">
-          <.input
-            label="Column"
-            type="select"
-            field={f[:column_id]}
-            options={@columns}
-            prompt="Select Status"
             class="w-full"
           />
         </div>
