@@ -13,7 +13,7 @@ defmodule ProjeXpert.Tasks.Project do
     field :budget, :decimal
 
     # Associations
-    belongs_to :user, ProjeXpert.Accounts.User, foreign_key: :client_id
+    belongs_to :client, ProjeXpert.Accounts.User, foreign_key: :client_id
     has_many :tasks, ProjeXpert.Tasks.Task
     has_many :columns, ProjeXpert.Tasks.Column
     has_many :worker_projects, ProjeXpert.Tasks.WorkerProject, foreign_key: :project_id

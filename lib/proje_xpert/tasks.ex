@@ -32,7 +32,7 @@ defmodule ProjeXpert.Tasks do
   def list_client_projects(id) do
     Project
     |> where([p], p.client_id == ^id)
-    |> preload([:user, tasks: [:column, :worker_tasks, bids: :user]])
+    |> preload([:client, tasks: [:column, :worker_tasks, bids: :worker]])
     |> Repo.all()
   end
 
@@ -43,7 +43,7 @@ defmodule ProjeXpert.Tasks do
     |> join(:inner, [_p, t], wt in assoc(t, :worker_tasks))
     |> where([_p, _t, wt], wt.worker_id == ^id)
     |> distinct([p, _t, _wt], p.id)
-    |> preload([:user, tasks: [:column, :worker_tasks, bids: :user]])
+    |> preload([:client, tasks: [:column, :worker_tasks, bids: :worker]])
     |> Repo.all()
   end
 
@@ -64,7 +64,7 @@ defmodule ProjeXpert.Tasks do
   def get_project!(id),
     do:
       Repo.get!(Project, id)
-      |> Repo.preload([:user, columns: [tasks: [:worker_tasks, bids: :user]]])
+      |> Repo.preload([:client, columns: [tasks: [:worker_tasks, bids: :worker]]])
 
   @doc """
   Creates a project.
@@ -141,7 +141,7 @@ defmodule ProjeXpert.Tasks do
 
   """
   def list_tasks do
-    Repo.all(Task)
+    Repo.all(Task) |> Repo.preload([:worker_tasks, project: :client])
   end
 
   @doc """
@@ -158,7 +158,7 @@ defmodule ProjeXpert.Tasks do
       ** (Ecto.NoResultsError)
 
   """
-  def get_task!(id), do: Repo.get!(Task, id)
+  def get_task!(id), do: Repo.get!(Task, id) |> Repo.preload(:bids)
 
   @doc """
   Creates a task.
@@ -238,6 +238,26 @@ defmodule ProjeXpert.Tasks do
     Repo.all(Bid)
   end
 
+  def list_client_bids(id) do
+    from(b in Bid,
+      inner_join: t in assoc(b, :task),
+      inner_join: p in assoc(t, :project),
+      where: p.client_id == ^id
+    )
+    |> preload([:worker, task: :project])
+    |> Repo.all()
+  end
+
+  def list_worker_bids(id) do
+    from(b in Bid,
+      inner_join: t in assoc(b, :task),
+      inner_join: wt in assoc(t, :worker_tasks),
+      where: wt.worker_id == ^id
+    )
+    |> preload([:worker, task: :project])
+    |> Repo.all()
+  end
+
   @doc """
   Gets a single bid.
 
@@ -252,7 +272,7 @@ defmodule ProjeXpert.Tasks do
       ** (Ecto.NoResultsError)
 
   """
-  def get_bid!(id), do: Repo.get!(Bid, id)
+  def get_bid!(id), do: Repo.get!(Bid, id) |> Repo.preload([:worker, task: :project])
 
   @doc """
   Creates a bid.

@@ -2,10 +2,27 @@ defmodule ProjeXpertWeb.ProjectsLive.TaskForm do
   use ProjeXpertWeb, :live_component
 
   alias ProjeXpert.Tasks
+  alias ProjeXpert.Tasks.Task
 
   def update(%{task: task, project: project} = assigns, socket) do
     changeset = Tasks.change_task(task, %{project_id: project.id})
     {:ok, socket |> assign(assigns) |> assign(changeset: changeset)}
+  end
+
+  def update(%{task: task, projects: projects} = assigns, socket) do
+    project = List.first(projects)
+    columns = Tasks.project_columns(project.id)
+    column = List.first(columns)
+    changeset = Tasks.change_task(task, %{project_id: project.id, column_id: column.id})
+
+    {:ok,
+     socket
+     |> assign(assigns)
+     |> assign(
+       changeset: changeset,
+       projects: Enum.map(projects, &{&1.title, &1.id}),
+       columns: Enum.map(columns, &{&1.name, &1.id})
+     )}
   end
 
   def handle_event("validate", %{"task" => task_params}, socket) do
@@ -19,10 +36,10 @@ defmodule ProjeXpertWeb.ProjectsLive.TaskForm do
 
   def handle_event("save", %{"task" => task_params}, socket) do
     case socket.assigns.action do
-      :new_task ->
+      action when action in [:projects_new_task, :bids_new_task] ->
         create_task(task_params, socket)
 
-      :edit_task ->
+      :projects_edit_task ->
         update_task(task_params, socket)
     end
   end
@@ -32,8 +49,8 @@ defmodule ProjeXpertWeb.ProjectsLive.TaskForm do
       {:ok, task} ->
         Phoenix.PubSub.broadcast!(
           ProjeXpert.PubSub,
-          "project:#{socket.assigns.project.id}",
-          {:task, socket.assigns.project.id}
+          "project:#{task.project_id}",
+          {:task, task.project_id}
         )
 
         {:noreply,
@@ -51,8 +68,8 @@ defmodule ProjeXpertWeb.ProjectsLive.TaskForm do
       {:ok, task} ->
         Phoenix.PubSub.broadcast!(
           ProjeXpert.PubSub,
-          "project:#{socket.assigns.project.id}",
-          {:task, socket.assigns.project.id}
+          "project:#{task.project_id}",
+          {:task, task.project_id}
         )
 
         {:noreply,

@@ -467,7 +467,8 @@ defmodule ProjeXpert.TasksTest do
       worker_task = worker_task_fixture()
       update_attrs = %{}
 
-      assert {:ok, %WorkerTask{} = worker_task} = Tasks.update_worker_task(worker_task, update_attrs)
+      assert {:ok, %WorkerTask{} = worker_task} =
+               Tasks.update_worker_task(worker_task, update_attrs)
     end
 
     test "update_worker_task/2 with invalid data returns error changeset" do

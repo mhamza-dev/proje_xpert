@@ -12,44 +12,75 @@
       phx-submit="save"
     >
       <div class="flex flex-col space-y-4">
-        <div class="form-control flex justify-between">
+        <div class="form-control flex justify-between space-x-2">
           <.input
             label="Title"
             type="text"
             field={f[:title]}
             placeholder="e.g: Update something..."
-            class="w-[250px]"
+            class="w-[350px]"
+            disabled={@action == :projects_show_task}
           />
-          <.input label="Deadline" type="date" field={f[:deadline]} class="w-[250px]" />
+          <.input
+            label="Deadline"
+            type="date"
+            field={f[:deadline]}
+            class="w-[350px]"
+            disabled={@action == :projects_show_task}
+          />
         </div>
 
-        <div class="form-control flex justify-between">
+        <div class="form-control flex justify-between space-x-2">
           <.input
             label="Status"
             type="select"
             field={f[:status]}
-            options={@columns}
+            options={Task.statuses_as_options()}
             prompt="Select Status"
-            class="w-[250px]"
+            class="w-[350px]"
+            disabled={@action == :projects_show_task}
           />
           <.input
             label="Budget"
             type="text"
             field={f[:budget]}
             placeholder="e.g: 1000"
-            class="w-[250px]"
+            class="w-[350px]"
+            disabled={@action == :projects_show_task}
           />
         </div>
         <div class="form-control">
-          <.input
+          <.text_editor
             label="Description"
-            type="textarea"
             field={f[:description]}
-            placeholder="e.g: Backlog"
-            class="w-full"
+            id="task-description"
+            disabled={@action == :projects_show_task}
           />
         </div>
-        <.input type="hidden" field={f[:project_id]} value={@project.id} />
+        <div class="form-control flex justify-between space-x-2">
+          <.input
+            :if={@action in [:projects_new_task, :projects_edit_task]}
+            type="hidden"
+            field={f[:project_id]}
+            value={@project.id}
+          />
+          <.input
+            :if={@action in [:bids_new_task, :new]}
+            label="Project"
+            type="select"
+            class="w-[350px]"
+            field={f[:project_id]}
+            options={@projects}
+          />
+          <.input
+            :if={@action in [:bids_new_task, :new, :projects_new_task, :projects_edit_task]}
+            label="Column"
+            type="select"
+            class="w-[350px]"
+            field={f[:column_id]}
+            options={@columns}
+          />
+        </div>
 
         <div class="mt-4 flex justify-end">
           <button
@@ -57,12 +88,14 @@
             phx_disable_with="Saving..."
             disabled={!@changeset.valid?}
             class={[
-              "flex items-center justify-center w-1/2 px-5 py-2 text-sm tracking-wide text-white transition-colors duration-200 bg-blue-500 rounded-lg shrink-0 sm:w-auto gap-x-2 hover:bg-blue-600",
+              "flex items-center justify-center w-1/2 px-5 py-2 text-sm tracking-wide text-white transition-colors duration-200 bg-brand rounded-lg shrink-0 sm:w-auto gap-x-2 hover:bg-blue-600",
               !@changeset.valid? && "bg-gray-400 hover:bg-gray-400 cursor-not-allowed"
             ]}
           >
             <span class="mr-2 uppercase">
-              <%= if @action == :new_task, do: "Create", else: "Update" %>
+              <%= if @action in [:projects_new_task, :bids_new_task, :new],
+                do: "Create",
+                else: "Update" %>
             </span>
             <.icon name="hero-arrow-right-circle" class="w-8 h-8" />
           </button>

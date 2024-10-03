@@ -6,11 +6,11 @@ defmodule ProjeXpert.Repo.Migrations.CreatePayments do
       add :amount, :decimal
       add :status, :string
       add :payment_method, :string
-      add :bid_id, references(:bids, on_delete: :nothing)
+      add :task_id, references(:tasks, on_delete: :nothing)
 
       timestamps(type: :utc_datetime)
     end
 
-    create index(:payments, [:bid_id])
+    create index(:payments, [:task_id])
   end
 end

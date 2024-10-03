@@ -3,25 +3,30 @@
 
 
 "@vue/reactivity@~3.1.1":
-  version "3.1.5"
-  resolved "https://registry.yarnpkg.com/@vue/reactivity/-/reactivity-3.1.5.tgz#dbec4d9557f7c8f25c2635db1e23a78a729eb991"
-  integrity sha512-1tdfLmNjWG6t/CsPldh+foumYFo3cpyCHgBYQ34ylaMsJ+SNHQ1kApMIa8jN+i593zQuaw3AdWH0nJTARzCFhg==
+  "integrity" "sha512-1tdfLmNjWG6t/CsPldh+foumYFo3cpyCHgBYQ34ylaMsJ+SNHQ1kApMIa8jN+i593zQuaw3AdWH0nJTARzCFhg=="
+  "resolved" "https://registry.npmjs.org/@vue/reactivity/-/reactivity-3.1.5.tgz"
+  "version" "3.1.5"
   dependencies:
     "@vue/shared" "3.1.5"
 
 "@vue/shared@3.1.5":
-  version "3.1.5"
-  resolved "https://registry.yarnpkg.com/@vue/shared/-/shared-3.1.5.tgz#74ee3aad995d0a3996a6bb9533d4d280514ede03"
-  integrity sha512-oJ4F3TnvpXaQwZJNF3ZK+kLPHKarDmJjJ6jyzVNDKH9md1dptjC7lWR//jrGuLdek/U6iltWxqAnYOu8gCiOvA==
+  "integrity" "sha512-oJ4F3TnvpXaQwZJNF3ZK+kLPHKarDmJjJ6jyzVNDKH9md1dptjC7lWR//jrGuLdek/U6iltWxqAnYOu8gCiOvA=="
+  "resolved" "https://registry.npmjs.org/@vue/shared/-/shared-3.1.5.tgz"
+  "version" "3.1.5"
 
-alpinejs@^3.14.1:
-  version "3.14.1"
-  resolved "https://registry.yarnpkg.com/alpinejs/-/alpinejs-3.14.1.tgz#549e056c3b75e57c0f23076a13cde09da684ba0a"
-  integrity sha512-ICar8UsnRZAYvv/fCNfNeKMXNoXGUfwHrjx7LqXd08zIP95G2d9bAOuaL97re+1mgt/HojqHsfdOLo/A5LuWgQ==
+"alpinejs@^3.14.1":
+  "integrity" "sha512-ICar8UsnRZAYvv/fCNfNeKMXNoXGUfwHrjx7LqXd08zIP95G2d9bAOuaL97re+1mgt/HojqHsfdOLo/A5LuWgQ=="
+  "resolved" "https://registry.npmjs.org/alpinejs/-/alpinejs-3.14.1.tgz"
+  "version" "3.14.1"
   dependencies:
     "@vue/reactivity" "~3.1.1"
 
-sortablejs@^1.15.3:
-  version "1.15.3"
-  resolved "https://registry.yarnpkg.com/sortablejs/-/sortablejs-1.15.3.tgz#033668db5ebfb11167d1249ab88e748f27959e29"
-  integrity sha512-zdK3/kwwAK1cJgy1rwl1YtNTbRmc8qW/+vgXf75A7NHag5of4pyI6uK86ktmQETyWRH7IGaE73uZOOBcGxgqZg==
+"sortablejs@^1.15.3":
+  "integrity" "sha512-zdK3/kwwAK1cJgy1rwl1YtNTbRmc8qW/+vgXf75A7NHag5of4pyI6uK86ktmQETyWRH7IGaE73uZOOBcGxgqZg=="
+  "resolved" "https://registry.npmjs.org/sortablejs/-/sortablejs-1.15.3.tgz"
+  "version" "1.15.3"
+
+"trix@^2.1.5":
+  "integrity" "sha512-5pC4olCp7BwxTC8Joy1Kv33kDvSOApi9Tqf6c8wygqCgeCx9xPP5cxkZEhvKpMV+kjd9gszingd5fZo834+ktw=="
+  "resolved" "https://registry.npmjs.org/trix/-/trix-2.1.5.tgz"
+  "version" "2.1.5"

@@ -1,10 +1,11 @@
 <header class="px-6 sm:px-8 lg:px-10 border border-b-2">
   <div class="flex items-center justify-between h-16">
-    <div class="flex">
-      <.link href="/">
-        <img src={~p"/images/blue-logo.svg"} alt="ProjeXpert Logo" class="h-12 w-12" />
-      </.link>
-    </div>
+    <.link href="/">
+      <div class="flex justify-center items-center space-x-2">
+        <img src={~p"/images/logo_3_croped.png"} alt="ProjeXpert Logo" class="h-12 w-12" />
+        <span class="text-left text-2xl text-brand font-nunito font-bold">ProjeXpert</span>
+      </div>
+    </.link>
     <div :if={!@current_user} class="flex items-center space-x-2">
       <.link
         :if={@socket.view != ProjeXpertWeb.UserLoginLive}
@@ -29,13 +30,21 @@
           @click="open = !open"
           @click.outside="open = false"
           type="button"
-          class="relative flex rounded-full bg-gray-800 text-sm text-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800"
+          class="relative flex space-x-2"
         >
           <img
             class="h-12 w-12 rounded-full"
             src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
             alt=""
           />
+          <div class="flex flex-col text-left">
+            <p class="text-gray-600 text-md font-medium">
+              <%= full_name(@current_user) %>
+            </p>
+            <p class="text-gray-400 text-sm font-medium">
+              <%= camel_case_string(@current_user.role) %>
+            </p>
+          </div>
         </button>
         <div
           x-show="open"
@@ -87,6 +96,28 @@
         >
           <.icon name="hero-briefcase" class="w-8 h-8" />
           <span>Projects</span>
+        </.link>
+        <.link
+          :if={is_worker?(@current_user)}
+          href="/tasks"
+          class={[
+            "flex items-center space-x-1 rounded-md px-2 py-3 hover:bg-gray-100 hover:text-blue-600",
+            @active_tab == :tasks && "font-semibold bg-gray-100 text-blue-600"
+          ]}
+        >
+          <img src={~p"/images/tasks.svg"} class="w-8 h-8" />
+          <span>Tasks</span>
+        </.link>
+        <.link
+          :if={!is_worker?(@current_user)}
+          href="/bids"
+          class={[
+            "flex items-center space-x-1 rounded-md px-2 py-3 hover:bg-gray-100 hover:text-blue-600",
+            @active_tab == :bids && "font-semibold bg-gray-100 text-blue-600"
+          ]}
+        >
+          <.icon name="hero-fire" class="w-8 h-8" />
+          <span>Bids</span>
         </.link>
         <a
           href="#"

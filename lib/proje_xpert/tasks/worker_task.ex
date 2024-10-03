@@ -4,7 +4,7 @@ defmodule ProjeXpert.Tasks.WorkerTask do
 
   schema "worker_tasks" do
     belongs_to :task, ProjeXpert.Tasks.Task, foreign_key: :task_id
-    belongs_to :user, ProjeXpert.Accounts.User, foreign_key: :worker_id
+    belongs_to :worker, ProjeXpert.Accounts.User, foreign_key: :worker_id
 
     timestamps(type: :utc_datetime)
   end

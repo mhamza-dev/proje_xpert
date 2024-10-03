@@ -2,11 +2,14 @@ defmodule ProjeXpert.Tasks.Task do
   use Ecto.Schema
   import Ecto.Changeset
 
-  @default_cast [:title, :description, :budget, :deadline, :project_id, :column_id]
-  @default_required [:title, :description, :budget, :deadline, :project_id]
+  @statuses [:in_progress, :completed, :on_hold, :cancelled]
+  @default_cast [:title, :description, :status, :budget, :deadline, :project_id, :column_id]
+  @default_required [:title, :description, :status, :budget, :deadline, :project_id]
   schema "tasks" do
     field :description, :string
     field :title, :string
+    field :status, Ecto.Enum, values: @statuses
+    field :find_worker?, :boolean, default: false
     field :deadline, :date
     field :budget, :decimal
 
@@ -28,4 +31,15 @@ defmodule ProjeXpert.Tasks.Task do
     |> cast(attrs, @default_cast)
     |> validate_required(@default_required)
   end
+
+  def all_statuses, do: @statuses
+
+  def statuses_as_options,
+    do:
+      Enum.map(@statuses, fn status ->
+        {ProjeXpertWeb.LiveHelpers.camel_case_string(status), status}
+      end)
+
+  def valid?(status) when status in @statuses, do: true
+  def valid?(_), do: false
 end

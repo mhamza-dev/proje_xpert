@@ -5,6 +5,8 @@ defmodule ProjeXpert.Repo.Migrations.CreateBids do
     create table(:bids) do
       add :amount, :decimal
       add :status, :string
+      add :description, :text
+      add :attached_files, {:array, :map}
       add :task_id, references(:tasks, on_delete: :nothing)
       add :worker_id, references(:users, on_delete: :nothing)
 

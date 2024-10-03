@@ -69,13 +69,21 @@ defmodule ProjeXpertWeb.Router do
     live_session :require_authenticated_user,
       on_mount: [{ProjeXpertWeb.UserAuth, :ensure_authenticated}, ProjeXpertWeb.Nav] do
       live "/dashboard", DashboardLive.Index, :index
+      live "/tasks", TasksLive.Index, :index
+      live "/tasks/new", TasksLive.Index, :new
+      live "/tasks/bids/new", TasksLive.Index, :new_bid
+      live "/tasks/:id/show", TasksLive.Show, :show
+      live "/bids", BidsLive.Index, :index
+      live "/bids/tasks/new", BidsLive.Index, :bids_new_task
+      live "/bids/:id/edit", BidsLive.Index, :edit
       live "/projects", ProjectsLive.Index, :index
       live "/projects/new", ProjectsLive.Index, :new
       live "/projects/:id/edit", ProjectsLive.Index, :edit
       live "/projects/:id/show", ProjectsLive.Show, :show
       live "/projects/:id/new_column", ProjectsLive.Show, :new_column
-      live "/projects/:id/new_task", ProjectsLive.Show, :new_task
-      live "/projects/:id/edit_task/:task_id", ProjectsLive.Show, :edit_task
+      live "/projects/:id/new_task", ProjectsLive.Show, :projects_new_task
+      live "/projects/:id/edit_task/:task_id", ProjectsLive.Show, :projects_edit_task
+      live "/projects/:id/show_task/:task_id", ProjectsLive.Show, :projects_show_task
       live "/projects/:id/edit_column/:column_id", ProjectsLive.Show, :edit_column
       live "/projects/show/:id/edit", ProjectsLive.Show, :edit
       live "/settings", UserSettingsLive, :edit

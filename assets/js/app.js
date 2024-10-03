@@ -23,8 +23,14 @@ import {LiveSocket} from "phoenix_live_view"
 import topbar from "../vendor/topbar"
 import Alpine from "alpinejs";
 import dragHook from "./drag"
+import disableEditor from "./disableEditor";
+import Trix from "trix"
+// import TextEditor from "./text_editor";
+
 const Hooks = {
   dragHook,
+  disableEditor,
+  Trix,
 };
 
 window.Alpine = Alpine;

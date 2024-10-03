@@ -6,19 +6,19 @@
     </div>
     <div class="flex items-center space-x-2">
       <.link patch={~p"/projects/show/#{@project.id}/edit"}>
-        <button class="flex items-center justify-center w-1/2 px-5 py-2 text-sm tracking-wide text-white transition-colors duration-200 bg-blue-500 rounded-lg shrink-0 sm:w-auto gap-x-2 hover:bg-blue-600">
+        <button class="flex items-center justify-center w-1/2 px-5 py-2 text-sm tracking-wide text-white transition-colors duration-200 bg-brand rounded-lg shrink-0 sm:w-auto gap-x-2 hover:bg-blue-600">
           <.icon name="hero-pencil-square" class="w-4 h-4" />
           <span>Edit Project</span>
         </button>
       </.link>
       <.link patch={~p"/projects/#{@project.id}/new_column"}>
-        <button class="flex items-center justify-center w-1/2 px-5 py-2 text-sm tracking-wide text-white transition-colors duration-200 bg-blue-500 rounded-lg shrink-0 sm:w-auto gap-x-2 hover:bg-blue-600">
+        <button class="flex items-center justify-center w-1/2 px-5 py-2 text-sm tracking-wide text-white transition-colors duration-200 bg-brand rounded-lg shrink-0 sm:w-auto gap-x-2 hover:bg-blue-600">
           <.icon name="hero-plus-circle" class="w-4 h-4" />
           <span>Add Column</span>
         </button>
       </.link>
       <.link patch={~p"/projects/#{@project.id}/new_task"}>
-        <button class="flex items-center justify-center w-1/2 px-5 py-2 text-sm tracking-wide text-white transition-colors duration-200 bg-blue-500 rounded-lg shrink-0 sm:w-auto gap-x-2 hover:bg-blue-600">
+        <button class="flex items-center justify-center w-1/2 px-5 py-2 text-sm tracking-wide text-white transition-colors duration-200 bg-brand rounded-lg shrink-0 sm:w-auto gap-x-2 hover:bg-blue-600">
           <.icon name="hero-plus-circle" class="w-4 h-4" />
           <span>Add Task</span>
         </button>
@@ -61,64 +61,65 @@
   </div>
 
   <div class="flex flex-col mt-6">
-    <div class="-my-2 -ml-8">
+    <div>
       <div class="min-w-full py-2 align-middle px-8">
         <div class="border border-gray-200 md:rounded-lg">
-          <div class="flex space-x-4 p-4 h-[550px] overflow-x-scroll">
+          <div class="flex space-x-6 p-4 h-[550px] overflow-x-scroll">
             <div
               :for={column <- @project.columns}
               class="relative flex flex-col text-gray-700 bg-white shadow-md border rounded-xl w-64 overflow-y-scroll"
-              id="dragHook"
+              id={"dragHook#{column.id}"}
               phx-hook="dragHook"
             >
-              <div class="flex justify-between items-center bg-gray-50 py-4 border-b-2 rounded-xl sticky top-0 z-10">
-                <div></div>
+              <div class="flex justify-center items-center bg-gray-50 px-2 py-4 border-b-2 rounded-xl sticky top-0 z-10">
                 <div class="flex space-x-3">
-                  <p class="text-center text-xl font-semibold">
+                  <p class="text-center text-md font-semibold text-ellipsis whitespace-nowrap overflow-hidden max-w-[150px]">
                     <%= column.name %>
                   </p>
                   <p class="flex h-2 w-2 items-center justify-center rounded-full bg-red-500 p-3 text-xs text-white">
                     <%= length(get_tasks_by_current_user(@current_user, column.tasks)) %>
                   </p>
-                </div>
-                <div class="pr-2">
-                  <.link
-                    patch={~p"/projects/#{@project.id}/edit_column/#{column.id}"}
-                  >
+                  <.link patch={~p"/projects/#{@project.id}/edit_column/#{column.id}"}>
                     <.icon name="hero-pencil-square" class="w-6 h-6" />
                   </.link>
                 </div>
               </div>
-              <div id={"#{column.id}"} class="dropzone">
+
+              <div id={"#{column.id}"} class="dropzone h-full">
                 <%= for task <- get_tasks_by_current_user(@current_user, column.tasks) do %>
                   <div class="draggable p-2" id={"##{task.id}"} draggable="true">
                     <div class="border border-1 rounded-lg cursor-pointer">
-                      <div class="relative mx-4 mt-4 overflow-hidden text-gray-700 bg-white bg-clip-border rounded-xl w-[90%] h-24">
-                        <img
-                          src="https://images.unsplash.com/photo-1629367494173-c78a56567877?ixlib=rb-4.0.3&amp;ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&amp;auto=format&amp;fit=crop&amp;w=927&amp;q=80"
-                          alt="card-image"
-                          class="object-cover w-full h-full"
-                        />
-                      </div>
-                      <div class="p-6">
-                        <div class="flex items-center justify-between mb-2">
-                          <p class="block font-sans text-base antialiased font-medium leading-relaxed text-blue-gray-900">
-                            <%= task.title %>
-                          </p>
-                          <p class="block font-sans text-base antialiased font-medium leading-relaxed text-blue-gray-900">
-                            <%= Number.Currency.number_to_currency(task.budget) %>
+                      <.link patch={~p"/projects/#{@project.id}/show_task/#{task.id}"}>
+                        <div class="relative mx-4 mt-4 overflow-hidden text-gray-700 bg-white bg-clip-border rounded-xl w-[90%] h-24">
+                          <img
+                            src="https://images.unsplash.com/photo-1629367494173-c78a56567877?ixlib=rb-4.0.3&amp;ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&amp;auto=format&amp;fit=crop&amp;w=927&amp;q=80"
+                            alt="card-image"
+                            class="object-cover w-full h-full"
+                          />
+                        </div>
+                        <div class="p-6">
+                          <div class="flex items-center justify-between mb-2">
+                            <p class="block font-sans text-base antialiased font-medium leading-relaxed text-blue-gray-900">
+                              <%= task.title %>
+                            </p>
+                            <p class="block font-sans text-base antialiased font-medium leading-relaxed text-blue-gray-900">
+                              <%= Number.Currency.number_to_currency(task.budget) %>
+                            </p>
+                          </div>
+                          <p class="antialiased font-normal leading-normal text-gray-700 overflow-hidden text-ellipsis line-clamp-3">
+                            <%= raw(task.description) %>
                           </p>
                         </div>
-                        <p class="block font-sans text-sm antialiased font-normal leading-normal text-gray-700 opacity-75">
-                          <%= task.description %>
-                        </p>
-                      </div>
+                      </.link>
                       <div class="p-6 pt-0">
                         <.link
                           patch={~p"/projects/#{@project.id}/edit_task/#{task.id}"}
-                          class="align-middle select-none font-sans font-bold text-center uppercase transition-all disabled:opacity-50 disabled:shadow-none disabled:pointer-events-none text-xs py-3 px-6 rounded-lg shadow-gray-900/10 hover:shadow-gray-900/20 focus:opacity-[0.85] active:opacity-[0.85] active:shadow-none block w-full bg-blue-gray-900/10 text-blue-gray-900 shadow-none hover:scale-105 hover:shadow-none focus:scale-105 focus:shadow-none active:scale-100"
+                          class="w-full flex items-center justify-center"
                         >
-                          Edit Task
+                          <button class="px-5 py-2 text-sm tracking-wide text-white transition-colors duration-200 bg-brand rounded-lg shrink-0 sm:w-auto gap-x-2 hover:bg-blue-600 hover:scale-105">
+                            <.icon name="hero-pencil-square" class="w-4 h-4" />
+                            <span>Edit Task</span>
+                          </button>
                         </.link>
                       </div>
                     </div>
@@ -131,66 +132,11 @@
       </div>
     </div>
   </div>
-
-  <div class="mt-6 sm:flex sm:items-center sm:justify-between ">
-    <div class="text-sm text-gray-500">
-      Page <span class="font-medium text-gray-700">1 of 10</span>
-    </div>
-
-    <div class="flex items-center mt-4 gap-x-4 sm:mt-0">
-      <a
-        href="#"
-        class="flex items-center justify-center w-1/2 px-5 py-2 text-sm text-gray-700 capitalize transition-colors duration-200 bg-white border rounded-md sm:w-auto gap-x-2 hover:bg-gray-100"
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke-width="1.5"
-          stroke="currentColor"
-          class="w-5 h-5 rtl:-scale-x-100"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            d="M6.75 15.75L3 12m0 0l3.75-3.75M3 12h18"
-          />
-        </svg>
-
-        <span>
-          previous
-        </span>
-      </a>
-
-      <a
-        href="#"
-        class="flex items-center justify-center w-1/2 px-5 py-2 text-sm text-gray-700 capitalize transition-colors duration-200 bg-white border rounded-md sm:w-auto gap-x-2 hover:bg-gray-100"
-      >
-        <span>
-          Next
-        </span>
-
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke-width="1.5"
-          stroke="currentColor"
-          class="w-5 h-5 rtl:-scale-x-100"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            d="M17.25 8.25L21 12m0 0l-3.75 3.75M21 12H3"
-          />
-        </svg>
-      </a>
-    </div>
-  </div>
   <.modal
     :if={@live_action in [:new_column, :edit_column]}
     show={@live_action in [:new_column, :edit_column]}
     id="project_modal"
+    max_width="max-w-5xl"
     on_cancel={JS.navigate(~p"/projects/#{@project.id}/show")}
   >
     <.live_component
@@ -204,14 +150,15 @@
     />
   </.modal>
   <.modal
-    :if={@live_action in [:new_task, :edit_task]}
-    show={@live_action in [:new_task, :edit_task]}
-    id="project_modal"
+    :if={@live_action in [:projects_new_task, :projects_edit_task, :projects_show_task]}
+    show={@live_action in [:projects_new_task, :projects_edit_task, :projects_show_task]}
+    id="task_modal"
+    max_width="max-w-5xl"
     on_cancel={JS.navigate(~p"/projects/#{@project.id}/show")}
   >
     <.live_component
       module={ProjeXpertWeb.ProjectsLive.TaskForm}
-      id={@column.id || :new}
+      id={@task.id || :new}
       title={@page_title}
       action={@live_action}
       project={@project}
@@ -224,6 +171,7 @@
     :if={@live_action == :edit}
     show={@live_action == :edit}
     id="project_modal"
+    max_width="max-w-5xl"
     on_cancel={JS.navigate(~p"/projects/#{@project.id}/show")}
   >
     <.live_component

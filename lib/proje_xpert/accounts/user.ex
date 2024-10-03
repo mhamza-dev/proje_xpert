@@ -34,8 +34,8 @@ defmodule ProjeXpert.Accounts.User do
       join_keys: [worker_id: :id, project_id: :id]
 
     many_to_many :tasks, ProjeXpert.Tasks.Task,
-    join_through: :worker_tasks,
-    join_keys: [worker_id: :id, task_id: :id]
+      join_through: ProjeXpert.Tasks.WorkerTask,
+      join_keys: [worker_id: :id, task_id: :id]
 
     timestamps(type: :utc_datetime)
   end
@@ -186,5 +186,11 @@ defmodule ProjeXpert.Accounts.User do
     else
       add_error(changeset, :current_password, "is not valid")
     end
+  end
+
+  def seed_changeset(user, attrs) do
+    user
+    |> registration_changeset(attrs)
+    |> confirm_changeset()
   end
 end

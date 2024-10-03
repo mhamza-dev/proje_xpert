@@ -13,8 +13,10 @@ defmodule ProjeXpertWeb.ProjectsLive.Show do
   def handle_params(%{"id" => id} = params, _url, socket) do
     {:noreply,
      socket
-     |> assign(project: Tasks.get_project!(id),
-      columns: Enum.map(Tasks.project_columns(id), &{&1.name, &1.id}))
+     |> assign(
+       project: Tasks.get_project!(id),
+       columns: Enum.map(Tasks.project_columns(id), &{&1.name, &1.id})
+     )
      |> apply_action(socket.assigns.live_action, params)}
   end
 
@@ -41,7 +43,7 @@ defmodule ProjeXpertWeb.ProjectsLive.Show do
     )
   end
 
-  defp apply_action(socket, :new_task, _) do
+  defp apply_action(socket, :projects_new_task, _) do
     socket
     |> assign(
       page_title: "New Task",
@@ -50,10 +52,19 @@ defmodule ProjeXpertWeb.ProjectsLive.Show do
     )
   end
 
-  defp apply_action(socket, :edit_task, %{"task_id" => task_id}) do
+  defp apply_action(socket, :projects_edit_task, %{"task_id" => task_id}) do
     socket
     |> assign(
       page_title: "Edit Task",
+      task: Tasks.get_task!(task_id),
+      column: %Column{}
+    )
+  end
+
+  defp apply_action(socket, :projects_show_task, %{"task_id" => task_id}) do
+    socket
+    |> assign(
+      page_title: "Show Task",
       task: Tasks.get_task!(task_id),
       column: %Column{}
     )

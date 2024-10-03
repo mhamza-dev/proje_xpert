@@ -10,7 +10,7 @@ defmodule ProjeXpert.Tasks.Payment do
     field :amount, :decimal
     field :payment_method, :string
 
-    belongs_to :bid, ProjeXpert.Tasks.Bid, foreign_key: :bid_id
+    belongs_to :task, ProjeXpert.Tasks.Task, foreign_key: :task_id
 
     timestamps(type: :utc_datetime)
   end
