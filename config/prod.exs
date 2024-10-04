@@ -15,6 +15,15 @@ config :swoosh, api_client: Swoosh.ApiClient.Finch, finch_name: ProjeXpert.Finch
 # Disable Swoosh Local Memory Storage
 config :swoosh, local: false
 
+config :ueberauth, Ueberauth,
+  providers: [
+    google: {Ueberauth.Strategy.Google, [default_scope: "email profile"]}
+  ]
+
+config :ueberauth, Ueberauth.Strategy.Google.OAuth,
+  client_id: System.get_env("GOOGLE_CLIENT_ID"),
+  client_secret: System.get_env("GOOGLE_CLIENT_SECRET")
+
 # Do not print debug messages in production
 config :logger, level: :info
 
