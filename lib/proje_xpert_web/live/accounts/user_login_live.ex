@@ -31,6 +31,9 @@ defmodule ProjeXpertWeb.UserLoginLive do
             Log in <span aria-hidden="true">→</span>
           </.button>
         </:actions>
+        <:actions>
+          <.login_with_google />
+        </:actions>
       </.simple_form>
     </div>
     """

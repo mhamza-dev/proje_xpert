@@ -21,6 +21,7 @@ defmodule ProjeXpert.Accounts.User do
     field :role, Ecto.Enum, values: @roles
     field :password, :string, virtual: true, redact: true
     field :hashed_password, :string, redact: true
+    field :provider, Ecto.Enum, values: [:google, :creds]
     field :current_password, :string, virtual: true, redact: true
     field :confirmed_at, :utc_datetime
 
@@ -68,6 +69,13 @@ defmodule ProjeXpert.Accounts.User do
     |> cast(attrs, @register_cast)
     |> validate_email(opts)
     |> validate_password(opts)
+  end
+
+  def oauth_registration_changeset(user, attrs, opts \\ []) do
+    user
+    |> cast(attrs, [:email, :first_name, :last_name, :role, :provider])
+    |> validate_required([:first_name, :last_name, :email, :role, :provider])
+    |> validate_email(opts)
   end
 
   defp validate_email(changeset, opts) do

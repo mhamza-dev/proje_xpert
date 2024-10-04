@@ -61,6 +61,11 @@ defmodule ProjeXpertWeb.Router do
     end
 
     post "/log_in", UserSessionController, :create
+
+    scope "/auth" do
+      get "/:provider", AuthController, :request
+      get "/:provider/callback", AuthController, :callback
+    end
   end
 
   scope "/", ProjeXpertWeb do

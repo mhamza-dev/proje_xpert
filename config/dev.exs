@@ -23,7 +23,7 @@ config :proje_xpert, ProjeXpertWeb.Endpoint,
   check_origin: false,
   code_reloader: true,
   debug_errors: true,
-  secret_key_base: "waOzrihSIeYJZV0h9QjtSOzNN0t6BCtHNjn4A9nRXantprYk9784Lah4qdZ1rADS",
+  secret_key_base: System.get_env("PROJECT_SECRET_KEY"),
   watchers: [
     esbuild: {Esbuild, :install_and_run, [:proje_xpert, ~w(--sourcemap=inline --watch)]},
     tailwind: {Tailwind, :install_and_run, [:proje_xpert, ~w(--watch)]}

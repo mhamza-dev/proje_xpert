@@ -60,7 +60,10 @@ defmodule ProjeXpert.MixProject do
       {:jason, "~> 1.2"},
       {:dns_cluster, "~> 0.1.1"},
       {:bandit, "~> 1.5"},
-      {:number, "~> 1.0.5"}
+      {:number, "~> 1.0.5"},
+      {:oauth2, "~> 2.1.0"},
+      {:ueberauth, "~> 0.10.8"},
+      {:ueberauth_google, "~> 0.12.1"}
     ]
   end
 
