@@ -8,7 +8,7 @@ defmodule ProjeXpert.Accounts.UserNotifier do
     email =
       new()
       |> to(recipient)
-      |> from({"ProjeXpert", "contact@example.com"})
+      |> from({"ProjeXpert", System.get_env("MAIL_USERNAME")})
       |> subject(subject)
       |> text_body(body)
 
