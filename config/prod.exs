@@ -9,6 +9,12 @@ config :proje_xpert, ProjeXpertWeb.Endpoint,
   force_ssl: [rewrite_on:  [:x_forwarded_proto]],
   cache_static_manifest: "priv/static/cache_manifest.json"
 
+# Configures Swoosh Adapter
+config :proje_xpert, ProjeXpert.Mailer,
+  adapter: Swoosh.Adapters.Mailgun,
+  api_key: System.get_env("MAILGUN_API_KEY"),
+  domain: System.get_env("MAILGUN_DOMAIN")
+
 # Configures Swoosh API Client
 config :swoosh, api_client: Swoosh.ApiClient.Finch, finch_name: ProjeXpert.Finch
 
