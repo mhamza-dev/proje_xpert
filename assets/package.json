@@ -1,4 +1,7 @@
 {
+  "scripts": {
+    "deploy": "cd .. && mix assets.deploy && rm -f _build/esbuild"
+  },
   "dependencies": {
     "alpinejs": "^3.14.1",
     "sortablejs": "^1.15.3",
