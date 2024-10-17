@@ -81,8 +81,6 @@ config :phoenix_live_view,
   # Enable helpful, but potentially expensive runtime checks
   enable_expensive_runtime_checks: true
 
+config :proje_xpert, ProjeXpert.Mailer, adapter: Swoosh.Adapters.Local
 # Disable swoosh api client as it is only required for production adapters.
-# config :swoosh, :api_client, false
-
-  # Configures Swoosh API Client
-  config :swoosh, api_client: Swoosh.ApiClient.Finch, finch_name: ProjeXpert.Finch
+config :swoosh, :api_client, false

@@ -170,7 +170,9 @@ defmodule ProjeXpert.Tasks do
 
   """
   def get_task!(id),
-    do: Repo.get!(Task, id) |> Repo.preload([:bids, [project: [:client], comments: [:user, replies: :user]]])
+    do:
+      Repo.get!(Task, id)
+      |> Repo.preload([:bids, [project: [:client], comments: [:user, replies: :user]]])
 
   @doc """
   Creates a task.

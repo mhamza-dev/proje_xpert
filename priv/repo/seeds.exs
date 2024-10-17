@@ -94,47 +94,164 @@ created_clients =
   )
 
 # Create projects with realistic titles and descriptions
-project_titles = [
-  "E-commerce Website Development",
-  "Mobile App for Fitness Tracking",
-  "Marketing Campaign Management",
-  "Online Learning Platform",
-  "Custom CRM Development",
-  "Social Media Management App",
-  "Content Creation for Blog",
-  "SEO Optimization for E-commerce",
-  "Financial Dashboard Development",
-  "Real Estate Listings Portal",
-  "Food Delivery Mobile App",
-  "Event Booking Platform",
-  "Inventory Management System",
-  "Custom API for Payment Gateway",
-  "HR Management System",
-  "Fleet Management Software",
-  "Booking System for Doctors",
-  "Task Management Tool",
-  "Custom Reporting Dashboard",
-  "Data Migration for Legacy Systems"
+projects = [
+  %{
+    title: "E-commerce Website Development",
+    description:
+      "<p>Develop a fully functional e-commerce website with features like product listing, payment gateway integration, user authentication, and order tracking.</p>"
+  },
+  %{
+    title: "Mobile App for Fitness Tracking",
+    description:
+      "<p>Create a mobile application that helps users track their fitness goals, workouts, and diet plans, while offering progress analytics and motivational features.</p>"
+  },
+  %{
+    title: "Marketing Campaign Management",
+    description:
+      "<p>Build a platform to manage and track marketing campaigns across email, social media, and ad platforms with comprehensive performance metrics.</p>"
+  },
+  %{
+    title: "Online Learning Platform",
+    description:
+      "<p>Develop an online learning system offering video tutorials, quizzes, certification, and user progress tracking for a variety of courses.</p>"
+  },
+  %{
+    title: "Custom CRM Development",
+    description:
+      "<p>Create a custom CRM system for businesses to manage customer relationships, leads, sales processes, and customer support tickets efficiently.</p>"
+  },
+  %{
+    title: "Social Media Management App",
+    description:
+      "<p>Develop an app that allows users to schedule, publish, and monitor posts on various social media platforms from a single dashboard.</p>"
+  },
+  %{
+    title: "Content Creation for Blog",
+    description:
+      "<p>Create engaging, SEO-optimized blog content focused on improving website visibility and driving traffic.</p>"
+  },
+  %{
+    title: "SEO Optimization for E-commerce",
+    description:
+      "<p>Optimize an e-commerce website for search engines by improving page speed, keywords, meta tags, and structured data implementation.</p>"
+  },
+  %{
+    title: "Financial Dashboard Development",
+    description:
+      "<p>Build an interactive financial dashboard that provides real-time data visualization of financial metrics such as cash flow, expenses, and revenue.</p>"
+  },
+  %{
+    title: "Real Estate Listings Portal",
+    description:
+      "<p>Develop a real estate platform where users can browse, filter, and view property listings with detailed descriptions and map integration.</p>"
+  },
+  %{
+    title: "Food Delivery Mobile App",
+    description:
+      "<p>Create a mobile app that allows users to browse local restaurants, order food, and track delivery with integrated payment options.</p>"
+  },
+  %{
+    title: "Event Booking Platform",
+    description:
+      "<p>Build an online system for booking events, venues, and managing tickets, featuring real-time availability updates and secure payments.</p>"
+  },
+  %{
+    title: "Inventory Management System",
+    description:
+      "<p>Develop a system for businesses to track inventory levels, manage suppliers, and automate stock replenishment for efficient operations.</p>"
+  },
+  %{
+    title: "Custom API for Payment Gateway",
+    description:
+      "<p>Create a custom API that integrates with multiple payment gateways, enabling seamless payment processing for online transactions.</p>"
+  },
+  %{
+    title: "HR Management System",
+    description:
+      "<p>Develop an HR management system to handle employee data, payroll, attendance tracking, and performance reviews in one central platform.</p>"
+  },
+  %{
+    title: "Fleet Management Software",
+    description:
+      "<p>Create a system for managing a fleet of vehicles, providing real-time tracking, maintenance schedules, and driver performance reports.</p>"
+  },
+  %{
+    title: "Booking System for Doctors",
+    description:
+      "<p>Develop a booking platform where patients can schedule appointments with doctors, view availability, and receive reminders for their visits.</p>"
+  },
+  %{
+    title: "Task Management Tool",
+    description:
+      "<p>Build a task management application that allows users to create, assign, and track tasks within teams, with project timelines and reporting features.</p>"
+  },
+  %{
+    title: "Custom Reporting Dashboard",
+    description:
+      "<p>Create a customizable reporting dashboard for businesses to visualize key metrics and generate reports based on real-time data analytics.</p>"
+  },
+  %{
+    title: "Data Migration for Legacy Systems",
+    description:
+      "<p>Develop a solution to migrate data from outdated systems to modern infrastructure, ensuring minimal disruption and data integrity during the process.</p>"
+  },
+  %{
+    title: "Subscription-Based Video Streaming Platform",
+    description:
+      "<p>Create a platform for hosting video content, offering subscription services, content recommendations, and user analytics for growth tracking.</p>"
+  },
+  %{
+    title: "Restaurant Reservation System",
+    description:
+      "<p>Build an online reservation system for restaurants, allowing users to view table availability, book tables, and receive confirmation notifications.</p>"
+  },
+  %{
+    title: "Personal Finance App",
+    description:
+      "<p>Create a personal finance mobile app that helps users track their income, expenses, set budgets, and visualize financial goals.</p>"
+  },
+  %{
+    title: "Ride-Hailing Service Platform",
+    description:
+      "<p>Develop a mobile app and backend system for a ride-hailing service, including driver management, trip tracking, and secure payment integration.</p>"
+  },
+  %{
+    title: "Online Grocery Delivery Service",
+    description:
+      "<p>Create a platform for users to order groceries online with scheduled deliveries, product availability tracking, and payment integration.</p>"
+  },
+  %{
+    title: "Property Management Software",
+    description:
+      "<p>Build a software solution for property managers to track tenants, leases, maintenance requests, and rental payments efficiently.</p>"
+  },
+  %{
+    title: "Telemedicine App Development",
+    description:
+      "<p>Develop a telemedicine platform where patients can consult with doctors remotely through video calls, chat, and access digital prescriptions.</p>"
+  },
+  %{
+    title: "Custom ERP System Development",
+    description:
+      "<p>Create a custom ERP system for businesses to manage their operations, including finance, inventory, procurement, and human resources.</p>"
+  },
+  %{
+    title: "Logistics and Warehouse Management System",
+    description:
+      "<p>Develop a system to streamline logistics and warehouse operations, offering real-time tracking, order fulfillment, and inventory management.</p>"
+  },
+  %{
+    title: "Blockchain-Based Voting System",
+    description:
+      "<p>Build a secure blockchain-based voting platform that ensures transparency and tamper-proof voting processes for organizations or elections.</p>"
+  }
 ]
 
-project_descriptions = [
-  "Develop a fully functional e-commerce website that allows users to buy and sell products. The site should include features such as user authentication, product listings, payment integration, and a responsive design.",
-  "Create a mobile application for fitness tracking that enables users to log their workouts, track their progress, and share achievements with friends. The app should have a user-friendly interface and real-time notifications.",
-  "Manage a marketing campaign across multiple platforms. The project involves developing creative content, setting up advertisements, and analyzing performance metrics to ensure a successful campaign.",
-  "Build an online learning platform that offers courses, quizzes, and student progress tracking. Features should include video integration, user dashboards, and a secure payment gateway.",
-  "Develop a custom CRM that helps businesses manage customer interactions, sales, and feedback. The project should focus on creating an intuitive interface and robust reporting capabilities.",
-  "Design and implement a social media management application that allows users to schedule posts, track engagement metrics, and analyze performance across different social media platforms.",
-  "Create engaging content for a blog that attracts readers and boosts SEO. Tasks will include researching topics, writing articles, and optimizing content for search engines.",
-  "Optimize an existing e-commerce website for search engines, focusing on improving page load speeds, keyword targeting, and overall user experience.",
-  "Build a financial dashboard that consolidates various data sources into one interface. Users should be able to visualize their financial data through graphs and charts.",
-  "Develop a real estate listings portal that allows users to browse and filter properties. The project should include user reviews, a map feature, and a contact form for inquiries."
-]
-
-for i <- 1..30 do
+for proj <- projects do
   project =
     Repo.insert!(%Project{
-      title: Enum.at(project_titles, rem(i - 1, length(project_titles))),
-      description: Enum.at(project_descriptions, rem(i - 1, length(project_descriptions))),
+      title: proj.title,
+      description: proj.description,
       status: Enum.random(Project.all_statuses()),
       budget: Decimal.new(Enum.random(1000..10000)),
       client_id: Enum.random(created_clients).id
@@ -146,23 +263,15 @@ for i <- 1..30 do
   })
 
   # Create columns for the project
-  column1 =
-    Repo.insert!(%Column{
-      name: "Backlog",
-      project_id: project.id
-    })
 
-  column2 =
-    Repo.insert!(%Column{
-      name: "In Progress",
-      project_id: project.id
-    })
-
-  column3 =
-    Repo.insert!(%Column{
-      name: "Completed",
-      project_id: project.id
-    })
+  [column1, column2, column3] =
+    Enum.map(
+      Column.get_default_columns(),
+      &Repo.insert!(%Column{
+        name: &1,
+        project_id: project.id
+      })
+    )
 
   # Add tasks for each project, distributed across columns
   for j <- 1..Enum.random(3..5) do
@@ -178,7 +287,7 @@ for i <- 1..30 do
       end
 
     task_description =
-      "<p>This task involves #{task_title} for the #{Enum.at(project_titles, rem(i - 1, length(project_titles)))}. " <>
+      "<p>This task involves #{task_title} for the #{project.title}. " <>
         "Key requirements include defining user personas, designing mockups, developing APIs, or executing rigorous testing protocols to ensure quality.</p>"
 
     tags = ["#{task_title}", "Development", "Project Management", "Team Collaboration"]

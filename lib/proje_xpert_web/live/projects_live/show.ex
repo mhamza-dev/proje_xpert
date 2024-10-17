@@ -1,9 +1,9 @@
 defmodule ProjeXpertWeb.ProjectsLive.Show do
-  alias ProjeXpert.Repo
   use ProjeXpertWeb, :live_view
 
   alias ProjeXpert.Tasks
   alias ProjeXpert.Tasks.{Column, Task}
+  alias ProjeXpert.Repo
 
   def mount(%{"id" => id}, _session, socket) do
     if connected?(socket), do: Phoenix.PubSub.subscribe(ProjeXpert.PubSub, "project:#{id}")
@@ -68,6 +68,28 @@ defmodule ProjeXpertWeb.ProjectsLive.Show do
       task: Tasks.get_task!(task_id),
       column: %Column{}
     )
+  end
+
+  def handle_event("delete_column", %{"id" => column_id}, socket) do
+    with %Column{} = column <- Tasks.get_column!(column_id),
+         {:ok, _} <- Tasks.delete_column(column) do
+      Phoenix.PubSub.broadcast!(
+        ProjeXpert.PubSub,
+        "project:#{socket.assigns.project.id}",
+        {:column_deleted, socket.assigns.project.id}
+      )
+
+      {:noreply,
+       socket
+       |> put_flash(:info, "Column: \"#{column.name}\" deleted successfully")
+       |> push_patch(to: ~p"/projects/#{socket.assigns.project.id}/show")}
+    else
+      _ ->
+        {:noreply,
+         socket
+         |> put_flash(:error, "Something went wrong while deleting the Task")
+         |> push_patch(to: ~p"/projects/#{socket.assigns.project.id}/show")}
+    end
   end
 
   def handle_event("delete_task", %{"id" => task_id}, socket) do
@@ -135,12 +157,16 @@ defmodule ProjeXpertWeb.ProjectsLive.Show do
     {:noreply, assign(socket, project: Tasks.get_project!(project_id))}
   end
 
+  def handle_info({:column_deleted, project_id}, socket) do
+    {:noreply, assign(socket, project: Tasks.get_project!(project_id))}
+  end
+
   def handle_info({:task, project_id}, socket) do
     {:noreply, assign(socket, project: Tasks.get_project!(project_id))}
   end
 
   def handle_info({:column, project_id}, socket) do
-    {:noreply, assign(socket, project: Tasks.get_project!(project_id))}
+    {:noreply, assign(socket, project: Tasks.get_project!(project_id) |> dbg())}
   end
 
   def handle_info({:return_to_home, project}, socket) do

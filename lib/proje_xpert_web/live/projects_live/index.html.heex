@@ -2,7 +2,7 @@
 <section class="container px-4 mx-auto">
   <div class="flex items-center justify-between">
     <h1 class="text-xl font-semibold">Project Listing</h1>
-    <.link patch={~p"/projects/new"} :if={is_client?(@current_user)}>
+    <.link :if={is_client?(@current_user)} patch={~p"/projects/new"}>
       <button class="flex items-center justify-center w-1/2 px-5 py-2 text-sm tracking-wide text-white transition-colors duration-200 bg-primary rounded-lg shrink-0 sm:w-auto gap-x-2 hover:bg-blue-600">
         <.icon name="hero-plus-circle" class="w-4 h-4" />
         <span>Add Project</span>
@@ -66,7 +66,7 @@
     id="project-listing"
     module={ProjeXpertWeb.TableComponent}
     headers={["Name", "Status", "No. of Tasks", "Users", "Progress"]}
-    has_actions?={true}
+    has_actions?={is_client?(@current_user)}
   >
     <:table_cells>
       <tr :for={project <- @projects} class="border-b-[1px]">
@@ -80,7 +80,7 @@
         </td>
         <td class="p-3 text-sm">
           <p class="text-gray-500 ml-6">
-            <%= length(project.tasks) %>
+            <%= length(get_tasks_by_current_user(@current_user, project.tasks)) %>
           </p>
         </td>
         <td class="p-3 text-sm">
@@ -131,8 +131,8 @@
           </div>
         </td>
 
-        <td class="p-3 text-sm">
-          <.dropdown :if={is_client?(@current_user)}>
+        <td :if={is_client?(@current_user)} class="p-3 text-sm">
+          <.dropdown>
             <ul>
               <li
                 class="flex items-center space-x-2 px-4 py-2 text-[1rem] text-gray-600 hover:bg-gray-100 cursor-pointer group"

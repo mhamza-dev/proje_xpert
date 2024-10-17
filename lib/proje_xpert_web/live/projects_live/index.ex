@@ -56,10 +56,10 @@ defmodule ProjeXpertWeb.ProjectsLive.Index do
        |> push_navigate(to: ~p"/projects")}
     else
       _ ->
-      {:noreply,
-       socket
-       |> put_flash(:error, "Somehting went wrong while deleting the Project")
-       |> push_navigate(to: ~p"/projects")}
+        {:noreply,
+         socket
+         |> put_flash(:error, "Somehting went wrong while deleting the Project")
+         |> push_navigate(to: ~p"/projects")}
     end
   end
 end
