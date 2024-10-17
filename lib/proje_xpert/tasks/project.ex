@@ -2,7 +2,7 @@ defmodule ProjeXpert.Tasks.Project do
   use Ecto.Schema
   import Ecto.Changeset
 
-  @statuses [:pending, :in_progress, :ended, :on_hold]
+  @statuses [:pending, :in_progress, :completed, :on_hold]
   @default_cast [:title, :description, :status, :budget, :client_id]
   @default_required [:title, :description, :status, :budget, :client_id]
 

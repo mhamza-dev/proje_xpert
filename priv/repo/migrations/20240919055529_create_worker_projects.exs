@@ -3,8 +3,8 @@ defmodule ProjeXpert.Repo.Migrations.CreateWorkerProjects do
 
   def change do
     create table(:worker_projects) do
-      add :worker_id, references(:users, on_delete: :nothing)
-      add :project_id, references(:projects, on_delete: :nothing)
+      add :worker_id, references(:users, on_delete: :delete_all)
+      add :project_id, references(:projects, on_delete: :delete_all)
 
       timestamps(type: :utc_datetime)
     end

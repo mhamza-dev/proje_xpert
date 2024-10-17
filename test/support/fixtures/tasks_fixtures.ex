@@ -71,17 +71,17 @@ defmodule ProjeXpert.TasksFixtures do
   end
 
   @doc """
-  Generate a chat.
+  Generate a comment.
   """
   def chat_fixture(attrs \\ %{}) do
-    {:ok, chat} =
+    {:ok, comment} =
       attrs
       |> Enum.into(%{
         message: "some message"
       })
-      |> ProjeXpert.Tasks.create_chat()
+      |> ProjeXpert.Tasks.create_comment()
 
-    chat
+    comment
   end
 
   @doc """
@@ -120,5 +120,17 @@ defmodule ProjeXpert.TasksFixtures do
       |> ProjeXpert.Tasks.create_worker_task()
 
     worker_task
+  end
+
+  @doc """
+  Generate a reply.
+  """
+  def reply_fixture(attrs \\ %{}) do
+    {:ok, reply} =
+      attrs
+      |> Enum.into(%{})
+      |> ProjeXpert.Tasks.create_reply()
+
+    reply
   end
 end

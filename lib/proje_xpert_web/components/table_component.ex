@@ -9,7 +9,7 @@ defmodule ProjeXpertWeb.TableComponent do
   def render(assigns) do
     ~H"""
     <div class="flex flex-col mt-6">
-      <div class="overflow-x-auto border border-gray-200 rounded-lg">
+      <div class="overflow-x-auto border border-gray-200 rounded-lg min-h-[620px]">
         <div class="inline-block min-w-full align-middle">
           <div class="max-h-[550px]">
             <table class="min-w-full">
@@ -22,7 +22,13 @@ defmodule ProjeXpertWeb.TableComponent do
                   >
                     <%= header %>
                   </th>
-                  <th :if={@has_actions?} scope="col" class="relative py-3.5 px-4"></th>
+                  <th
+                    :if={@has_actions?}
+                    scope="col"
+                    class="py-3.5 px-4 text-sm font-normal text-left text-gray-500 w-auto"
+                  >
+                    Actions
+                  </th>
                 </tr>
               </thead>
               <tbody class="bg-white overflow-y-scroll w-full">

@@ -5,6 +5,11 @@ defmodule ProjeXpertWeb.ProjectsLive.ColumnForm do
 
   def update(%{column: column, project: project} = assigns, socket) do
     changeset = Tasks.change_column(column, %{project_id: project.id})
+
+    if project.status == :completed do
+      send(self(), {:return_to_home, project})
+    end
+
     {:ok, socket |> assign(assigns) |> assign(changeset: changeset)}
   end
 

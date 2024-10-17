@@ -3,3 +3,8 @@
 @import "tailwindcss/utilities";
 @import "../node_modules/trix/dist/trix.css";
 /* This file is for your main application CSS */
+
+.chart{
+    width: 650px !important;
+    height: 300px !important;
+}

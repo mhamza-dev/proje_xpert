@@ -4,7 +4,7 @@ defmodule ProjeXpert.Repo.Migrations.CreateColumns do
   def change do
     create table(:columns) do
       add :name, :string
-      add :project_id, references(:projects, on_delete: :nothing)
+      add :project_id, references(:projects, on_delete: :delete_all)
 
       timestamps(type: :utc_datetime)
     end

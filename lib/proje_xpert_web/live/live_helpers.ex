@@ -1,8 +1,12 @@
 defmodule ProjeXpertWeb.LiveHelpers do
   alias ProjeXpert.Repo
   alias ProjeXpert.Tasks
+  alias ProjeXpert.Tasks.Project
+  alias ProjeXpert.Tasks.Bid
 
   def is_worker?(user), do: user.role == :worker
+
+  def is_client?(user), do: user.role == :client
 
   def full_name(user), do: user.first_name <> " " <> user.last_name
 
@@ -18,12 +22,6 @@ defmodule ProjeXpertWeb.LiveHelpers do
     do: Enum.filter(tasks, &Enum.any?(&1.worker_tasks, fn wt -> wt.worker_id == id end))
 
   def get_tasks_by_current_user(_, tasks), do: tasks
-
-  def get_resources_by_tab(%{"tab" => tab}, resources) do
-    Enum.filter(resources, &(&1.status == String.to_atom(tab)))
-  end
-
-  def get_resources_by_tab(_, resources), do: resources
 
   def get_worker_ids_of_a_project(project) do
     project.tasks
@@ -106,14 +104,14 @@ defmodule ProjeXpertWeb.LiveHelpers do
   def get_color_by_status(status) when status in [:in_progress, :under_review],
     do: "text-yellow-500 bg-yellow-100/80"
 
-  def get_color_by_status(status) when status in [:ended, :accepted],
+  def get_color_by_status(status) when status in [:completed, :accepted],
     do: "text-green-500 bg-green-100/80"
 
   def get_color_by_status(status) when status in [:on_hold, :pending, :rejected, :withdrawn],
     do: "text-red-500 bg-red-100/80"
 
   def get_tailwind_width_class(project) do
-    percentage = get_percentage(project)
+    percentage = get_task_percentage(project)
 
     cond do
       percentage <= 24 -> "w-1 bg-red-500"
@@ -124,18 +122,58 @@ defmodule ProjeXpertWeb.LiveHelpers do
     end
   end
 
-  def get_percentage(project) do
-    Enum.count(project.tasks, &(&1.status == :completed)) / Enum.count(project.tasks) * 100
+  def get_task_percentage(project) do
+    if length(project.tasks) > 0,
+      do: Enum.count(project.tasks, & &1.is_completed?) / Enum.count(project.tasks) * 100,
+      else: 0
   end
 
-  def get_projects_by_role(%{id: id, role: role}, params \\ %{}) do
-    projects =
-      if role == :client do
-        Tasks.list_client_projects(id)
-      else
-        Tasks.list_worker_projects(id)
-      end
-
-    get_resources_by_tab(params, projects)
+  def get_resources_by_role(resource, %{id: id, role: role}, params \\ %{}, search_term \\ %{}) do
+    apply(get_function_by_resource(resource, role), [id, search_term])
+    |> get_resources_by_tab(params)
   end
+
+  def check_project_budget_for_task(task, project) when is_binary(task) do
+    if task == "" do
+      false
+    else
+      task = elem(Float.parse(task), 0)
+      get_budget(task, project)
+    end
+  end
+
+  def check_project_budget_for_task(task, project) when is_float(task),
+    do: get_budget(task, project)
+
+  def fetch_tab_param(current_tab) do
+    if is_nil(current_tab), do: Map.new(), else: %{"tab" => current_tab}
+  end
+
+  defp get_budget(task, project) do
+    project = Repo.preload(project, [:tasks])
+    project_budget = Decimal.to_float(project.budget)
+
+    total_task_budget =
+      project.tasks
+      |> Enum.map(&Decimal.to_float(&1.budget))
+      |> Enum.sum()
+
+    project_budget <= task + total_task_budget
+  end
+
+  defp get_function_by_resource(Project, :client), do: &Tasks.list_client_projects/2
+  defp get_function_by_resource(Project, :worker), do: &Tasks.list_worker_projects/2
+
+  defp get_function_by_resource(Bid, :client), do: &Tasks.list_client_bids/2
+  defp get_function_by_resource(Bid, :worker), do: &Tasks.list_worker_bids/2
+
+  defp get_resources_by_tab(resources, %{"tab" => tab}) when is_binary(tab) do
+    Enum.filter(resources, &(&1.status == String.to_atom(tab)))
+  end
+
+  defp get_resources_by_tab(resources, %{"tab" => tab}) when is_atom(tab) do
+    Enum.filter(resources, &(&1.status == tab))
+  end
+
+  defp get_resources_by_tab(resources, _), do: resources
 end

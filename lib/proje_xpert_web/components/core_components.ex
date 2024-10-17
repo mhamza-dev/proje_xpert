@@ -235,7 +235,7 @@ defmodule ProjeXpertWeb.CoreComponents do
     <button
       type={@type}
       class={[
-        "phx-submit-loading:opacity-75 bg-brand rounded-lg hover:bg-brand/80 py-2 px-3",
+        "phx-submit-loading:opacity-75 bg-primary rounded-lg hover:bg-primary/80 py-2 px-3",
         "text-sm font-semibold leading-6 text-white active:text-white/80",
         @class
       ]}
@@ -410,7 +410,7 @@ defmodule ProjeXpertWeb.CoreComponents do
 
   def label(assigns) do
     ~H"""
-    <label for={@for} class="block text-sm font-semibold leading-6 text-zinc-800">
+    <label for={@for} class="block text-lg font-medium leading-6 text-zinc-800">
       <%= render_slot(@inner_block) %>
     </label>
     """
@@ -423,7 +423,7 @@ defmodule ProjeXpertWeb.CoreComponents do
 
   def error(assigns) do
     ~H"""
-    <p class="mt-3 flex gap-3 text-sm leading-6 text-rose-600">
+    <p class="max-w-[320px] mt-3 flex gap-3 text-sm leading-6 text-rose-600 break-words">
       <.icon name="hero-exclamation-circle-mini" class="mt-0.5 h-5 w-5 flex-none" />
       <%= render_slot(@inner_block) %>
     </p>
@@ -573,12 +573,12 @@ defmodule ProjeXpertWeb.CoreComponents do
 
   def back(assigns) do
     ~H"""
-    <div class="mt-16">
+    <div>
       <.link
         navigate={@navigate}
-        class="text-sm font-semibold leading-6 text-zinc-900 hover:text-zinc-700"
+        class="flex items-center space-x-2 text-xl font-bold font-nunito text-primary hover:text-primary/80"
       >
-        <.icon name="hero-arrow-left-solid" class="h-3 w-3" />
+        <.icon name="hero-arrow-left-micro" class="h-4 w-4 font-bold" />
         <%= render_slot(@inner_block) %>
       </.link>
     </div>
@@ -646,13 +646,14 @@ defmodule ProjeXpertWeb.CoreComponents do
   attr(:field, :any, required: true)
   attr(:id, :any, required: true)
   attr(:label, :string, default: nil)
+  attr(:class, :string, default: nil)
   attr(:disabled, :boolean, default: false)
 
   def text_editor(assigns) do
     ~H"""
-    <div>
-      <.label><%= @label %></.label>
-      <.input field={@field} id={@id} type="hidden" />
+    <div class={@class}>
+      <.label for={@id}><%= @label %></.label>
+      <.input field={@field} id={@id} type="hidden" phx-hook="TrixEditor" />
       <div
         id="trix-editor-container"
         phx-hook="disableEditor"
@@ -680,7 +681,7 @@ defmodule ProjeXpertWeb.CoreComponents do
 
   def login_with_google(assigns) do
     ~H"""
-    <.link navigate={"/auth/google"} class="w-full">
+    <.link navigate="/auth/google" class="w-full">
       <.button class="w-full flex items-center justify-center" type="button">
         <svg
           class="h-6 w-6 mr-2"
@@ -734,6 +735,42 @@ defmodule ProjeXpertWeb.CoreComponents do
         <span>Continue with Google</span>
       </.button>
     </.link>
+    """
+  end
+
+  slot(:inner_block, required: true)
+
+  def dropdown(assigns) do
+    ~H"""
+    <div x-data="{ open: false }" class="relative">
+      <button
+        class="text-gray-500 transition-colors duration-200 rounded-lg hover:bg-gray-100"
+        @click="open = !open"
+        @click.outside="open = false"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke-width="1.5"
+          stroke="currentColor"
+          class="w-6 h-6"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            d="M12 6.75a.75.75 0 110-1.5.75.75 0 010 1.5zM12 12.75a.75.75 0 110-1.5.75.75 0 010 1.5zM12 18.75a.75.75 0 110-1.5.75.75 0 010 1.5z"
+          />
+        </svg>
+      </button>
+      <div
+        x-show="open"
+        class="absolute right-[7.5rem] z-[60] mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
+        style="top: 30%; transform: translateY(-10px);"
+      >
+        <%= render_slot(@inner_block) %>
+      </div>
+    </div>
     """
   end
 
