@@ -149,7 +149,7 @@ defmodule ProjeXpertWeb.CoreComponents do
 
   def flash_group(assigns) do
     ~H"""
-    <div id={@id}>
+    <div id={@id} phx-hook="hideFlash">
       <.flash kind={:info} title={gettext("Success!")} flash={@flash} />
       <.flash kind={:error} title={gettext("Error!")} flash={@flash} />
       <.flash
@@ -738,6 +738,7 @@ defmodule ProjeXpertWeb.CoreComponents do
     """
   end
 
+  attr :ticket_dropdown, :string, default: "right-[7.5rem] w-48"
   slot(:inner_block, required: true)
 
   def dropdown(assigns) do
@@ -765,7 +766,10 @@ defmodule ProjeXpertWeb.CoreComponents do
       </button>
       <div
         x-show="open"
-        class="absolute right-[7.5rem] z-[60] mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
+        class={[
+          "absolute z-[60] mt-2 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none",
+          @ticket_dropdown
+        ]}
         style="top: 30%; transform: translateY(-10px);"
       >
         <%= render_slot(@inner_block) %>

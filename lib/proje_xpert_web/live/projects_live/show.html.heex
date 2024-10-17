@@ -80,38 +80,81 @@
               id={"dragHook#{column.id}"}
               phx-hook="dragHook"
             >
-              <div class="flex justify-center items-center bg-gray-50 px-2 py-4 border-b-2 rounded-xl sticky top-0 z-10">
-                <div class="flex space-x-3">
+              <div class={
+                [
+                  "flex items-center bg-gray-50 px-2 py-4 border-b-2 rounded-xl sticky top-0 z-10",
+                  column.name in Column.get_default_columns() && "justify-center",
+                  column.name not in Column.get_default_columns() and is_client?(@current_user) &&
+                    "justify-between",
+                  is_worker?(@current_user) && "justify-center"
+                ]
+                |> Enum.join(" ")
+              }>
+                <div class="flex space-x-3 ml-4">
                   <p class="text-center text-md font-semibold text-ellipsis whitespace-nowrap overflow-hidden max-w-[150px]">
                     <%= column.name %>
                   </p>
                   <p class="flex h-2 w-2 items-center justify-center rounded-full bg-red-500 p-3 text-xs text-white">
                     <%= length(get_tasks_by_current_user(@current_user, column.tasks)) %>
                   </p>
-
-                  <.link
-                    :if={is_client?(@current_user)}
-                    patch={~p"/projects/#{@project.id}/edit_column/#{column.id}"}
-                  >
-                    <svg
-                      class="w-6 h-6 hover:text-primary/80"
-                      aria-hidden="true"
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="24"
-                      height="24"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        stroke="currentColor"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="1.5"
-                        d="m14.304 4.844 2.852 2.852M7 7H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-4.5m2.409-9.91a2.017 2.017 0 0 1 0 2.853l-6.844 6.844L8 14l.713-3.565 6.844-6.844a2.015 2.015 0 0 1 2.852 0Z"
-                      />
-                    </svg>
-                  </.link>
                 </div>
+
+                <.dropdown
+                  :if={
+                    is_client?(@current_user) and column.name not in Column.get_default_columns()
+                  }
+                  ticket_dropdown="right-[1.5rem] w-32"
+                >
+                  <ul>
+                    <.link
+                      patch={~p"/projects/#{@project.id}/edit_column/#{column.id}"}
+                      class="flex items-center space-x-2 px-4 py-2 text-[1rem] text-gray-600 hover:bg-gray-100 cursor-pointer group"
+                    >
+                      <svg
+                        class="w-6 h-6 group-hover:text-primary/80"
+                        aria-hidden="true"
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="24"
+                        height="24"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          stroke="currentColor"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="1.5"
+                          d="m14.304 4.844 2.852 2.852M7 7H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-4.5m2.409-9.91a2.017 2.017 0 0 1 0 2.853l-6.844 6.844L8 14l.713-3.565 6.844-6.844a2.015 2.015 0 0 1 2.852 0Z"
+                        />
+                      </svg>
+                      <span class="group-hover:text-primary/80">Edit</span>
+                    </.link>
+                    <li
+                      class="flex items-center space-x-2 px-4 py-2 text-[1rem] text-gray-600 hover:bg-gray-100 cursor-pointer group"
+                      phx-click="delete_column"
+                      phx-value-id={column.id}
+                    >
+                      <svg
+                        class="w-6 h-6 group-hover:text-red-500"
+                        aria-hidden="true"
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="24"
+                        height="24"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          stroke="currentColor"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="1.5"
+                          d="M5 7h14m-9 3v8m4-8v8M10 3h4a1 1 0 0 1 1 1v3H9V4a1 1 0 0 1 1-1ZM6 7h12v13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V7Z"
+                        />
+                      </svg>
+                      <span class="group-hover:text-red-500">Delete</span>
+                    </li>
+                  </ul>
+                </.dropdown>
               </div>
 
               <div id={"#{column.id}"} class="dropzone h-full">
@@ -135,36 +178,57 @@
                               <%= task.title %>
                             </p>
                           </.link>
-                          <.dropdown :if={is_client?(@current_user)}>
+                          <.dropdown
+                            :if={is_client?(@current_user)}
+                            ticket_dropdown="right-[1.5rem] w-32"
+                          >
                             <ul>
-                              <.link patch={~p"/projects/#{@project.id}/edit_task/#{task.id}"}>
-                                <li class="p-3 hover:bg-gray-100">
-                                  <svg
-                                    class="w-6 h-6 hover:text-primary/80"
-                                    aria-hidden="true"
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    width="24"
-                                    height="24"
-                                    fill="none"
-                                    viewBox="0 0 24 24"
-                                  >
-                                    <path
-                                      stroke="currentColor"
-                                      stroke-linecap="round"
-                                      stroke-linejoin="round"
-                                      stroke-width="1.5"
-                                      d="m14.304 4.844 2.852 2.852M7 7H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-4.5m2.409-9.91a2.017 2.017 0 0 1 0 2.853l-6.844 6.844L8 14l.713-3.565 6.844-6.844a2.015 2.015 0 0 1 2.852 0Z"
-                                    />
-                                  </svg>
-                                  Edit
-                                </li>
+                              <.link
+                                patch={~p"/projects/#{@project.id}/edit_task/#{task.id}"}
+                                class="flex items-center space-x-2 px-4 py-2 text-[1rem] text-gray-600 hover:bg-gray-100 cursor-pointer group"
+                              >
+                                <svg
+                                  class="w-6 h-6 group-hover:text-primary/80"
+                                  aria-hidden="true"
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  width="24"
+                                  height="24"
+                                  fill="none"
+                                  viewBox="0 0 24 24"
+                                >
+                                  <path
+                                    stroke="currentColor"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="1.5"
+                                    d="m14.304 4.844 2.852 2.852M7 7H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-4.5m2.409-9.91a2.017 2.017 0 0 1 0 2.853l-6.844 6.844L8 14l.713-3.565 6.844-6.844a2.015 2.015 0 0 1 2.852 0Z"
+                                  />
+                                </svg>
+                                <span class="group-hover:text-primary/80">Edit</span>
                               </.link>
                               <li
+                                class="flex items-center space-x-2 px-4 py-2 text-[1rem] text-gray-600 hover:bg-gray-100 cursor-pointer group"
                                 phx-click="delete_task"
                                 phx-value-id={task.id}
-                                class="p-3 hover:bg-gray-100"
                               >
-                                <.icon name="hero-trash" class="w-6 h-6" /> Delete
+                                <svg
+                                  class="w-6 h-6 group-hover:text-red-500"
+                                  aria-hidden="true"
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  width="24"
+                                  height="24"
+                                  fill="none"
+                                  viewBox="0 0 24 24"
+                                >
+                                  <path
+                                    stroke="currentColor"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="1.5"
+                                    d="M5 7h14m-9 3v8m4-8v8M10 3h4a1 1 0 0 1 1 1v3H9V4a1 1 0 0 1 1-1ZM6 7h12v13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V7Z"
+                                  />
+                                </svg>
+                                <span class="group-hover:text-red-500">Delete</span>
                               </li>
                             </ul>
                           </.dropdown>
@@ -176,17 +240,6 @@
                         <div class="antialiased font-normal leading-normal text-gray-700 overflow-hidden text-ellipsis line-clamp-3">
                           <%= raw(task.description) %>
                         </div>
-                      </div>
-                      <div :if={is_client?(@current_user)} class="p-6 pt-0">
-                        <.link
-                          patch={~p"/projects/#{@project.id}/edit_task/#{task.id}"}
-                          class="w-full flex items-center justify-center"
-                        >
-                          <button class="px-5 py-2 text-sm tracking-wide text-white transition-colors duration-200 bg-primary rounded-lg shrink-0 sm:w-auto gap-x-2 hover:bg-blue-600 hover:scale-105">
-                            <.icon name="hero-pencil-square" class="w-4 h-4" />
-                            <span>Edit Task</span>
-                          </button>
-                        </.link>
                       </div>
                     </div>
                   </div>

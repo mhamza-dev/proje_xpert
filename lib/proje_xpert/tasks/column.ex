@@ -4,6 +4,7 @@ defmodule ProjeXpert.Tasks.Column do
 
   @default_cast [:name, :project_id]
   @default_validte [:name, :project_id]
+  @default_columns ["Backlog", "In Progress", "Completed"]
   schema "columns" do
     field :name, :string
 
@@ -19,4 +20,6 @@ defmodule ProjeXpert.Tasks.Column do
     |> cast(attrs, @default_cast)
     |> validate_required(@default_validte)
   end
+
+  def get_default_columns, do: @default_columns
 end

@@ -150,7 +150,7 @@ defmodule ProjeXpertWeb.LiveHelpers do
   end
 
   def client_average_budget(client) do
-    client = client |> Repo.preload([projects_as_client: [:tasks]])
+    client = client |> Repo.preload(projects_as_client: [:tasks])
 
     all_task_budget =
       Enum.map(client.projects_as_client, & &1.tasks)

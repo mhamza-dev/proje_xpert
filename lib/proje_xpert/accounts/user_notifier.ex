@@ -12,7 +12,7 @@ defmodule ProjeXpert.Accounts.UserNotifier do
       |> subject(subject)
       |> text_body(body)
 
-    with {:ok, _metadata} <- Mailer.deliver(email) |>dbg() do
+    with {:ok, _metadata} <- Mailer.deliver(email) |> dbg() do
       {:ok, email}
     end
   end
