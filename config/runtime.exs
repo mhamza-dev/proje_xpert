@@ -32,12 +32,7 @@ if config_env() == :prod do
 
 
   config :proje_xpert, ProjeXpert.Repo,
-    ssl: [
-      cacertfile: Path.expand("./ca.crt", __DIR__),  # Path to your CA certificate file
-      keyfile: Path.expand("./ca.key", __DIR__),     # Path to your private key file (optional)
-      verify: :verify_peer,                          # Ensure peer verification
-      versions: [:"tlsv1.2"]                         # TLS version for security
-    ],
+    ssl: true,
     url: database_url,
     pool_size: String.to_integer(System.get_env("POOL_SIZE") || "10"),
     socket_options: maybe_ipv6
