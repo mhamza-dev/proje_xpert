@@ -11,7 +11,7 @@ defmodule ProjeXpertWeb.UserRegistrationLive do
         Register as <%= if @live_action == :worker, do: "Job Seeker", else: "Job Poster" %>
         <:subtitle>
           Already registered?
-          <.link navigate={~p"/log_in"} class="font-semibold text-brand hover:underline">
+          <.link navigate={~p"/log_in"} class="font-semibold text-primary hover:underline">
             Log in
           </.link>
           to your account now.
@@ -29,7 +29,7 @@ defmodule ProjeXpertWeb.UserRegistrationLive do
           Oops, something went wrong! Please check the errors below.
         </.error>
 
-        <div class="flex justify-center space-x-2">
+        <div class="flex justify-center space-x-6">
           <.input field={@form[:first_name]} type="text" label="First Name" required />
           <.input field={@form[:last_name]} type="text" label="Last Name" required />
         </div>
@@ -51,14 +51,14 @@ defmodule ProjeXpertWeb.UserRegistrationLive do
           <.link
             :if={@live_action == :worker}
             navigate={~p"/client/register"}
-            class="font-semibold text-brand hover:underline"
+            class="font-semibold text-primary hover:underline"
           >
             Job Poster
           </.link>
           <.link
             :if={@live_action == :client}
             navigate={~p"/worker/register"}
-            class="font-semibold text-brand hover:underline"
+            class="font-semibold text-primary hover:underline"
           >
             Job Seeker
           </.link>

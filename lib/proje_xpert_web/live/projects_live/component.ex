@@ -4,8 +4,15 @@ defmodule ProjeXpertWeb.ProjectsLive.Component do
   alias ProjeXpert.Tasks
   alias ProjeXpert.Tasks.Project
 
+  @columns ["Backlog", "In Progress", "Completed"]
+
   def update(%{project: project} = assigns, socket) do
     changeset = Tasks.change_project(project, %{})
+
+    if project.status == :completed do
+      send(self(), {:return_to_home, project})
+    end
+
     {:ok, socket |> assign(assigns) |> assign(changeset: changeset)}
   end
 
@@ -29,19 +36,19 @@ defmodule ProjeXpertWeb.ProjectsLive.Component do
   end
 
   defp create_project(project_params, socket) do
-    case Tasks.create_project(project_params) do
-      {:ok, project} ->
-        {:noreply,
-         socket
-         |> put_flash(:info, "Project created successfully")
-         |> push_navigate(to: ~p"/projects/#{project.id}/show")}
-
+    with {:ok, project} <- Tasks.create_project(project_params),
+         :ok <- create_columns(project) do
+      {:noreply,
+       socket
+       |> put_flash(:info, "Project created successfully")
+       |> push_navigate(to: ~p"/projects/#{project.id}/show")}
+    else
       {:error, changeset} ->
         {:noreply, socket |> assign(changeset: changeset)}
     end
   end
 
-  def update_project(project_params, socket) do
+  defp update_project(project_params, socket) do
     case Tasks.update_project(socket.assigns.project, project_params) do
       {:ok, project} ->
         Phoenix.PubSub.broadcast!(
@@ -58,5 +65,9 @@ defmodule ProjeXpertWeb.ProjectsLive.Component do
       {:error, changeset} ->
         {:noreply, socket |> assign(changeset: changeset)}
     end
+  end
+
+  defp create_columns(project) do
+    Enum.each(@columns, &Tasks.create_column(%{name: &1, project_id: project.id}))
   end
 end

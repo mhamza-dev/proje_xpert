@@ -3,7 +3,7 @@
     <.link href="/">
       <div class="flex justify-center items-center space-x-2">
         <img src={~p"/images/logo_3_croped.png"} alt="ProjeXpert Logo" class="h-12 w-12" />
-        <span class="text-left text-2xl text-brand font-nunito font-bold">ProjeXpert</span>
+        <span class="text-left text-2xl text-primary font-nunito font-bold">ProjeXpert</span>
       </div>
     </.link>
     <div :if={!@current_user} class="flex items-center space-x-2">
@@ -11,7 +11,7 @@
         :if={@socket.view != ProjeXpertWeb.UserLoginLive}
         href="/log_in"
         type="button"
-        class="hidden md:inline-flex font-semibold text-brand"
+        class="hidden md:inline-flex font-semibold text-primary"
       >
         Log In
       </.link>
@@ -19,12 +19,50 @@
         :if={@socket.view != ProjeXpertWeb.UserRegistrationLive}
         href="/worker/register"
         type="button"
-        class="hidden md:inline-flex font-semibold text-brand"
+        class="hidden md:inline-flex font-semibold text-primary"
       >
         Sign Up
       </.link>
     </div>
-    <div :if={@current_user} class="flex items-center space-x-2">
+    <div :if={@current_user} class="flex items-center space-x-4">
+      <div>
+        <svg
+          class="w-9 h-9 text-gray-800"
+          aria-hidden="true"
+          xmlns="http://www.w3.org/2000/svg"
+          width="24"
+          height="24"
+          fill="none"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="1.5"
+            d="M12 5.365V3m0 2.365a5.338 5.338 0 0 1 5.133 5.368v1.8c0 2.386 1.867 2.982 1.867 4.175 0 .593 0 1.193-.538 1.193H5.538c-.538 0-.538-.6-.538-1.193 0-1.193 1.867-1.789 1.867-4.175v-1.8A5.338 5.338 0 0 1 12 5.365Zm-8.134 5.368a8.458 8.458 0 0 1 2.252-5.714m14.016 5.714a8.458 8.458 0 0 0-2.252-5.714M8.54 17.901a3.48 3.48 0 0 0 6.92 0H8.54Z"
+          />
+        </svg>
+      </div>
+      <div>
+        <svg
+          class="w-9 h-9 text-gray-800"
+          aria-hidden="true"
+          xmlns="http://www.w3.org/2000/svg"
+          width="24"
+          height="24"
+          fill="none"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="1.5"
+            d="M9 17h6l3 3v-3h2V9h-2M4 4h11v8H9l-3 3v-3H4V4Z"
+          />
+        </svg>
+      </div>
       <div x-data="{ open: false }">
         <button
           @click="open = !open"
@@ -33,7 +71,7 @@
           class="relative flex space-x-2"
         >
           <img
-            class="h-12 w-12 rounded-full"
+            class="h-10 w-10 rounded-full"
             src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
             alt=""
           />
@@ -80,54 +118,159 @@
         <.link
           href="/dashboard"
           class={[
-            "flex items-center space-x-1 rounded-md px-2 py-3 hover:bg-gray-100 hover:text-blue-600",
-            @active_tab == :dashboard && "font-semibold bg-gray-100 text-blue-600"
+            "flex items-center space-x-1 rounded-md px-2 py-3 hover:bg-gray-100 group",
+            @active_tab == :dashboard && "font-medium bg-gray-100 text-primary"
           ]}
         >
-          <.icon name="hero-chart-bar-square" class="w-8 h-8" />
-          <span>Dashboard</span>
+          <svg
+            class={[
+              "w-6 h-6 group-hover:text-primary",
+              @active_tab != :dashboard && "text-gray-800",
+              @active_tab == :dashboard && "group-text-primary"
+            ]}
+            aria-hidden="true"
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            fill="none"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="1.5"
+              d="M4 4.5V19a1 1 0 0 0 1 1h15M7 14l4-4 4 4 5-5m0 0h-3.207M20 9v3.207"
+            />
+          </svg>
+
+          <span class="group-hover:text-primary">Dashboard</span>
         </.link>
         <.link
           href={~p"/projects"}
           class={[
-            "flex items-center space-x-1 rounded-md px-2 py-3 hover:bg-gray-100 hover:text-blue-600",
-            @active_tab == :projects && "font-semibold bg-gray-100 text-blue-600"
+            "flex items-center space-x-1 rounded-md px-2 py-3 hover:bg-gray-100 group",
+            @active_tab == :projects && "font-medium bg-gray-100 text-primary"
           ]}
         >
-          <.icon name="hero-briefcase" class="w-8 h-8" />
-          <span>Projects</span>
+          <svg
+            class={[
+              "w-6 h-6 group-hover:text-primary",
+              @active_tab != :projects && "text-gray-800",
+              @active_tab == :projects && "text-primary"
+            ]}
+            aria-hidden="true"
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            fill="none"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="1.5"
+              d="M8 7H5a2 2 0 0 0-2 2v4m5-6h8M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m0 0h3a2 2 0 0 1 2 2v4m0 0v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-6m18 0s-4 2-9 2-9-2-9-2m9-2h.01"
+            />
+          </svg>
+
+          <span class="group-hover:text-primary">Projects</span>
         </.link>
         <.link
           :if={is_worker?(@current_user)}
           href="/tasks"
           class={[
-            "flex items-center space-x-1 rounded-md px-2 py-3 hover:bg-gray-100 hover:text-blue-600",
-            @active_tab == :tasks && "font-semibold bg-gray-100 text-blue-600"
+            "flex items-center space-x-1 rounded-md px-2 py-3 hover:bg-gray-100 group",
+            @active_tab == :tasks && "font-medium bg-gray-100 text-primary"
           ]}
         >
-          <img src={~p"/images/tasks.svg"} class="w-8 h-8" />
-          <span>Tasks</span>
+          <svg
+            class={[
+              "w-6 h-6 group-hover:text-primary",
+              @active_tab != :tasks && "text-gray-800",
+              @active_tab == :tasks && "text-primary"
+            ]}
+            aria-hidden="true"
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            fill="none"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="1.5"
+              d="M15 4h3a1 1 0 0 1 1 1v15a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1h3m0 3h6m-3 5h3m-6 0h.01M12 16h3m-6 0h.01M10 3v4h4V3h-4Z"
+            />
+          </svg>
+
+          <span class="group-hover:text-primary">Tasks</span>
         </.link>
         <.link
-          :if={!is_worker?(@current_user)}
+          :if={is_client?(@current_user)}
           href="/bids"
           class={[
-            "flex items-center space-x-1 rounded-md px-2 py-3 hover:bg-gray-100 hover:text-blue-600",
-            @active_tab == :bids && "font-semibold bg-gray-100 text-blue-600"
+            "flex items-center space-x-1 rounded-md px-2 py-3 hover:bg-gray-100 group",
+            @active_tab == :bids && "font-medium bg-gray-100 text-primary"
           ]}
         >
-          <.icon name="hero-fire" class="w-8 h-8" />
-          <span>Bids</span>
+          <svg
+            class={[
+              "w-6 h-6 group-hover:text-primary",
+              @active_tab != :bids && "text-gray-800",
+              @active_tab == :bids && "text-primary"
+            ]}
+            aria-hidden="true"
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            fill="none"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="1.5"
+              d="M18.5 12A2.5 2.5 0 0 1 21 9.5V7a1 1 0 0 0-1-1H4a1 1 0 0 0-1 1v2.5a2.5 2.5 0 0 1 0 5V17a1 1 0 0 0 1 1h16a1 1 0 0 0 1-1v-2.5a2.5 2.5 0 0 1-2.5-2.5Z"
+            />
+          </svg>
+
+          <span class="group-hover:text-primary">Bids</span>
         </.link>
         <a
           href="#"
           class={[
-            "flex items-center space-x-1 rounded-md px-2 py-3 hover:bg-gray-100 hover:text-blue-600",
-            @active_tab == :settings && "font-semibold bg-gray-100 text-blue-600"
+            "flex items-center space-x-1 rounded-md px-2 py-3 hover:bg-gray-100 group",
+            @active_tab == :settings && "font-medium bg-gray-100 text-primary"
           ]}
         >
-          <.icon name="hero-cog-8-tooth" class="w-8 h-8" />
-          <span>Settings</span>
+          <svg
+            class={[
+              "w-6 h-6 group-hover:text-primary",
+              @active_tab != :settings && "text-gray-800",
+              @active_tab == :settings && "text-primary"
+            ]}
+            aria-hidden="true"
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            fill="none"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke="currentColor"
+              stroke-linecap="square"
+              stroke-linejoin="round"
+              stroke-width="1.5"
+              d="M10 19H5a1 1 0 0 1-1-1v-1a3 3 0 0 1 3-3h2m10 1a3 3 0 0 1-3 3m3-3a3 3 0 0 0-3-3m3 3h1m-4 3a3 3 0 0 1-3-3m3 3v1m-3-4a3 3 0 0 1 3-3m-3 3h-1m4-3v-1m-2.121 1.879-.707-.707m5.656 5.656-.707-.707m-4.242 0-.707.707m5.656-5.656-.707.707M12 8a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"
+            />
+          </svg>
+
+          <span class="group-hover:text-primary">Settings</span>
         </a>
       </aside>
     </div>

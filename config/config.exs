@@ -29,7 +29,12 @@ config :proje_xpert, ProjeXpertWeb.Endpoint,
 #
 # For production it's recommended to configure a different adapter
 # at the `config/runtime.exs`.
-config :proje_xpert, ProjeXpert.Mailer, adapter: Swoosh.Adapters.Local
+config :proje_xpert, ProjeXpert.Mailer,
+  adapter: Swoosh.Adapters.Brevo,
+  api_key: System.get_env("BREVO_API_KEY")
+
+# configure stripe
+config :stripity_stripe, api_key: System.get_env("STRIPE_PRIVATE_KEY")
 
 # Configure esbuild (the version is required)
 config :esbuild,

@@ -5,12 +5,12 @@ defmodule ProjeXpertWeb.ProjectsLive.Index do
   alias ProjeXpert.Tasks.Project
 
   def mount(params, _session, %{assigns: assigns} = socket) do
-    projects = get_projects_by_role(assigns.current_user, params)
+    projects = get_resources_by_role(Project, assigns.current_user, params)
 
     {:ok,
      socket
      |> assign(current_tab: Map.get(params, "tab"))
-     |> stream(:projects, projects)}
+     |> assign(:projects, projects)}
   end
 
   def handle_params(params, _url, socket) do
@@ -33,5 +33,33 @@ defmodule ProjeXpertWeb.ProjectsLive.Index do
     socket
     |> assign(:page_title, "Projects")
     |> assign(:project, nil)
+  end
+
+  def handle_event("search", %{"search" => search}, %{assigns: assigns} = socket) do
+    projects =
+      get_resources_by_role(
+        Project,
+        assigns.current_user,
+        fetch_tab_param(assigns.current_tab),
+        search
+      )
+
+    {:noreply, socket |> assign(:projects, projects)}
+  end
+
+  def handle_event("delete_project", %{"id" => id}, socket) do
+    with %Project{} = project <- Tasks.get_project!(id),
+         {:ok, _} <- Tasks.delete_project(project) do
+      {:noreply,
+       socket
+       |> put_flash(:info, "Project deleted successfully")
+       |> push_navigate(to: ~p"/projects")}
+    else
+      _ ->
+      {:noreply,
+       socket
+       |> put_flash(:error, "Somehting went wrong while deleting the Project")
+       |> push_navigate(to: ~p"/projects")}
+    end
   end
 end

@@ -13,7 +13,7 @@ defmodule ProjeXpert.Accounts.User do
     # Permissions: Oversee platform operations, manage users, handle disputes.
     # Features: User management, content moderation, analytics.
   ]
-  @register_cast [:first_name, :last_name, :email, :password, :role]
+  @register_cast [:first_name, :last_name, :email, :password, :role, :rating]
   schema "users" do
     field :first_name, :string
     field :last_name, :string
@@ -24,6 +24,7 @@ defmodule ProjeXpert.Accounts.User do
     field :provider, Ecto.Enum, values: [:google, :creds]
     field :current_password, :string, virtual: true, redact: true
     field :confirmed_at, :utc_datetime
+    field :rating, :float, default: 0.00
 
     # Associations
     has_many :bids, ProjeXpert.Tasks.Bid, foreign_key: :worker_id

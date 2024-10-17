@@ -17,8 +17,8 @@ module.exports = {
         nunito: ["Nunito", "sans-serif"],
       },
       colors: {
+        primary: "#4F46E5",
         brand: "#0142D3",
-        primary: "#6f4518",
       },
     },
   },

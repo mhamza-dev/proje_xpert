@@ -272,57 +272,57 @@ defmodule ProjeXpert.TasksTest do
     end
   end
 
-  describe "chats" do
-    alias ProjeXpert.Tasks.Chat
+  describe "comments" do
+    alias ProjeXpert.Tasks.Comment
 
     import ProjeXpert.TasksFixtures
 
     @invalid_attrs %{message: nil}
 
-    test "list_chats/0 returns all chats" do
-      chat = chat_fixture()
-      assert Tasks.list_chats() == [chat]
+    test "list_comments/0 returns all comments" do
+      comment = chat_fixture()
+      assert Tasks.list_comments() == [comment]
     end
 
-    test "get_chat!/1 returns the chat with given id" do
-      chat = chat_fixture()
-      assert Tasks.get_chat!(chat.id) == chat
+    test "get_comment!/1 returns the comment with given id" do
+      comment = chat_fixture()
+      assert Tasks.get_comment!(comment.id) == comment
     end
 
-    test "create_chat/1 with valid data creates a chat" do
+    test "create_comment/1 with valid data creates a comment" do
       valid_attrs = %{message: "some message"}
 
-      assert {:ok, %Chat{} = chat} = Tasks.create_chat(valid_attrs)
-      assert chat.message == "some message"
+      assert {:ok, %Comment{} = comment} = Tasks.create_comment(valid_attrs)
+      assert comment.message == "some message"
     end
 
-    test "create_chat/1 with invalid data returns error changeset" do
-      assert {:error, %Ecto.Changeset{}} = Tasks.create_chat(@invalid_attrs)
+    test "create_comment/1 with invalid data returns error changeset" do
+      assert {:error, %Ecto.Changeset{}} = Tasks.create_comment(@invalid_attrs)
     end
 
-    test "update_chat/2 with valid data updates the chat" do
-      chat = chat_fixture()
+    test "update_comment/2 with valid data updates the comment" do
+      comment = chat_fixture()
       update_attrs = %{message: "some updated message"}
 
-      assert {:ok, %Chat{} = chat} = Tasks.update_chat(chat, update_attrs)
-      assert chat.message == "some updated message"
+      assert {:ok, %Comment{} = comment} = Tasks.update_comment(comment, update_attrs)
+      assert comment.message == "some updated message"
     end
 
-    test "update_chat/2 with invalid data returns error changeset" do
-      chat = chat_fixture()
-      assert {:error, %Ecto.Changeset{}} = Tasks.update_chat(chat, @invalid_attrs)
-      assert chat == Tasks.get_chat!(chat.id)
+    test "update_comment/2 with invalid data returns error changeset" do
+      comment = chat_fixture()
+      assert {:error, %Ecto.Changeset{}} = Tasks.update_comment(comment, @invalid_attrs)
+      assert comment == Tasks.get_comment!(comment.id)
     end
 
-    test "delete_chat/1 deletes the chat" do
-      chat = chat_fixture()
-      assert {:ok, %Chat{}} = Tasks.delete_chat(chat)
-      assert_raise Ecto.NoResultsError, fn -> Tasks.get_chat!(chat.id) end
+    test "delete_comment/1 deletes the comment" do
+      comment = chat_fixture()
+      assert {:ok, %Comment{}} = Tasks.delete_comment(comment)
+      assert_raise Ecto.NoResultsError, fn -> Tasks.get_comment!(comment.id) end
     end
 
-    test "change_chat/1 returns a chat changeset" do
-      chat = chat_fixture()
-      assert %Ecto.Changeset{} = Tasks.change_chat(chat)
+    test "change_comment/1 returns a comment changeset" do
+      comment = chat_fixture()
+      assert %Ecto.Changeset{} = Tasks.change_comment(comment)
     end
   end
 
@@ -486,6 +486,58 @@ defmodule ProjeXpert.TasksTest do
     test "change_worker_task/1 returns a worker_task changeset" do
       worker_task = worker_task_fixture()
       assert %Ecto.Changeset{} = Tasks.change_worker_task(worker_task)
+    end
+  end
+
+  describe "replies" do
+    alias ProjeXpert.Tasks.Reply
+
+    import ProjeXpert.TasksFixtures
+
+    @invalid_attrs %{}
+
+    test "list_replies/0 returns all replies" do
+      reply = reply_fixture()
+      assert Tasks.list_replies() == [reply]
+    end
+
+    test "get_reply!/1 returns the reply with given id" do
+      reply = reply_fixture()
+      assert Tasks.get_reply!(reply.id) == reply
+    end
+
+    test "create_reply/1 with valid data creates a reply" do
+      valid_attrs = %{}
+
+      assert {:ok, %Reply{} = reply} = Tasks.create_reply(valid_attrs)
+    end
+
+    test "create_reply/1 with invalid data returns error changeset" do
+      assert {:error, %Ecto.Changeset{}} = Tasks.create_reply(@invalid_attrs)
+    end
+
+    test "update_reply/2 with valid data updates the reply" do
+      reply = reply_fixture()
+      update_attrs = %{}
+
+      assert {:ok, %Reply{} = reply} = Tasks.update_reply(reply, update_attrs)
+    end
+
+    test "update_reply/2 with invalid data returns error changeset" do
+      reply = reply_fixture()
+      assert {:error, %Ecto.Changeset{}} = Tasks.update_reply(reply, @invalid_attrs)
+      assert reply == Tasks.get_reply!(reply.id)
+    end
+
+    test "delete_reply/1 deletes the reply" do
+      reply = reply_fixture()
+      assert {:ok, %Reply{}} = Tasks.delete_reply(reply)
+      assert_raise Ecto.NoResultsError, fn -> Tasks.get_reply!(reply.id) end
+    end
+
+    test "change_reply/1 returns a reply changeset" do
+      reply = reply_fixture()
+      assert %Ecto.Changeset{} = Tasks.change_reply(reply)
     end
   end
 end

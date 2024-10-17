@@ -8,11 +8,11 @@ defmodule ProjeXpert.Accounts.UserNotifier do
     email =
       new()
       |> to(recipient)
-      |> from({"ProjeXpert", System.get_env("MAIL_USERNAME")})
+      |> from({"ProjeXpert", System.get_env("SENDER_MAIL")})
       |> subject(subject)
       |> text_body(body)
 
-    with {:ok, _metadata} <- Mailer.deliver(email) do
+    with {:ok, _metadata} <- Mailer.deliver(email) |>dbg() do
       {:ok, email}
     end
   end

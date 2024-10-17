@@ -11,6 +11,7 @@ defmodule ProjeXpert.Repo.Migrations.CreateUsersAuthTables do
       add :hashed_password, :string, null: false
       add :role, :string, null: false
       add :confirmed_at, :utc_datetime
+      add :rating, :float, default: 0.00
 
       timestamps(type: :utc_datetime)
     end

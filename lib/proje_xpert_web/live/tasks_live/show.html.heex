@@ -1,104 +1,134 @@
-<div class="container mx-auto p-4 pt-6 md:p-6 lg:p-12">
-  <div class="">
-    ["Bidder Name", "Status", "Task Title", "Project Name", "Bid at"]
-    <div class="w-full">
-      <!-- Job Details -->
-      <h1 class="text-3xl font-bold mb-4"><%= @task.title %></h1>
-      <p class="text-lg mb-4"><%= @task.description %></p>
-      <ul class="list-none mb-4">
-        <li class="flex items-center mb-2">
-          <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 011 18z"
-            />
-          </svg>
-          <span><%= "Remote" %></span>
-        </li>
-        <li class="flex items-center mb-2">
-          <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 011 18z"
-            />
-          </svg>
-          <span><%= "Fixed Price" %></span>
-        </li>
-        <li class="flex items-center mb-2">
-          <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 011 18z"
-            />
-          </svg>
-          <span><%= @task.budget %></span>
-        </li>
-        <li class="flex items-center mb-2">
-          <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 011 18z"
-            />
-          </svg>
-          <span><%= format_datetime(@task.inserted_at) %></span>
-        </li>
-      </ul>
+<main class="container mx-auto px-4 pt-12">
+  <div class="flex flex-col lg:flex-row gap-8">
+    <!-- Main content -->
+    <div class="lg:w-2/3 max-h-[750px] overflow-y-scroll">
+      <div class="bg-white rounded-xl shadow-md overflow-hidden mb-8">
+        <div class="p-8">
+          <h2 class="text-3xl font-bold text-gray-800 mb-2"><%= @task.title %></h2>
+          <p class="text-indigo-500 mb-6 flex items-center">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-5 w-5 mr-2"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+            >
+              <path
+                fill-rule="evenodd"
+                d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"
+                clip-rule="evenodd"
+              />
+            </svg>
+            Posted <%= relative_time(@task.inserted_at) %>
+          </p>
+
+          <div class="prose max-w-none">
+            <h3 class="text-xl font-semibold text-gray-800 mb-4">Task Description</h3>
+            <p class="text-gray-600 mb-6">
+              <%= raw(@task.description) %>
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-xl shadow-md overflow-hidden">
+        <div class="p-8">
+          <h3 class="text-2xl font-bold text-gray-800 mb-6">Submit a Proposal</h3>
+          <.form
+            :let={f}
+            for={@changeset}
+            phx-change="validate-bid"
+            phx-submit="create-bid"
+            class="flex flex-col space-y-4"
+          >
+            <div class="mb-6">
+              <.input field={f[:worker_id]} type="hidden" value={@current_user.id} />
+              <.input field={f[:task_id]} type="hidden" value={@task.id} />
+              <label for="rate" class="block text-sm font-medium text-gray-700 mb-2">
+                Budget ($)
+              </label>
+              <.input
+                field={f[:budget]}
+                type="number"
+                class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                required
+              />
+            </div>
+            <div class="mb-6">
+              <label for="coverLetter" class="block text-sm font-medium text-gray-700 mb-2">
+                Cover Letter
+              </label>
+              <.text_editor field={f[:description]} id="bid-description" />
+            </div>
+            <div class="mb-6">
+              <label for="attachment" class="block text-sm font-medium text-gray-700 mb-2">
+                Attachments
+              </label>
+              <.live_file_input
+                class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                upload={@uploads.cv}
+              />
+            </div>
+            <button
+              type="submit"
+              class="w-full bg-primary/80 text-white font-semibold py-3 px-4 rounded-md hover:bg-primary focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition duration-150 ease-in-out"
+            >
+              Submit Proposal
+            </button>
+          </.form>
+        </div>
+      </div>
+    </div>
+    <!-- Sidebar -->
+    <div class="lg:w-1/3">
+      <div class="bg-white rounded-xl shadow-md overflow-hidden mb-8">
+        <div class="p-6">
+          <h3 class="text-xl font-bold text-gray-800 mb-4">Task Details</h3>
+          <ul class="space-y-4">
+            <li class="flex justify-between items-center">
+              <span class="text-gray-600">Budget:</span>
+              <span class="font-semibold text-primary/80">
+                <%= Number.Currency.number_to_currency(@task.budget) %>
+              </span>
+            </li>
+            <li class="flex justify-between items-center">
+              <span class="text-gray-600">Deadline:</span>
+              <span class="font-semibold text-primary/80"><%= @task.deadline %></span>
+            </li>
+            <li class="flex justify-between items-center">
+              <span class="text-gray-600">Experience Level:</span>
+              <span class="font-semibold text-primary/80"><%= @task.experience_required %></span>
+            </li>
+            <li class="flex justify-between items-center">
+              <span class="text-gray-600">Location:</span>
+              <span class="font-semibold text-primary/80">Remote</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-xl shadow-md overflow-hidden">
+        <div class="p-6">
+          <h3 class="text-xl font-bold text-gray-800 mb-4">About the Client</h3>
+          <ul class="space-y-4">
+            <li class="flex justify-between items-center">
+              <span class="text-gray-600">Location:</span>
+              <span class="font-semibold">United States</span>
+            </li>
+            <li class="flex justify-between items-center">
+              <span class="text-gray-600">Member Since:</span>
+              <span class="font-semibold">Jan 2020</span>
+            </li>
+            <li class="flex justify-between items-center">
+              <span class="text-gray-600">Avg. Hourly Rate:</span>
+              <span class="font-semibold">$35/hr</span>
+            </li>
+            <li class="flex justify-between items-center">
+              <span class="text-gray-600">Total Spent:</span>
+              <span class="font-semibold">$25,000+</span>
+            </li>
+          </ul>
+        </div>
+      </div>
     </div>
   </div>
-
-  <div class="w-full">
-    <!-- Submit Proposal Form -->
-    <h2 class="text-2xl font-bold mb-4">Submit Proposal</h2>
-    <.form
-      :let={f}
-      for={@changeset}
-      phx-change="validate-bid"
-      phx-submit="create-bid"
-      class="flex flex-col space-y-4"
-    >
-      <div class="form-control">
-        <.input
-          field={f[:name]}
-          type="text"
-          label="Proposal Title"
-          class="w-full p-2 text-sm text-gray-700"
-        />
-      </div>
-      <div class="form-control">
-        <.text_editor field={f[:description]} id="bid-description" label="Proposal Description" />
-      </div>
-      <div class="form-control flex justify-between space-x-2">
-        <.input
-          field={f[:amount]}
-          type="number"
-          label="Bid Amount"
-          class="w-full p-2 text-sm text-gray-700"
-          div_class="w-full"
-        />
-
-        <.input
-          field={f[:delivery_time]}
-          type="date"
-          label="Delivery Time"
-          class="w-full p-2 text-sm text-gray-700"
-          div_class="w-full"
-        />
-      </div>
-      <div class="form-control">
-        <label class="block mb-2" for="file">Upload CV</label>
-        <.live_file_input class="w-full p-2 pl-10 text-sm text-gray-700" upload={@uploads.cv} />
-      </div>
-      <button class="bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded">
-        Submit Proposal
-      </button>
-    </.form>
-  </div>
-</div>
+</main>
