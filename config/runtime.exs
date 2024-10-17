@@ -30,10 +30,14 @@ if config_env() == :prod do
 
   maybe_ipv6 = if System.get_env("ECTO_IPV6") in ~w(true 1), do: [:inet6], else: []
 
-  dbg(database_url)
 
   config :proje_xpert, ProjeXpert.Repo,
-    ssl: true,
+    ssl: [
+      cacertfile: Path.expand("./ca.crt", __DIR__),  # Path to your CA certificate file
+      keyfile: Path.expand("./ca.key", __DIR__),     # Path to your private key file (optional)
+      verify: :verify_peer,                          # Ensure peer verification
+      versions: [:"tlsv1.2"]                         # TLS version for security
+    ],
     url: database_url,
     pool_size: String.to_integer(System.get_env("POOL_SIZE") || "10"),
     socket_options: maybe_ipv6
