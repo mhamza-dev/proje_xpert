@@ -5,7 +5,7 @@ defmodule ProjeXpert.Tasks do
 
   import Ecto.Query, warn: false
   alias ProjeXpert.Repo
-  alias ProjeXpert.Tasks.{Bid, Chat, Column, Project, Payment, Task, WorkerProject, WorkerTask}
+  alias ProjeXpert.Tasks.{Bid, Comment, Column, Project, Payment, Task, WorkerProject, WorkerTask}
 
   @doc """
   Returns the list of projects.
@@ -29,23 +29,34 @@ defmodule ProjeXpert.Tasks do
       [%Project{}, ...]
 
   """
-  def list_client_projects(id) do
-    Project
-    |> where([p], p.client_id == ^id)
-    |> preload([:client, tasks: [:column, :worker_tasks, bids: :worker]])
+
+  def list_client_projects(id, filters) do
+    dbg(filters)
+
+    from(p in Project, where: p.client_id == ^id)
+    |> filter_projects_query(filters)
+    |> preload([:client, :worker_projects, tasks: [:column, :worker_tasks, bids: :worker]])
     |> Repo.all()
   end
 
-  def list_worker_projects(id) do
-    Project
-    # |> join(:inner, [p], wp in assoc(p, :worker_projects))
-    |> join(:inner, [p], t in assoc(p, :tasks))
-    |> join(:inner, [_p, t], wt in assoc(t, :worker_tasks))
-    |> where([_p, _t, wt], wt.worker_id == ^id)
-    |> distinct([p, _t, _wt], p.id)
-    |> preload([:client, tasks: [:column, :worker_tasks, bids: :worker]])
+  def list_worker_projects(id, filters) do
+    from(p in Project,
+      inner_join: wp in assoc(p, :worker_projects),
+      inner_join: t in assoc(p, :tasks),
+      inner_join: wt in assoc(t, :worker_tasks),
+      where: wt.worker_id == ^id
+    )
+    |> filter_projects_query(filters)
+    |> distinct([p, _wp, _t, _wt], p.id)
+    |> preload([:client, :worker_projects, tasks: [:column, :worker_tasks, bids: :worker]])
     |> Repo.all()
   end
+
+  defp filter_projects_query(query, %{"search_term" => search_term}) do
+    from(q in query, where: ilike(q.title, ^"%#{String.trim(search_term)}%"))
+  end
+
+  defp filter_projects_query(query, _filter), do: query
 
   @doc """
   Gets a single project.
@@ -141,7 +152,7 @@ defmodule ProjeXpert.Tasks do
 
   """
   def list_tasks do
-    Repo.all(Task) |> Repo.preload([:worker_tasks, project: :client])
+    Repo.all(Task) |> Repo.preload([:worker_tasks, :comments, project: :client])
   end
 
   @doc """
@@ -158,7 +169,8 @@ defmodule ProjeXpert.Tasks do
       ** (Ecto.NoResultsError)
 
   """
-  def get_task!(id), do: Repo.get!(Task, id) |> Repo.preload(:bids)
+  def get_task!(id),
+    do: Repo.get!(Task, id) |> Repo.preload([:bids, [project: [:client], comments: [:user, replies: :user]]])
 
   @doc """
   Creates a task.
@@ -225,6 +237,10 @@ defmodule ProjeXpert.Tasks do
     Task.changeset(task, attrs)
   end
 
+  def change_task_comment(%Task{} = task, attrs \\ %{}) do
+    Task.task_comment_changeset(task, attrs)
+  end
+
   @doc """
   Returns the list of bids.
 
@@ -238,25 +254,37 @@ defmodule ProjeXpert.Tasks do
     Repo.all(Bid)
   end
 
-  def list_client_bids(id) do
+  def list_client_bids(id, filters) do
     from(b in Bid,
       inner_join: t in assoc(b, :task),
       inner_join: p in assoc(t, :project),
       where: p.client_id == ^id
     )
+    |> filter_bids_query(filters)
     |> preload([:worker, task: :project])
     |> Repo.all()
   end
 
-  def list_worker_bids(id) do
+  def list_worker_bids(id, filters) do
     from(b in Bid,
       inner_join: t in assoc(b, :task),
       inner_join: wt in assoc(t, :worker_tasks),
       where: wt.worker_id == ^id
     )
+    |> filter_bids_query(filters)
     |> preload([:worker, task: :project])
     |> Repo.all()
   end
+
+  defp filter_bids_query(query, %{"search_term" => search_term}) do
+    from(q in query,
+      inner_join: w in assoc(q, :worker),
+      where: ilike(w.first_name, ^"%#{String.trim(search_term)}%"),
+      or_where: ilike(w.last_name, ^"%#{String.trim(search_term)}%")
+    )
+  end
+
+  defp filter_bids_query(query, _filter), do: query
 
   @doc """
   Gets a single bid.
@@ -434,97 +462,97 @@ defmodule ProjeXpert.Tasks do
   end
 
   @doc """
-  Returns the list of chats.
+  Returns the list of comments.
 
   ## Examples
 
-      iex> list_chats()
-      [%Chat{}, ...]
+      iex> list_comments()
+      [%Comment{}, ...]
 
   """
-  def list_chats do
-    Repo.all(Chat)
+  def list_comments do
+    Repo.all(Comment)
   end
 
   @doc """
-  Gets a single chat.
+  Gets a single comment.
 
-  Raises `Ecto.NoResultsError` if the Chat does not exist.
+  Raises `Ecto.NoResultsError` if the Comment does not exist.
 
   ## Examples
 
-      iex> get_chat!(123)
-      %Chat{}
+      iex> get_comment!(123)
+      %Comment{}
 
-      iex> get_chat!(456)
+      iex> get_comment!(456)
       ** (Ecto.NoResultsError)
 
   """
-  def get_chat!(id), do: Repo.get!(Chat, id)
+  def get_comment!(id), do: Repo.get!(Comment, id)
 
   @doc """
-  Creates a chat.
+  Creates a comment.
 
   ## Examples
 
-      iex> create_chat(%{field: value})
-      {:ok, %Chat{}}
+      iex> create_comment(%{field: value})
+      {:ok, %Comment{}}
 
-      iex> create_chat(%{field: bad_value})
+      iex> create_comment(%{field: bad_value})
       {:error, %Ecto.Changeset{}}
 
   """
-  def create_chat(attrs \\ %{}) do
-    %Chat{}
-    |> Chat.changeset(attrs)
+  def create_comment(attrs \\ %{}) do
+    %Comment{}
+    |> Comment.changeset(attrs)
     |> Repo.insert()
   end
 
   @doc """
-  Updates a chat.
+  Updates a comment.
 
   ## Examples
 
-      iex> update_chat(chat, %{field: new_value})
-      {:ok, %Chat{}}
+      iex> update_comment(comment, %{field: new_value})
+      {:ok, %Comment{}}
 
-      iex> update_chat(chat, %{field: bad_value})
+      iex> update_comment(comment, %{field: bad_value})
       {:error, %Ecto.Changeset{}}
 
   """
-  def update_chat(%Chat{} = chat, attrs) do
-    chat
-    |> Chat.changeset(attrs)
+  def update_comment(%Comment{} = comment, attrs) do
+    comment
+    |> Comment.changeset(attrs)
     |> Repo.update()
   end
 
   @doc """
-  Deletes a chat.
+  Deletes a comment.
 
   ## Examples
 
-      iex> delete_chat(chat)
-      {:ok, %Chat{}}
+      iex> delete_comment(comment)
+      {:ok, %Comment{}}
 
-      iex> delete_chat(chat)
+      iex> delete_comment(comment)
       {:error, %Ecto.Changeset{}}
 
   """
-  def delete_chat(%Chat{} = chat) do
-    Repo.delete(chat)
+  def delete_comment(%Comment{} = comment) do
+    Repo.delete(comment)
   end
 
   @doc """
-  Returns an `%Ecto.Changeset{}` for tracking chat changes.
+  Returns an `%Ecto.Changeset{}` for tracking comment changes.
 
   ## Examples
 
-      iex> change_chat(chat)
-      %Ecto.Changeset{data: %Chat{}}
+      iex> change_comment(comment)
+      %Ecto.Changeset{data: %Comment{}}
 
   """
-  def change_chat(%Chat{} = chat, attrs \\ %{}) do
-    Chat.changeset(chat, attrs)
+  def change_comment(%Comment{} = comment, attrs \\ %{}) do
+    Comment.changeset(comment, attrs)
   end
 
   @doc """
@@ -655,6 +683,9 @@ defmodule ProjeXpert.Tasks do
 
   """
   def get_worker_project!(id), do: Repo.get!(WorkerProject, id)
+
+  def get_worker_project_by_task!(id),
+    do: WorkerProject |> where([wp], wp.project_id == ^id) |> Repo.one!()
 
   @doc """
   Creates a worker_project.
@@ -813,5 +844,101 @@ defmodule ProjeXpert.Tasks do
   """
   def change_worker_task(%WorkerTask{} = worker_task, attrs \\ %{}) do
     WorkerTask.changeset(worker_task, attrs)
+  end
+
+  alias ProjeXpert.Tasks.Reply
+
+  @doc """
+  Returns the list of replies.
+
+  ## Examples
+
+      iex> list_replies()
+      [%Reply{}, ...]
+
+  """
+  def list_replies do
+    Repo.all(Reply)
+  end
+
+  @doc """
+  Gets a single reply.
+
+  Raises `Ecto.NoResultsError` if the Reply does not exist.
+
+  ## Examples
+
+      iex> get_reply!(123)
+      %Reply{}
+
+      iex> get_reply!(456)
+      ** (Ecto.NoResultsError)
+
+  """
+  def get_reply!(id), do: Repo.get!(Reply, id)
+
+  @doc """
+  Creates a reply.
+
+  ## Examples
+
+      iex> create_reply(%{field: value})
+      {:ok, %Reply{}}
+
+      iex> create_reply(%{field: bad_value})
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def create_reply(attrs \\ %{}) do
+    %Reply{}
+    |> Reply.changeset(attrs)
+    |> Repo.insert()
+  end
+
+  @doc """
+  Updates a reply.
+
+  ## Examples
+
+      iex> update_reply(reply, %{field: new_value})
+      {:ok, %Reply{}}
+
+      iex> update_reply(reply, %{field: bad_value})
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def update_reply(%Reply{} = reply, attrs) do
+    reply
+    |> Reply.changeset(attrs)
+    |> Repo.update()
+  end
+
+  @doc """
+  Deletes a reply.
+
+  ## Examples
+
+      iex> delete_reply(reply)
+      {:ok, %Reply{}}
+
+      iex> delete_reply(reply)
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def delete_reply(%Reply{} = reply) do
+    Repo.delete(reply)
+  end
+
+  @doc """
+  Returns an `%Ecto.Changeset{}` for tracking reply changes.
+
+  ## Examples
+
+      iex> change_reply(reply)
+      %Ecto.Changeset{data: %Reply{}}
+
+  """
+  def change_reply(%Reply{} = reply, attrs \\ %{}) do
+    Reply.changeset(reply, attrs)
   end
 end

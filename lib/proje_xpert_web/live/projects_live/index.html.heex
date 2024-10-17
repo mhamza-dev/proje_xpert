@@ -2,8 +2,8 @@
 <section class="container px-4 mx-auto">
   <div class="flex items-center justify-between">
     <h1 class="text-xl font-semibold">Project Listing</h1>
-    <.link patch={~p"/projects/new"}>
-      <button class="flex items-center justify-center w-1/2 px-5 py-2 text-sm tracking-wide text-white transition-colors duration-200 bg-brand rounded-lg shrink-0 sm:w-auto gap-x-2 hover:bg-blue-600">
+    <.link patch={~p"/projects/new"} :if={is_client?(@current_user)}>
+      <button class="flex items-center justify-center w-1/2 px-5 py-2 text-sm tracking-wide text-white transition-colors duration-200 bg-primary rounded-lg shrink-0 sm:w-auto gap-x-2 hover:bg-blue-600">
         <.icon name="hero-plus-circle" class="w-4 h-4" />
         <span>Add Project</span>
       </button>
@@ -27,37 +27,39 @@
       >
         <button class={[
           "px-5 py-2 text-xs font-medium text-gray-600 transition-colors duration-200 sm:text-sm hover:bg-gray-100",
-          @current_tab == "no_find_worker" && "bg-gray-100"
+          @current_tab == "#{Atom.to_string(status)}" && "bg-gray-100"
         ]}>
           <%= camel_case_string(status) %>
         </button>
       </.link>
     </div>
 
-    <div class="relative flex items-center mt-4 md:mt-0">
-      <span class="absolute">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke-width="1.5"
-          stroke="currentColor"
-          class="w-5 h-5 mx-3 text-gray-400 "
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"
-          />
-        </svg>
-      </span>
-
-      <input
-        type="text"
-        placeholder="Search"
-        class="block w-full py-1.5 pr-5 text-gray-700 bg-white border border-gray-200 rounded-lg md:w-80 placeholder-gray-400/70 pl-11 rtl:pr-11 rtl:pl-5 focus:border-blue-400 focus:ring-blue-300 focus:outline-none focus:ring focus:ring-opacity-40"
-      />
-    </div>
+    <.form :let={f} for={Map.new()} as={:search} phx-change="search" phx-submit="search">
+      <div class="relative flex items-center mt-4 md:mt-0">
+        <span class="absolute">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke-width="1.5"
+            stroke="currentColor"
+            class="w-5 h-5 mx-3 text-gray-400 mt-2"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"
+            />
+          </svg>
+        </span>
+        <.input
+          type="text"
+          placeholder="Search"
+          field={f[:search_term]}
+          class="block w-full py-1.5 pr-5 text-gray-700 bg-white border border-gray-200 rounded-lg md:w-80 placeholder-gray-400/70 pl-11 rtl:pr-11 rtl:pl-5 focus:border-blue-400 focus:ring-blue-300 focus:outline-none focus:ring focus:ring-opacity-40"
+        />
+      </div>
+    </.form>
   </div>
 
   <.live_component
@@ -67,7 +69,7 @@
     has_actions?={true}
   >
     <:table_cells>
-      <tr :for={{_id, project} <- @streams.projects} class="border-b-[1px]">
+      <tr :for={project <- @projects} class="border-b-[1px]">
         <td class="p-3 text-sm font-medium">
           <.link navigate={~p"/projects/#{project.id}/show"}>
             <h2 class="font-medium text-gray-800 "><%= project.title %></h2>
@@ -130,47 +132,60 @@
         </td>
 
         <td class="p-3 text-sm">
-          <.link
-            patch={~p"/projects/#{project.id}/edit"}
-            class="block px-4 py-2 text-lg text-gray-600 cursor-pointer"
-          >
-            <.icon name="hero-pencil-square" class="w-6 h-6" />
-          </.link>
-        </td>
-
-        <%!-- <td class="px-4 py-4 text-sm whitespace-nowrap" x-data="{ open: false }">
-                  <button
-                    class="px-1 py-1 text-gray-500 transition-colors duration-200 rounded-lg hover:bg-gray-100"
-                    @click="open = !open"
-                    @click.outside="open = false"
+          <.dropdown :if={is_client?(@current_user)}>
+            <ul>
+              <li
+                class="flex items-center space-x-2 px-4 py-2 text-[1rem] text-gray-600 hover:bg-gray-100 cursor-pointer group"
+                phx-click="delete_project"
+                phx-value-id={project.id}
+              >
+                <svg
+                  class="w-6 h-6 group-hover:text-red-500"
+                  aria-hidden="true"
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke="currentColor"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="1.5"
+                    d="M5 7h14m-9 3v8m4-8v8M10 3h4a1 1 0 0 1 1 1v3H9V4a1 1 0 0 1 1-1ZM6 7h12v13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V7Z"
+                  />
+                </svg>
+                <span class="group-hover:text-red-500">Delete</span>
+              </li>
+              <li class="px-4 py-2 text-md text-gray-600 hover:bg-gray-100 cursor-pointer group">
+                <.link
+                  patch={~p"/projects/#{project.id}/edit"}
+                  class="flex items-center space-x-2 text-[1rem] text-gray-600 cursor-pointer"
+                >
+                  <svg
+                    class="w-6 h-6 group-hover:text-primary/80"
+                    aria-hidden="true"
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    fill="none"
+                    viewBox="0 0 24 24"
                   >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke-width="1.5"
+                    <path
                       stroke="currentColor"
-                      class="w-6 h-6"
-                    >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        d="M12 6.75a.75.75 0 110-1.5.75.75 0 010 1.5zM12 12.75a.75.75 0 110-1.5.75.75 0 010 1.5zM12 18.75a.75.75 0 110-1.5.75.75 0 010 1.5z"
-                      />
-                    </svg>
-                  </button>
-                  <div
-                    x-show="open"
-                    class="absolute right-10 z-10 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
-                  >
-                    <.link
-                      patch={~p"/projects/#{project.id}/edit"}
-                      class="block px-4 py-2 text-lg text-gray-600 hover:bg-gray-100 cursor-pointer"
-                    >
-                      <.icon name="hero-pencil-square" class="w-6 h-6" /> Edit
-                    </.link>
-                  </div>
-                </td> --%>
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="1.5"
+                      d="m14.304 4.844 2.852 2.852M7 7H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-4.5m2.409-9.91a2.017 2.017 0 0 1 0 2.853l-6.844 6.844L8 14l.713-3.565 6.844-6.844a2.015 2.015 0 0 1 2.852 0Z"
+                    />
+                  </svg>
+                  <span class="group-hover:text-primary/80">Edit</span>
+                </.link>
+              </li>
+            </ul>
+          </.dropdown>
+        </td>
       </tr>
     </:table_cells>
   </.live_component>

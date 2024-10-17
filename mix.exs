@@ -65,7 +65,8 @@ defmodule ProjeXpert.MixProject do
       {:ueberauth, "~> 0.10.8"},
       {:ueberauth_google, "~> 0.12.1"},
       {:plug, "~> 1.16"},
-      {:multipart, "~> 0.4.0"}
+      {:multipart, "~> 0.4.0"},
+      {:stripity_stripe, "~> 3.2.0"}
     ]
   end
 

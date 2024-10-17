@@ -4,6 +4,7 @@
   },
   "dependencies": {
     "alpinejs": "^3.14.1",
+    "chart.js": "^4.4.4",
     "sortablejs": "^1.15.3",
     "trix": "^2.1.5"
   }

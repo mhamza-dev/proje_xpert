@@ -24,15 +24,16 @@ import topbar from "../vendor/topbar"
 import Alpine from "alpinejs";
 import dragHook from "./drag"
 import disableEditor from "./disableEditor";
-import Trix from "trix"
+import TrixEditor from "trix"
+import ChartJS from "./chart";
 // import TextEditor from "./text_editor";
 
 const Hooks = {
   dragHook,
   disableEditor,
-  Trix,
+  TrixEditor,
+  ChartJS,
 };
-
 window.Alpine = Alpine;
 Alpine.start();
 

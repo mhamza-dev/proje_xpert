@@ -30,6 +30,8 @@ if config_env() == :prod do
 
   maybe_ipv6 = if System.get_env("ECTO_IPV6") in ~w(true 1), do: [:inet6], else: []
 
+  dbg(database_url)
+
   config :proje_xpert, ProjeXpert.Repo,
     ssl: true,
     url: database_url,
@@ -104,19 +106,18 @@ if config_env() == :prod do
   # are not using SMTP. Here is an example of the configuration:
   #
 
-# Configures Swoosh Adapter
-config :proje_xpert, ProjeXpert.Mailer,
-  adapter: Swoosh.Adapters.Mailgun,
-  api_key: System.get_env("MAILGUN_API_KEY"),
-  domain: System.get_env("MAILGUN_DOMAIN")
+  # Configures Swoosh Adapter
+  config :proje_xpert, ProjeXpert.Mailer,
+    adapter: Swoosh.Adapters.Brevo,
+    api_key: System.get_env("BREVO_API_KEY")
 
-# Configures Swoosh API Client
-config :swoosh, api_client: Swoosh.ApiClient.Finch, finch_name: ProjeXpert.Finch
+  # Configures Swoosh API Client
+  config :swoosh, api_client: Swoosh.ApiClient.Finch, finch_name: ProjeXpert.Finch
   #
   # For this example you need include a HTTP client required by Swoosh API client.
   # Swoosh supports Hackney and Finch out of the box:
   #
-      # config :swoosh, :api_client, Swoosh.ApiClient.Hackney
+  # config :swoosh, :api_client, Swoosh.ApiClient.Hackney
   #
   # See https://hexdocs.pm/swoosh/Swoosh.html#module-installation for details.
 end

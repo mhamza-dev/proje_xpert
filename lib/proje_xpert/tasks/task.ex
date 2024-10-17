@@ -2,24 +2,43 @@ defmodule ProjeXpert.Tasks.Task do
   use Ecto.Schema
   import Ecto.Changeset
 
-  @statuses [:in_progress, :completed, :on_hold, :cancelled]
-  @default_cast [:title, :description, :status, :budget, :deadline, :project_id, :column_id]
-  @default_required [:title, :description, :status, :budget, :deadline, :project_id]
+  alias ProjeXpert.Accounts.User
+  alias ProjeXpert.Tasks.{Bid, Comment, Column, Project, WorkerTask, WorkerProject}
+  alias ProjeXpertWeb.LiveHelpers
+
+  @default_cast [
+    :title,
+    :description,
+    :is_completed?,
+    :attachments,
+    :tags,
+    :budget,
+    :deadline,
+    :project_id,
+    :column_id
+  ]
+  @default_required [:title, :description, :is_completed?, :budget, :deadline, :project_id]
+  @experiences [:beginner, :intermediate, :expert]
+
   schema "tasks" do
     field :description, :string
     field :title, :string
-    field :status, Ecto.Enum, values: @statuses
     field :find_worker?, :boolean, default: false
     field :deadline, :date
     field :budget, :decimal
+    field :attachments, {:array, :string}, default: []
+    field :is_completed?, :boolean
+    field :tags, {:array, :string}, default: []
+    field :experience_required, Ecto.Enum, values: @experiences
 
-    belongs_to :project, ProjeXpert.Tasks.Project, foreign_key: :project_id
-    belongs_to :column, ProjeXpert.Tasks.Column, foreign_key: :column_id
-    has_many :bids, ProjeXpert.Tasks.Bid
-    has_many :worker_tasks, ProjeXpert.Tasks.WorkerTask, foreign_key: :task_id
+    belongs_to :project, Project, foreign_key: :project_id
+    belongs_to :column, Column, foreign_key: :column_id
+    has_many :bids, Bid
+    has_many :comments, Comment, foreign_key: :task_id
+    has_many :worker_tasks, WorkerTask, foreign_key: :task_id
 
-    many_to_many :workers, ProjeXpert.Accounts.User,
-      join_through: ProjeXpert.Tasks.WorkerProject,
+    many_to_many :workers, User,
+      join_through: WorkerProject,
       join_keys: [worker_id: :id, task_id: :id]
 
     timestamps(type: :utc_datetime)
@@ -32,14 +51,21 @@ defmodule ProjeXpert.Tasks.Task do
     |> validate_required(@default_required)
   end
 
-  def all_statuses, do: @statuses
+  def task_comment_changeset(task, attrs) do
+    task
+    |> cast(attrs, @default_cast)
+    |> validate_required(@default_required)
+    |> cast_assoc(:comments, with: &Comment.changeset/2)
+  end
 
-  def statuses_as_options,
+  def all_experiences, do: @experiences
+
+  def experiences_as_options,
     do:
-      Enum.map(@statuses, fn status ->
-        {ProjeXpertWeb.LiveHelpers.camel_case_string(status), status}
+      Enum.map(@experiences, fn experience ->
+        {LiveHelpers.camel_case_string(experience), experience}
       end)
 
-  def valid?(status) when status in @statuses, do: true
+  def valid?(experience) when experience in @experiences, do: true
   def valid?(_), do: false
 end

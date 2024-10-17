@@ -7,7 +7,7 @@ defmodule ProjeXpert.Repo.Migrations.CreateProjects do
       add :description, :text
       add :status, :string
       add :budget, :decimal
-      add :client_id, references(:users, on_delete: :nothing)
+      add :client_id, references(:users, on_delete: :delete_all)
 
       timestamps(type: :utc_datetime)
     end

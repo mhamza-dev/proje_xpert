@@ -13,7 +13,7 @@ defmodule ProjeXpert.Accounts.User do
     # Permissions: Oversee platform operations, manage users, handle disputes.
     # Features: User management, content moderation, analytics.
   ]
-  @register_cast [:first_name, :last_name, :email, :password, :role]
+  @register_cast [:first_name, :last_name, :email, :password, :role, :rating]
   schema "users" do
     field :first_name, :string
     field :last_name, :string
@@ -24,17 +24,19 @@ defmodule ProjeXpert.Accounts.User do
     field :provider, Ecto.Enum, values: [:google, :creds]
     field :current_password, :string, virtual: true, redact: true
     field :confirmed_at, :utc_datetime
+    field :rating, :float, default: 0.00
 
     # Associations
     has_many :bids, ProjeXpert.Tasks.Bid, foreign_key: :worker_id
+    has_many :projects_as_client, ProjeXpert.Tasks.Project, foreign_key: :client_id
     has_many :worker_projects, ProjeXpert.Tasks.WorkerProject, foreign_key: :worker_id
     has_many :worker_tasks, ProjeXpert.Tasks.WorkerTask, foreign_key: :worker_id
 
-    many_to_many :projects, ProjeXpert.Tasks.Project,
+    many_to_many :projects_as_worker, ProjeXpert.Tasks.Project,
       join_through: ProjeXpert.Tasks.WorkerProject,
       join_keys: [worker_id: :id, project_id: :id]
 
-    many_to_many :tasks, ProjeXpert.Tasks.Task,
+    many_to_many :taks_as_worker, ProjeXpert.Tasks.Task,
       join_through: ProjeXpert.Tasks.WorkerTask,
       join_keys: [worker_id: :id, task_id: :id]
 

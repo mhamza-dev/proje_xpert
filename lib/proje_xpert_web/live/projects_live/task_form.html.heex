@@ -5,6 +5,7 @@
     </div>
     <.form
       :let={f}
+      :if={@action != :projects_show_task}
       for={@changeset}
       id="project-form"
       phx-target={@myself}
@@ -19,26 +20,18 @@
             field={f[:title]}
             placeholder="e.g: Update something..."
             class="w-[350px]"
-            disabled={@action == :projects_show_task}
           />
-          <.input
-            label="Deadline"
-            type="date"
-            field={f[:deadline]}
-            class="w-[350px]"
-            disabled={@action == :projects_show_task}
-          />
+          <.input label="Deadline" type="date" field={f[:deadline]} class="w-[350px]" />
         </div>
 
         <div class="form-control flex justify-between space-x-2">
           <.input
-            label="Status"
+            :if={@action in [:bids_new_task, :new, :projects_new_task, :projects_edit_task]}
+            label="Column"
             type="select"
-            field={f[:status]}
-            options={Task.statuses_as_options()}
-            prompt="Select Status"
             class="w-[350px]"
-            disabled={@action == :projects_show_task}
+            field={f[:column_id]}
+            options={@columns}
           />
           <.input
             label="Budget"
@@ -46,18 +39,28 @@
             field={f[:budget]}
             placeholder="e.g: 1000"
             class="w-[350px]"
-            disabled={@action == :projects_show_task}
           />
         </div>
         <div class="form-control">
-          <.text_editor
-            label="Description"
-            field={f[:description]}
-            id="task-description"
-            disabled={@action == :projects_show_task}
+          <.text_editor label="Description" field={f[:description]} id="task-description" />
+        </div>
+        <div :if={is_client?(@current_user)} class="form-control flex flex-col space-y-2">
+          <.input
+            label="List to find worker?"
+            type="checkbox"
+            class="w-[350px]"
+            field={f[:find_worker?]}
+          />
+
+          <.input
+            label="Mark as completed"
+            type="checkbox"
+            class="w-[350px]"
+            field={f[:is_completed?]}
           />
         </div>
-        <div class="form-control flex justify-between space-x-2">
+
+        <div class="form-control">
           <.input
             :if={@action in [:projects_new_task, :projects_edit_task]}
             type="hidden"
@@ -72,14 +75,6 @@
             field={f[:project_id]}
             options={@projects}
           />
-          <.input
-            :if={@action in [:bids_new_task, :new, :projects_new_task, :projects_edit_task]}
-            label="Column"
-            type="select"
-            class="w-[350px]"
-            field={f[:column_id]}
-            options={@columns}
-          />
         </div>
 
         <div class="mt-4 flex justify-end">
@@ -88,7 +83,7 @@
             phx_disable_with="Saving..."
             disabled={!@changeset.valid?}
             class={[
-              "flex items-center justify-center w-1/2 px-5 py-2 text-sm tracking-wide text-white transition-colors duration-200 bg-brand rounded-lg shrink-0 sm:w-auto gap-x-2 hover:bg-blue-600",
+              "flex items-center justify-center w-1/2 px-5 py-2 text-sm tracking-wide text-white transition-colors duration-200 bg-primary rounded-lg shrink-0 sm:w-auto gap-x-2 hover:bg-blue-600",
               !@changeset.valid? && "bg-gray-400 hover:bg-gray-400 cursor-not-allowed"
             ]}
           >
@@ -102,5 +97,195 @@
         </div>
       </div>
     </.form>
+    <div :if={@action == :projects_show_task} class="shadow overflow-hidden rounded-lg">
+      <div class="py-5 px-6 text-center">
+        <h3 class="text-lg leading-6 font-medium text-gray-900"><%= @task.title %></h3>
+      </div>
+      <div class="px-4 py-5 sm:px-6">
+        <dl class="grid grid-cols-1 gap-x-4 gap-y-8 sm:grid-cols-2">
+          <div class="sm:col-span-1">
+            <dt class="text-sm font-medium text-gray-500 flex items-center">
+              <svg
+                class="mr-1 h-4 w-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                >
+                </path>
+              </svg>
+              Task Budget
+            </dt>
+            <dd class="mt-1 text-sm text-gray-900">
+              <%= Number.Currency.number_to_currency(@task.budget) %>
+            </dd>
+          </div>
+          <div class="sm:col-span-1">
+            <dt class="text-sm font-medium text-gray-500 flex items-center">
+              <svg
+                class="mr-1 h-4 w-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                >
+                </path>
+              </svg>
+              Posted Date
+            </dt>
+            <dd class="mt-1 text-sm text-gray-900">
+              <%= relative_time(@task.inserted_at) %>
+            </dd>
+          </div>
+          <div class="sm:col-span-2">
+            <dt class="text-sm font-medium text-gray-500">Description</dt>
+            <dd class="mt-1 text-sm text-gray-900" x-data="{ isTruncated: true }">
+              <div class="antialiased font-normal leading-normal text-gray-700 overflow-hidden">
+                <%= raw(@task.description) %>
+              </div>
+            </dd>
+          </div>
+        </dl>
+      </div>
+    </div>
+    <div :if={@action == :projects_show_task}>
+      <div>
+        <div class="py-8">
+          <h1 class="text-2xl font-medium border-b border-gray-300 text-center">
+            Ticket Comments
+          </h1>
+          <!-- Add New Comment Button -->
+          <div :if={!@add_new_comment} class="text-end p-4 mr-10">
+            <span
+              class="cursor-pointer text-gray-500 hover:text-primary hover:underline hover:underline-offset-2"
+              phx-click="add_new_comment"
+              phx-target={@myself}
+            >
+              Add New Comment
+            </span>
+          </div>
+
+          <.form
+            :let={cc}
+            :if={@add_new_comment}
+            for={@cc}
+            phx-change="validate_comment"
+            phx-submit="save_comment"
+            phx-target={@myself}
+          >
+            <.text_editor class="m-3" label="Comment" field={cc[:message]} id="message-comment" />
+            <div class="flex justify-end mr-3">
+              <div class="flex space-x-3">
+                <button
+                  type="button"
+                  class="text-gray-900 rounded-lg hover:bg-gray-100 py-2 px-3"
+                  phx-click="add_new_comment"
+                  phx-target={@myself}
+                >
+                  Cancel
+                </button>
+                <.button type="submit">Add Comment</.button>
+              </div>
+            </div>
+          </.form>
+          <ul class="space-y-8 max-h-[300px] overflow-y-scroll">
+            <!-- Comment 1 -->
+            <li :for={comment <- @task.comments} class="p-6">
+              <div class="flex items-start space-x-4">
+                <img
+                  class="h-10 w-10 rounded-full"
+                  src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
+                  alt=""
+                />
+                <div class="flex-1 min-w-0">
+                  <p class="text-lg font-medium text-gray-500">
+                    <%= if @current_user.id == comment.user.id,
+                      do: "You",
+                      else: full_name(comment.user) %>
+                  </p>
+                  <p class="text-gray-500 mt-1">
+                    <%= raw(comment.message) %>
+                  </p>
+                  <span class="text-sm text-gray-500 mt-2 inline-block">
+                    <%= relative_time(comment.inserted_at) %>
+                  </span>
+                </div>
+              </div>
+              <!-- Replies for Comment 1 -->
+              <ul :for={reply <- comment.replies} class="mt-6 space-y-6">
+                <li class="rounded-lg p-4 ml-10 relative before:absolute before:top-0 before:-left-5 before:w-px before:h-full before:bg-primary/50">
+                  <div class="flex items-start space-x-3">
+                    <img
+                      class="h-10 w-10 rounded-full"
+                      src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
+                      alt=""
+                    />
+                    <div>
+                      <p class="text-gray-500 font-medium">
+                        <%= if @current_user.id == reply.user.id,
+                          do: "You",
+                          else: full_name(reply.user) %>
+                      </p>
+                      <p class="text-gray-500 mt-1">
+                        <%= raw(reply.message) %>
+                      </p>
+                      <span class="text-sm text-gray-500 mt-2 inline-block">
+                        <%= relative_time(reply.inserted_at) %>
+                      </span>
+                    </div>
+                  </div>
+                </li>
+              </ul>
+              <div :if={!@add_new_reply} class="text-start p-4 ml-10 ">
+                <span
+                  class="cursor-pointer text-gray-500 hover:text-primary hover:underline hover:underline-offset-2"
+                  phx-click="add_new_reply"
+                  phx-value-id={comment.id}
+                  phx-target={@myself}
+                >
+                  Add New Reply
+                </span>
+              </div>
+              <.form
+                :let={cfc}
+                :if={@add_new_reply and @selected_comment == comment.id}
+                for={@rc}
+                phx-change="validate_message"
+                phx-submit="save_message"
+                phx-target={@myself}
+              >
+                <.text_editor class="m-3" label="Reply" field={cfc[:message]} id="message-reply" />
+                <div class="flex justify-end mr-3">
+                  <div class="flex space-x-3">
+                    <button
+                      type="button"
+                      class="text-gray-900 rounded-lg hover:bg-gray-100 py-2 px-3"
+                      phx-click="add_new_reply"
+                      phx-value-id="0"
+                      phx-target={@myself}
+                    >
+                      Cancel
+                    </button>
+                    <.button type="submit">Add Reply</.button>
+                  </div>
+                </div>
+              </.form>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
   </div>
 </div>

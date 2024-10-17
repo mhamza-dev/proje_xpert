@@ -15,7 +15,7 @@
         <.text_editor
           field={f[:description]}
           id="bid-description"
-          disabled={!is_worker?(@current_user)}
+          disabled={is_client?(@current_user)}
         />
         <div class="form-control flex justify-between space-x-2">
           <.input
@@ -23,24 +23,24 @@
             type="text"
             field={f[:amount]}
             placeholder="e.g: 30"
-            disabled={!is_worker?(@current_user)}
+            disabled={is_client?(@current_user)}
             class={
-              ["w-[350px]", !is_worker?(@current_user) && "cursor-not-allowed"] |> Enum.join(" ")
+              ["w-[350px]", is_client?(@current_user) && "cursor-not-allowed"] |> Enum.join(" ")
             }
           />
           <.input
-            :if={!is_worker?(@current_user)}
+            :if={is_client?(@current_user)}
             label="Bidder"
             type="select"
             field={f[:worker_id]}
             disabled={true}
             options={get_bidder_option(@bid)}
             class={
-              ["w-[350px]", !is_worker?(@current_user) && "cursor-not-allowed"] |> Enum.join(" ")
+              ["w-[350px]", is_client?(@current_user) && "cursor-not-allowed"] |> Enum.join(" ")
             }
           />
         </div>
-        <div :if={!is_worker?(@current_user)} class="form-control">
+        <div :if={is_client?(@current_user)} class="form-control">
           <.input
             label="Status"
             type="select"
@@ -56,7 +56,7 @@
             phx_disable_with="Saving..."
             disabled={!@changeset.valid?}
             class={[
-              "flex items-center justify-center w-1/2 px-5 py-2 text-sm tracking-wide text-white transition-colors duration-200 bg-brand rounded-lg shrink-0 sm:w-auto gap-x-2 hover:bg-blue-600",
+              "flex items-center justify-center w-1/2 px-5 py-2 text-sm tracking-wide text-white transition-colors duration-200 bg-primary rounded-lg shrink-0 sm:w-auto gap-x-2 hover:bg-blue-600",
               !@changeset.valid? && "bg-gray-400 hover:bg-gray-400 cursor-not-allowed"
             ]}
           >

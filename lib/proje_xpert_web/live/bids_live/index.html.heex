@@ -2,12 +2,6 @@
 <section class="container px-4 mx-auto">
   <div class="flex items-center justify-between">
     <h1 class="text-xl font-semibold">Bids Listing</h1>
-    <.link patch={~p"/bids/tasks/new"}>
-      <button class="flex items-center justify-center w-1/2 px-5 py-2 text-sm tracking-wide text-white transition-colors duration-200 bg-brand rounded-lg shrink-0 sm:w-auto gap-x-2 hover:bg-blue-600">
-        <.icon name="hero-plus-circle" class="w-4 h-4" />
-        <span>Add Task</span>
-      </button>
-    </.link>
   </div>
   <div class="mt-6 md:flex md:items-center md:justify-between">
     <div class="inline-flex overflow-hidden bg-white border divide-x rounded-lg">
@@ -33,30 +27,32 @@
       </.link>
     </div>
 
-    <div class="relative flex items-center mt-4 md:mt-0">
-      <span class="absolute">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke-width="1.5"
-          stroke="currentColor"
-          class="w-5 h-5 mx-3 text-gray-400 "
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"
-          />
-        </svg>
-      </span>
-
-      <input
-        type="text"
-        placeholder="Search"
-        class="block w-full py-1.5 pr-5 text-gray-700 bg-white border border-gray-200 rounded-lg md:w-80 placeholder-gray-400/70 pl-11 rtl:pr-11 rtl:pl-5 focus:border-blue-400 focus:ring-blue-300 focus:outline-none focus:ring focus:ring-opacity-40"
-      />
-    </div>
+    <.form :let={f} for={Map.new()} as={:search} phx-change="search" phx-submit="search">
+      <div class="relative flex items-center mt-4 md:mt-0">
+        <span class="absolute">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke-width="1.5"
+            stroke="currentColor"
+            class="w-5 h-5 mx-3 text-gray-400 mt-2"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"
+            />
+          </svg>
+        </span>
+        <.input
+          type="text"
+          placeholder="Search"
+          field={f[:search_term]}
+          class="block w-full py-1.5 pr-5 text-gray-700 bg-white border border-gray-200 rounded-lg md:w-80 placeholder-gray-400/70 pl-11 rtl:pr-11 rtl:pl-5 focus:border-blue-400 focus:ring-blue-300 focus:outline-none focus:ring focus:ring-opacity-40"
+        />
+      </div>
+    </.form>
   </div>
 
   <.live_component
@@ -66,7 +62,7 @@
     has_actions?={true}
   >
     <:table_cells>
-      <tr :for={{_id, bid} <- @streams.bids} class="border-b-[1px]">
+      <tr :for={bid <- @bids} class="border-b-[1px]">
         <td class="p-3 text-sm font-medium">
           <.link navigate={~p"/bids/#{bid.id}/edit"}>
             <h2 class="font-medium text-gray-800 "><%= full_name(bid.worker) %></h2>
@@ -85,25 +81,116 @@
         </td>
         <td class="p-3 text-sm">
           <%= format_datetime(bid.inserted_at) %>
-          <%!-- <.icon
-                    :if={bid.task.find_worker?}
-                    name="hero-check-circle"
-                    class="h-6 w-6 text-green-500"
-                  />
-                  <.icon
-                    :if={!bid.task.find_worker?}
-                    name="hero-x-circle"
-                    class="h-6 w-6 text-red-500"
-                  /> --%>
         </td>
 
         <td class="p-3 text-sm">
-          <.link
-            patch={~p"/bids/#{bid.id}/edit"}
-            class="block px-4 py-2 text-lg text-gray-600 cursor-pointer"
-          >
-            <.icon name="hero-pencil-square" class="w-6 h-6" />
-          </.link>
+          <.dropdown :if={is_client?(@current_user) and bid.status in [:submitted, :under_review]}>
+            <li
+              :if={bid.status == :submitted}
+              class="flex items-center space-x-2 px-4 py-2 text-md text-gray-600 hover:bg-gray-100 cursor-pointer group"
+              phx-click="set_status"
+              phx-value-id={bid.id}
+              phx-value-status="under_review"
+            >
+              <svg
+                class="w-6 h-6 group-hover:text-yellow-500"
+                aria-hidden="true"
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="1.5"
+                  d="M9.529 9.988a2.502 2.502 0 1 1 5 .191A2.441 2.441 0 0 1 12 12.582V14m-.01 3.008H12M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+                />
+              </svg>
+              <span class="group-hover:text-yellow-500">Set Under Review</span>
+            </li>
+            <li
+              :if={bid.status in [:submitted, :under_review]}
+              class="flex items-center space-x-2 px-4 py-2 text-md text-gray-600 hover:bg-gray-100 cursor-pointer group"
+              phx-click="set_status"
+              phx-value-id={bid.id}
+              phx-value-status="accepted"
+            >
+              <svg
+                class="w-6 h-6 group-hover:text-green-500"
+                aria-hidden="true"
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="1.5"
+                  d="M8.5 11.5 11 14l4-4m6 2a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+                />
+              </svg>
+              <span class="group-hover:text-green-500">Accept</span>
+            </li>
+            <li
+              :if={bid.status == :submitted}
+              class="flex items-center space-x-2 px-4 py-2 text-md text-gray-600 hover:bg-gray-100 cursor-pointer group"
+              phx-click="set_status"
+              phx-value-id={bid.id}
+              phx-value-status="rejected"
+            >
+              <svg
+                class="w-6 h-6 group-hover:text-red-500"
+                aria-hidden="true"
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="1.5"
+                  d="m15 9-6 6m0-6 6 6m6-3a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+                />
+              </svg>
+              <span class="group-hover:text-red-500">Reject</span>
+            </li>
+          </.dropdown>
+          <.dropdown :if={is_worker?(@current_user) and bid.status not in [:rejected, :withdrawn]}>
+            <p
+              class="flex items-center space-x-2 px-4 py-2 text-lg text-gray-600 hover:bg-gray-100 cursor-pointer group"
+              phx-click="set_status"
+              phx-value-id={bid.id}
+              phx-value-status="withdrawn"
+            >
+              <svg
+                class="w-6 h-6 group-hover:text-red-500"
+                aria-hidden="true"
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="1.5"
+                  d="m15 9-6 6m0-6 6 6m6-3a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+                />
+              </svg>
+              <span class="group-hover:text-red-500">Withdraw</span>
+            </p>
+          </.dropdown>
         </td>
       </tr>
     </:table_cells>

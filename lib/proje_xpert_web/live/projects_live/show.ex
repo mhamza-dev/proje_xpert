@@ -64,10 +64,32 @@ defmodule ProjeXpertWeb.ProjectsLive.Show do
   defp apply_action(socket, :projects_show_task, %{"task_id" => task_id}) do
     socket
     |> assign(
-      page_title: "Show Task",
+      page_title: "Task Details",
       task: Tasks.get_task!(task_id),
       column: %Column{}
     )
+  end
+
+  def handle_event("delete_task", %{"id" => task_id}, socket) do
+    with %Task{} = task <- Tasks.get_task!(task_id),
+         {:ok, _} <- Tasks.delete_task(task) do
+      Phoenix.PubSub.broadcast!(
+        ProjeXpert.PubSub,
+        "project:#{socket.assigns.project.id}",
+        {:task_deleted, socket.assigns.project.id}
+      )
+
+      {:noreply,
+       socket
+       |> put_flash(:info, "Task: \"#{task.title}\" deleted successfully")
+       |> push_patch(to: ~p"/projects/#{socket.assigns.project.id}/show")}
+    else
+      _ ->
+        {:noreply,
+         socket
+         |> put_flash(:error, "Something went wrong while deleting the Task")
+         |> push_patch(to: ~p"/projects/#{socket.assigns.project.id}/show")}
+    end
   end
 
   def handle_event("drag-drop", params, socket) do
@@ -109,11 +131,24 @@ defmodule ProjeXpertWeb.ProjectsLive.Show do
     {:noreply, assign(socket, project: Tasks.get_project!(project_id))}
   end
 
+  def handle_info({:task_deleted, project_id}, socket) do
+    {:noreply, assign(socket, project: Tasks.get_project!(project_id))}
+  end
+
   def handle_info({:task, project_id}, socket) do
     {:noreply, assign(socket, project: Tasks.get_project!(project_id))}
   end
 
   def handle_info({:column, project_id}, socket) do
     {:noreply, assign(socket, project: Tasks.get_project!(project_id))}
+  end
+
+  def handle_info({:return_to_home, project}, socket) do
+    {:noreply,
+     push_patch(socket, to: ~p"/projects/#{project.id}/show")
+     |> put_flash(
+       :error,
+       "You can't perform this action as this project has been #{camel_case_string(project.status)}"
+     )}
   end
 end

@@ -6,7 +6,7 @@ defmodule ProjeXpert.Repo.Migrations.CreatePayments do
       add :amount, :decimal
       add :status, :string
       add :payment_method, :string
-      add :task_id, references(:tasks, on_delete: :nothing)
+      add :task_id, references(:tasks, on_delete: :delete_all)
 
       timestamps(type: :utc_datetime)
     end

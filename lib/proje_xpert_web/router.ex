@@ -79,7 +79,6 @@ defmodule ProjeXpertWeb.Router do
       live "/tasks/bids/new", TasksLive.Index, :new_bid
       live "/tasks/:id/show", TasksLive.Show, :show
       live "/bids", BidsLive.Index, :index
-      live "/bids/tasks/new", BidsLive.Index, :bids_new_task
       live "/bids/:id/edit", BidsLive.Index, :edit
       live "/projects", ProjectsLive.Index, :index
       live "/projects/new", ProjectsLive.Index, :new

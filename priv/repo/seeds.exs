@@ -15,7 +15,18 @@
 alias ProjeXpert.Repo
 alias ProjeXpert.Accounts.User
 alias ProjeXpert.Tasks
-alias ProjeXpert.Tasks.{Bid, Chat, Column, Project, Payment, Task, WorkerProject, WorkerTask}
+
+alias ProjeXpert.Tasks.{
+  Bid,
+  Comment,
+  Column,
+  Project,
+  # Payment,
+  Task,
+  WorkerProject,
+  WorkerTask,
+  Reply
+}
 
 # Create some users
 clients = [
@@ -53,7 +64,9 @@ created_workers =
         last_name: user.last_name,
         email: user.email,
         password: "Pa$$w0rd!",
-        role: :worker
+        role: :worker,
+        # Random rating between 0.00 to 5.00
+        rating: Float.round(:rand.uniform() * 5, 2)
       }
 
       %User{}
@@ -80,8 +93,7 @@ created_clients =
     end
   )
 
-# Create 30 projects with more realistic titles and descriptions
-
+# Create projects with realistic titles and descriptions
 project_titles = [
   "E-commerce Website Development",
   "Mobile App for Fitness Tracking",
@@ -102,25 +114,27 @@ project_titles = [
   "Booking System for Doctors",
   "Task Management Tool",
   "Custom Reporting Dashboard",
-  "Data Migration for Legacy Systems",
-  "Mobile App Redesign",
-  "Online Marketplace for Handmade Goods",
-  "Business Process Automation",
-  "AI-powered Chatbot for Customer Support",
-  "Travel Planning App",
-  "Restaurant Reservation System",
-  "Freelancer Hiring Platform",
-  "Cloud Storage Integration",
-  "Home Automation App",
-  "Web Application Security Enhancement"
+  "Data Migration for Legacy Systems"
+]
+
+project_descriptions = [
+  "Develop a fully functional e-commerce website that allows users to buy and sell products. The site should include features such as user authentication, product listings, payment integration, and a responsive design.",
+  "Create a mobile application for fitness tracking that enables users to log their workouts, track their progress, and share achievements with friends. The app should have a user-friendly interface and real-time notifications.",
+  "Manage a marketing campaign across multiple platforms. The project involves developing creative content, setting up advertisements, and analyzing performance metrics to ensure a successful campaign.",
+  "Build an online learning platform that offers courses, quizzes, and student progress tracking. Features should include video integration, user dashboards, and a secure payment gateway.",
+  "Develop a custom CRM that helps businesses manage customer interactions, sales, and feedback. The project should focus on creating an intuitive interface and robust reporting capabilities.",
+  "Design and implement a social media management application that allows users to schedule posts, track engagement metrics, and analyze performance across different social media platforms.",
+  "Create engaging content for a blog that attracts readers and boosts SEO. Tasks will include researching topics, writing articles, and optimizing content for search engines.",
+  "Optimize an existing e-commerce website for search engines, focusing on improving page load speeds, keyword targeting, and overall user experience.",
+  "Build a financial dashboard that consolidates various data sources into one interface. Users should be able to visualize their financial data through graphs and charts.",
+  "Develop a real estate listings portal that allows users to browse and filter properties. The project should include user reviews, a map feature, and a contact form for inquiries."
 ]
 
 for i <- 1..30 do
   project =
     Repo.insert!(%Project{
-      title: Enum.at(project_titles, i - 1),
-      description:
-        "<p>This project involves building or enhancing #{Enum.at(project_titles, i - 1)}. The goal is to create a functional, user-friendly, and scalable solution that caters to the needs of the client. This includes implementing features such as user authentication, data management, responsive design, and integration with third-party services. The project will require collaboration with designers, developers, and testers to ensure the final product meets the required specifications.<p>",
+      title: Enum.at(project_titles, rem(i - 1, length(project_titles))),
+      description: Enum.at(project_descriptions, rem(i - 1, length(project_descriptions))),
       status: Enum.random(Project.all_statuses()),
       budget: Decimal.new(Enum.random(1000..10000)),
       client_id: Enum.random(created_clients).id
@@ -164,18 +178,33 @@ for i <- 1..30 do
       end
 
     task_description =
-      "<p>This task involves #{task_title} for the #{Enum.at(project_titles, i - 1)}. It includes activities such as meeting with stakeholders, designing wireframes, coding backend services, and performing rigorous testing to ensure a high-quality product.<p>"
+      "<p>This task involves #{task_title} for the #{Enum.at(project_titles, rem(i - 1, length(project_titles)))}. " <>
+        "Key requirements include defining user personas, designing mockups, developing APIs, or executing rigorous testing protocols to ensure quality.</p>"
+
+    tags = ["#{task_title}", "Development", "Project Management", "Team Collaboration"]
+
+    attachments = [
+      "https://example.com/image1.jpg",
+      "https://example.com/image2.jpg",
+      "https://example.com/image3.jpg"
+    ]
+
+    find_worker? = Enum.random([true, false])
 
     task =
       Repo.insert!(%Task{
         title: task_title,
         description: task_description,
-        status: Enum.random(Task.all_statuses()),
+        is_completed?: if(find_worker?, do: Enum.random([true, false]), else: false),
         find_worker?: Enum.random([true, false]),
         budget: Decimal.new(Enum.random(1000..10000)),
         deadline: deadline,
-        column_id: if(j == 1, do: column1.id, else: if(j == 2, do: column2.id, else: column3.id)),
-        project_id: project.id
+        column_id: column1.id,
+        project_id: project.id,
+        attachments: attachments,
+        tags: tags,
+        # Random experience level
+        experience_required: Enum.random([:beginner, :intermediate, :expert])
       })
 
     # Add bids for tasks
@@ -185,7 +214,7 @@ for i <- 1..30 do
           amount: Decimal.new(Enum.random(100..1000)),
           status: :submitted,
           description:
-            "<p>I have experience in similar tasks and can complete this efficiently.<p>",
+            "<p>I have experience in similar tasks and can complete this efficiently.</p>",
           task_id: task.id,
           worker_id: worker.id
         })
@@ -202,29 +231,41 @@ for i <- 1..30 do
         |> Tasks.update_bid(%{"status" => :accepted})
 
       if bid.status == :accepted do
+        if j == Enum.random(3..5) do
+          Tasks.update_task(task, %{"column_id" => column3.id, "is_completed?" => true})
+        else
+          Tasks.update_task(task, %{"column_id" => column2.id})
+        end
+
         Repo.insert!(%WorkerTask{
           worker_id: bid.worker_id,
           task_id: task.id
         })
       end
     end
+
+    # Add comments and replies
+    Enum.each(1..3, fn _ ->
+      client = Enum.random(created_clients)
+
+      comment =
+        Repo.insert!(%Comment{
+          message: "This is a comment on task: #{task.title}.",
+          task_id: task.id,
+          user_id: client.id
+        })
+
+      Enum.each(1..3, fn index ->
+        worker = Enum.random(created_workers)
+        user = if rem(index, 2) == 0, do: client, else: worker
+
+        Repo.insert!(%Reply{
+          message:
+            "This is a reply to comment: #{comment.id} by #{user.first_name} #{user.last_name}.",
+          comment_id: comment.id,
+          user_id: user.id
+        })
+      end)
+    end)
   end
 end
-
-# Create some chat messages
-task = Enum.random(Tasks.list_tasks()) |> Repo.preload(project: :client)
-
-Repo.insert!(%Chat{
-  message: "Hello! Can you update the project status?",
-  sender_id: Enum.random(created_workers).id,
-  receiver_id: task.project.client.id,
-  task_id: task.id
-})
-
-# Create payments for bids
-Repo.insert!(%Payment{
-  amount: Decimal.new("900.00"),
-  status: :pending,
-  payment_method: "Credit Card",
-  task_id: 1
-})

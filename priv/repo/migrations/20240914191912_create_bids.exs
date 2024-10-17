@@ -7,8 +7,8 @@ defmodule ProjeXpert.Repo.Migrations.CreateBids do
       add :status, :string
       add :description, :text
       add :attached_files, {:array, :map}
-      add :task_id, references(:tasks, on_delete: :nothing)
-      add :worker_id, references(:users, on_delete: :nothing)
+      add :task_id, references(:tasks, on_delete: :delete_all)
+      add :worker_id, references(:users, on_delete: :delete_all)
 
       timestamps(type: :utc_datetime)
     end
