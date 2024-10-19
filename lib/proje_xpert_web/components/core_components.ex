@@ -118,7 +118,7 @@ defmodule ProjeXpertWeb.CoreComponents do
       phx-click={JS.push("lv:clear-flash", value: %{key: @kind}) |> hide("##{@id}")}
       role="alert"
       class={[
-        "fixed top-2 right-2 mr-2 w-80 sm:w-96 z-50 rounded-lg p-3 ring-1",
+        "flash fixed top-2 right-2 mr-2 w-80 sm:w-96 z-50 rounded-lg p-3 ring-1",
         @kind == :info && "bg-emerald-50 text-emerald-800 ring-emerald-500 fill-cyan-900",
         @kind == :error && "bg-rose-50 text-rose-900 shadow-md ring-rose-500 fill-rose-900"
       ]}
@@ -235,7 +235,7 @@ defmodule ProjeXpertWeb.CoreComponents do
     <button
       type={@type}
       class={[
-        "phx-submit-loading:opacity-75 bg-primary rounded-lg hover:bg-primary/80 py-2 px-3",
+        "phx-submit-loading:opacity-75 bg-primary/80 rounded-lg hover:bg-primary py-2 px-3",
         "text-sm font-semibold leading-6 text-white active:text-white/80",
         @class
       ]}
@@ -576,7 +576,7 @@ defmodule ProjeXpertWeb.CoreComponents do
     <div>
       <.link
         navigate={@navigate}
-        class="flex items-center space-x-2 text-xl font-bold font-nunito text-primary hover:text-primary/80"
+        class="flex items-center space-x-2 text-xl font-bold font-nunito text-primary hover:text-primary/50"
       >
         <.icon name="hero-arrow-left-micro" class="h-4 w-4 font-bold" />
         <%= render_slot(@inner_block) %>

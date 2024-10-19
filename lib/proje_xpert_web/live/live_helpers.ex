@@ -1,4 +1,6 @@
 defmodule ProjeXpertWeb.LiveHelpers do
+  alias ProjeXpert.Tasks.Task
+  alias Phoenix.LiveView
   alias ProjeXpert.Repo
   alias ProjeXpert.Tasks
   alias ProjeXpert.Tasks.Project
@@ -154,12 +156,42 @@ defmodule ProjeXpertWeb.LiveHelpers do
 
     all_task_budget =
       Enum.map(client.projects_as_client, & &1.tasks)
-      |> dbg()
       |> List.flatten()
-      |> dbg()
       |> Enum.map(&Decimal.to_float(&1.budget))
 
     Enum.sum(all_task_budget) / length(all_task_budget)
+  end
+
+  def file_name(entry) do
+    [ext | _] = MIME.extensions(entry.client_type)
+    "#{entry.uuid}.#{ext}"
+  end
+
+  def upload_files(socket) do
+    LiveView.consume_uploaded_entries(socket, :cv, fn %{path: path}, _entry ->
+      case Cloudex.upload(path) do
+        {:ok, %Cloudex.UploadedImage{secure_url: secure_url}} ->
+          {:ok, secure_url}
+
+        {:error, error} ->
+          {:postpone, {:error, error}}
+      end
+    end)
+  end
+
+  def average_progress_percentage(entries) do
+    total_progress = Enum.reduce(entries, 0, fn entry, acc -> acc + entry.progress end)
+    count = length(entries)
+
+    if count > 0, do: total_progress / count * 100, else: 0.00
+  end
+
+  def get_user_bid(user, bids) do
+    Enum.find(bids, &(&1.worker_id == user.id))
+  end
+
+  def user_already_bidded?(user, bids) do
+    Enum.any?(bids, &(&1.worker_id == user.id))
   end
 
   defp get_budget(task, project) do
@@ -179,6 +211,9 @@ defmodule ProjeXpertWeb.LiveHelpers do
 
   defp get_function_by_resource(Bid, :client), do: &Tasks.list_client_bids/2
   defp get_function_by_resource(Bid, :worker), do: &Tasks.list_worker_bids/2
+
+  defp get_function_by_resource(Task, :client), do: &Tasks.list_tasks_for_client/2
+  defp get_function_by_resource(Task, :worker), do: &Tasks.list_tasks_for_worker/2
 
   defp get_resources_by_tab(resources, %{"tab" => tab}) when is_binary(tab) do
     Enum.filter(resources, &(&1.status == String.to_atom(tab)))

@@ -166,7 +166,7 @@ defmodule ProjeXpertWeb.ProjectsLive.Show do
   end
 
   def handle_info({:column, project_id}, socket) do
-    {:noreply, assign(socket, project: Tasks.get_project!(project_id) |> dbg())}
+    {:noreply, assign(socket, project: Tasks.get_project!(project_id))}
   end
 
   def handle_info({:return_to_home, project}, socket) do

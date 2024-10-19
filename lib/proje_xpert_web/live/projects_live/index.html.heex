@@ -1,7 +1,7 @@
 <!-- component -->
 <section class="container px-4 mx-auto">
-  <div class="flex items-center justify-between">
-    <h1 class="text-xl font-semibold">Project Listing</h1>
+  <div class="flex items-center justify-between mb-4">
+    <.live_component id="bread_crumb" module={ProjeXpertWeb.BreadCrumb} path={@current_path} />
     <.link :if={is_client?(@current_user)} patch={~p"/projects/new"}>
       <button class="flex items-center justify-center w-1/2 px-5 py-2 text-sm tracking-wide text-white transition-colors duration-200 bg-primary rounded-lg shrink-0 sm:w-auto gap-x-2 hover:bg-blue-600">
         <.icon name="hero-plus-circle" class="w-4 h-4" />
@@ -11,23 +11,22 @@
   </div>
 
   <div class="mt-6 md:flex md:items-center md:justify-between">
-    <div class="inline-flex overflow-hidden bg-white border divide-x rounded-lg">
+    <div class="flex space-x-2 mb-4 sm:mb-0">
       <.link navigate={~p"/projects"}>
         <button class={[
-          "px-5 py-2 text-xs font-medium text-gray-600 transition-colors duration-200 sm:text-sm hover:bg-gray-100",
-          @current_tab == nil && "bg-gray-100"
+          "px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-primary/90 hover:text-white transition-colors",
+          @current_tab == nil && "bg-primary text-white"
         ]}>
           View all
         </button>
       </.link>
-
       <.link
         :for={status <- Project.all_statuses()}
         navigate={~p"/projects?tab=#{Atom.to_string(status)}"}
       >
         <button class={[
-          "px-5 py-2 text-xs font-medium text-gray-600 transition-colors duration-200 sm:text-sm hover:bg-gray-100",
-          @current_tab == "#{Atom.to_string(status)}" && "bg-gray-100"
+          "px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-primary/90 hover:text-white transition-colors",
+          @current_tab == Atom.to_string(status) && "bg-primary text-white"
         ]}>
           <%= camel_case_string(status) %>
         </button>
@@ -132,8 +131,63 @@
         </td>
 
         <td :if={is_client?(@current_user)} class="p-3 text-sm">
-          <.dropdown>
+          <.dropdown ticket_dropdown={
+            [
+              "right-[7.5rem]",
+              project.status == :completed && "w-48",
+              project.status != :completed && "w-52"
+            ]
+            |> Enum.join(" ")
+          }>
             <ul>
+              <li
+                :if={project.status != :completed}
+                class="flex items-center space-x-2 px-4 py-2 text-[1rem] text-gray-600 hover:bg-gray-100 cursor-pointer group"
+              >
+                <svg
+                  class="w-6 h-6 group-hover:text-green-500"
+                  aria-hidden="true"
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke="currentColor"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="1.5"
+                    d="M8.5 11.5 11 14l4-4m6 2a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+                  />
+                </svg>
+                <span class="group-hover:text-green-500">Mark as complete</span>
+              </li>
+              <li class="px-4 py-2 text-md text-gray-600 hover:bg-gray-100 cursor-pointer group">
+                <.link
+                  patch={~p"/projects/#{project.id}/edit"}
+                  class="flex items-center space-x-2 text-[1rem] text-gray-600 cursor-pointer"
+                >
+                  <svg
+                    class="w-6 h-6 group-hover:text-primary/50"
+                    aria-hidden="true"
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke="currentColor"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="1.5"
+                      d="m14.304 4.844 2.852 2.852M7 7H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-4.5m2.409-9.91a2.017 2.017 0 0 1 0 2.853l-6.844 6.844L8 14l.713-3.565 6.844-6.844a2.015 2.015 0 0 1 2.852 0Z"
+                    />
+                  </svg>
+                  <span class="group-hover:text-primary/50">Edit</span>
+                </.link>
+              </li>
               <li
                 class="flex items-center space-x-2 px-4 py-2 text-[1rem] text-gray-600 hover:bg-gray-100 cursor-pointer group"
                 phx-click="delete_project"
@@ -157,31 +211,6 @@
                   />
                 </svg>
                 <span class="group-hover:text-red-500">Delete</span>
-              </li>
-              <li class="px-4 py-2 text-md text-gray-600 hover:bg-gray-100 cursor-pointer group">
-                <.link
-                  patch={~p"/projects/#{project.id}/edit"}
-                  class="flex items-center space-x-2 text-[1rem] text-gray-600 cursor-pointer"
-                >
-                  <svg
-                    class="w-6 h-6 group-hover:text-primary/80"
-                    aria-hidden="true"
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="24"
-                    height="24"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      stroke="currentColor"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="1.5"
-                      d="m14.304 4.844 2.852 2.852M7 7H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-4.5m2.409-9.91a2.017 2.017 0 0 1 0 2.853l-6.844 6.844L8 14l.713-3.565 6.844-6.844a2.015 2.015 0 0 1 2.852 0Z"
-                    />
-                  </svg>
-                  <span class="group-hover:text-primary/80">Edit</span>
-                </.link>
               </li>
             </ul>
           </.dropdown>

@@ -1,12 +1,7 @@
 <!-- component -->
 <section class="container px-4 mx-auto">
   <div class="flex items-center justify-between space-x-2">
-    <div class="flex items-center justify-between space-x-4">
-      <.back navigate={~p"/projects"}>
-        Back
-      </.back>
-      <h1 class="text-3xl font-bold"><%= @project.title %></h1>
-    </div>
+    <.live_component id="bread_crumb" module={ProjeXpertWeb.BreadCrumb} path={@current_path} />
     <div class="flex items-center space-x-2">
       <.link :if={is_client?(@current_user)} patch={~p"/projects/show/#{@project.id}/edit"}>
         <button class="flex items-center justify-center w-1/2 px-5 py-2 text-sm tracking-wide text-white transition-colors duration-200 bg-primary rounded-lg shrink-0 sm:w-auto gap-x-2 hover:bg-blue-600">
@@ -107,11 +102,11 @@
                 >
                   <ul>
                     <.link
-                      patch={~p"/projects/#{@project.id}/edit_column/#{column.id}"}
+                      patch={~p"/projects/#{@project.id}/column/#{column.id}/edit"}
                       class="flex items-center space-x-2 px-4 py-2 text-[1rem] text-gray-600 hover:bg-gray-100 cursor-pointer group"
                     >
                       <svg
-                        class="w-6 h-6 group-hover:text-primary/80"
+                        class="w-6 h-6 group-hover:text-primary/50"
                         aria-hidden="true"
                         xmlns="http://www.w3.org/2000/svg"
                         width="24"
@@ -127,7 +122,7 @@
                           d="m14.304 4.844 2.852 2.852M7 7H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-4.5m2.409-9.91a2.017 2.017 0 0 1 0 2.853l-6.844 6.844L8 14l.713-3.565 6.844-6.844a2.015 2.015 0 0 1 2.852 0Z"
                         />
                       </svg>
-                      <span class="group-hover:text-primary/80">Edit</span>
+                      <span class="group-hover:text-primary/50">Edit</span>
                     </.link>
                     <li
                       class="flex items-center space-x-2 px-4 py-2 text-[1rem] text-gray-600 hover:bg-gray-100 cursor-pointer group"
@@ -171,8 +166,8 @@
                       <div class="p-6">
                         <div class="flex items-center justify-between mb-2">
                           <.link
-                            patch={~p"/projects/#{@project.id}/show_task/#{task.id}"}
-                            class="hover:text-primary/80"
+                            patch={~p"/projects/#{@project.id}/tasks/#{task.id}/show"}
+                            class="hover:text-primary/50"
                           >
                             <p class="block font-sans text-base antialiased font-medium leading-relaxed text-blue-gray-900">
                               <%= task.title %>
@@ -184,11 +179,11 @@
                           >
                             <ul>
                               <.link
-                                patch={~p"/projects/#{@project.id}/edit_task/#{task.id}"}
+                                patch={~p"/projects/#{@project.id}/tasks/#{task.id}/edit"}
                                 class="flex items-center space-x-2 px-4 py-2 text-[1rem] text-gray-600 hover:bg-gray-100 cursor-pointer group"
                               >
                                 <svg
-                                  class="w-6 h-6 group-hover:text-primary/80"
+                                  class="w-6 h-6 group-hover:text-primary/50"
                                   aria-hidden="true"
                                   xmlns="http://www.w3.org/2000/svg"
                                   width="24"
@@ -204,7 +199,7 @@
                                     d="m14.304 4.844 2.852 2.852M7 7H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-4.5m2.409-9.91a2.017 2.017 0 0 1 0 2.853l-6.844 6.844L8 14l.713-3.565 6.844-6.844a2.015 2.015 0 0 1 2.852 0Z"
                                   />
                                 </svg>
-                                <span class="group-hover:text-primary/80">Edit</span>
+                                <span class="group-hover:text-primary/50">Edit</span>
                               </.link>
                               <li
                                 class="flex items-center space-x-2 px-4 py-2 text-[1rem] text-gray-600 hover:bg-gray-100 cursor-pointer group"

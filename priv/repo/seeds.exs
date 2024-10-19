@@ -318,14 +318,38 @@ for proj <- projects do
 
     # Add bids for tasks
     Enum.each(Enum.take_random(created_workers, 5), fn worker ->
+      attached_files =
+        Enum.map(1..4, fn _ ->
+          "https://asset.cloudinary.com/dmkkivjv3/cb13850a32552725cc83943f00496892"
+        end)
+
       if task.find_worker? do
         Repo.insert!(%Bid{
           amount: Decimal.new(Enum.random(100..1000)),
           status: :submitted,
-          description:
-            "<p>I have experience in similar tasks and can complete this efficiently.</p>",
+          description: """
+            <p>
+              <p>Dear [Hiring Manager],</p>
+              <p>
+                  I am writing to express my interest in the Frontend Developer position for your E-commerce Website Development project. With a strong background in web development and hands-on experience in building scalable, user-friendly interfaces, I am confident in my ability to contribute to the success of your project.
+              </p>
+              <p>
+                  I understand that this task involves key responsibilities such as defining user personas, designing mockups, developing APIs, and executing rigorous testing protocols to ensure a high-quality product. My experience in designing intuitive UIs and developing dynamic frontends with React, Vue.js, or Angular has equipped me to meet these challenges. I also have a strong grasp of API integration and best practices for frontend testing to deliver seamless user experiences.
+              </p>
+              <p>
+                  My technical expertise, combined with a passion for delivering quality, aligns well with the requirements of this project. I am excited about the opportunity to contribute to an innovative e-commerce platform that delivers both functionality and a great user experience.
+              </p>
+              <p>
+                  Thank you for considering my application. I look forward to the opportunity to discuss how my skills can align with your team’s needs.
+              </p>
+              <p>Best regards,<br>
+              <strong>[Your Name]</strong>
+              </p>
+            </p>
+          """,
           task_id: task.id,
-          worker_id: worker.id
+          worker_id: worker.id,
+          attached_files: attached_files
         })
       end
     end)
