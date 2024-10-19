@@ -5,12 +5,12 @@ defmodule ProjeXpertWeb.BidsLive.Index do
   alias ProjeXpert.Tasks.{Bid, Project, Task}
 
   def mount(params, _session, %{assigns: assigns} = socket) do
-    bids = get_resources_by_role(Bid, assigns.current_user, params, %{})
+    if connected?(socket), do: Phoenix.PubSub.subscribe(ProjeXpert.PubSub, "bids")
 
     {:ok,
      socket
      |> assign(current_tab: Map.get(params, "tab"))
-     |> assign(:bids, bids)}
+     |> assign(:bids, get_resources_by_role(Bid, assigns.current_user, params, %{}))}
   end
 
   def handle_params(params, _url, socket) do
@@ -93,6 +93,19 @@ defmodule ProjeXpertWeb.BidsLive.Index do
          )
          |> redirect(to: get_parent_url_by_params(socket.assigns.current_tab))}
     end
+  end
+
+  def handle_info({:bid_created}, %{assigns: assigns} = socket) do
+    {:noreply,
+     assign(socket,
+       bids:
+         get_resources_by_role(
+           Bid,
+           assigns.current_user,
+           fetch_tab_param(assigns.current_tab),
+           %{}
+         )
+     )}
   end
 
   defp get_parent_url_by_params(current_tab) do

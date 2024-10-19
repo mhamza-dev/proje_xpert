@@ -2,9 +2,7 @@ defmodule ProjeXpertWeb.ProjectsLive.Component do
   use ProjeXpertWeb, :live_component
 
   alias ProjeXpert.Tasks
-  alias ProjeXpert.Tasks.Project
-
-  @columns ["Backlog", "In Progress", "Completed"]
+  alias ProjeXpert.Tasks.{Column, Project}
 
   def update(%{project: project} = assigns, socket) do
     changeset = Tasks.change_project(project, %{})
@@ -68,6 +66,9 @@ defmodule ProjeXpertWeb.ProjectsLive.Component do
   end
 
   defp create_columns(project) do
-    Enum.each(@columns, &Tasks.create_column(%{name: &1, project_id: project.id}))
+    Enum.each(
+      Column.get_default_columns(),
+      &Tasks.create_column(%{name: &1, project_id: project.id})
+    )
   end
 end

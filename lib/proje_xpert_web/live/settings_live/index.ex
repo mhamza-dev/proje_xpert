@@ -1,77 +1,7 @@
-defmodule ProjeXpertWeb.UserSettingsLive do
+defmodule ProjeXpertWeb.SettingsLive.Index do
   use ProjeXpertWeb, :live_view
 
   alias ProjeXpert.Accounts
-
-  def render(assigns) do
-    ~H"""
-    <.header class="text-center">
-      Account Settings
-      <:subtitle>Manage your account email address and password settings</:subtitle>
-    </.header>
-
-    <div class="space-y-12 divide-y">
-      <div>
-        <.simple_form
-          for={@email_form}
-          id="email_form"
-          phx-submit="update_email"
-          phx-change="validate_email"
-        >
-          <.input field={@email_form[:email]} type="email" label="Email" required />
-          <.input
-            field={@email_form[:current_password]}
-            name="current_password"
-            id="current_password_for_email"
-            type="password"
-            label="Current password"
-            value={@email_form_current_password}
-            required
-          />
-          <:actions>
-            <.button phx-disable-with="Changing...">Change Email</.button>
-          </:actions>
-        </.simple_form>
-      </div>
-      <div>
-        <.simple_form
-          for={@password_form}
-          id="password_form"
-          action={~p"/log_in?_action=password_updated"}
-          method="post"
-          phx-change="validate_password"
-          phx-submit="update_password"
-          phx-trigger-action={@trigger_submit}
-        >
-          <input
-            name={@password_form[:email].name}
-            type="hidden"
-            id="hidden_user_email"
-            value={@current_email}
-          />
-          <.input field={@password_form[:password]} type="password" label="New password" required />
-          <.input
-            field={@password_form[:password_confirmation]}
-            type="password"
-            label="Confirm new password"
-          />
-          <.input
-            field={@password_form[:current_password]}
-            name="current_password"
-            type="password"
-            label="Current password"
-            id="current_password_for_password"
-            value={@current_password}
-            required
-          />
-          <:actions>
-            <.button phx-disable-with="Changing...">Change Password</.button>
-          </:actions>
-        </.simple_form>
-      </div>
-    </div>
-    """
-  end
 
   def mount(%{"token" => token}, _session, socket) do
     socket =
@@ -86,19 +16,22 @@ defmodule ProjeXpertWeb.UserSettingsLive do
     {:ok, push_navigate(socket, to: ~p"/settings")}
   end
 
-  def mount(_params, _session, socket) do
+  def mount(params, _session, socket) do
     user = socket.assigns.current_user
     email_changeset = Accounts.change_user_email(user)
     password_changeset = Accounts.change_user_password(user)
 
     socket =
       socket
-      |> assign(:current_password, nil)
-      |> assign(:email_form_current_password, nil)
-      |> assign(:current_email, user.email)
-      |> assign(:email_form, to_form(email_changeset))
-      |> assign(:password_form, to_form(password_changeset))
-      |> assign(:trigger_submit, false)
+      |> assign(
+        current_tab: Map.get(params, "tab"),
+        current_password: nil,
+        email_form_current_password: nil,
+        current_email: user.email,
+        email_form: to_form(email_changeset),
+        password_form: to_form(password_changeset),
+        trigger_submit: false
+      )
 
     {:ok, socket}
   end
@@ -124,7 +57,7 @@ defmodule ProjeXpertWeb.UserSettingsLive do
         Accounts.deliver_user_update_email_instructions(
           applied_user,
           user.email,
-          &url(~p"/settings/confirm_email/#{&1}")
+          &url(~p"/settings/email/#{&1}/confirm")
         )
 
         info = "A link to confirm your email change has been sent to the new address."

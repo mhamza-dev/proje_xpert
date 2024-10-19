@@ -19,7 +19,7 @@ config :proje_xpert, ProjeXpert.Repo,
 config :proje_xpert, ProjeXpertWeb.Endpoint,
   # Binding to loopback ipv4 address prevents access from other machines.
   # Change to `ip: {0, 0, 0, 0}` to allow access from other machines.
-  http: [ip: {127, 0, 0, 1}, port: 4000],
+  http: [ip: {127, 0, 0, 1}, port: String.to_integer(System.get_env("PORT") || "4000")],
   check_origin: false,
   code_reloader: true,
   debug_errors: true,
@@ -81,8 +81,6 @@ config :phoenix_live_view,
   # Enable helpful, but potentially expensive runtime checks
   enable_expensive_runtime_checks: true
 
+config :proje_xpert, ProjeXpert.Mailer, adapter: Swoosh.Adapters.Local
 # Disable swoosh api client as it is only required for production adapters.
-# config :swoosh, :api_client, false
-
-  # Configures Swoosh API Client
-  config :swoosh, api_client: Swoosh.ApiClient.Finch, finch_name: ProjeXpert.Finch
+config :swoosh, :api_client, false

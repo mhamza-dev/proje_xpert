@@ -9,7 +9,7 @@ defmodule ProjeXpert.Tasks.Bid do
     field :status, Ecto.Enum, values: @statuses, default: :submitted
     field :amount, :decimal
     field :description, :string
-    field :attached_files, {:array, :map}
+    field :attached_files, {:array, :string}
 
     belongs_to :task, ProjeXpert.Tasks.Task, foreign_key: :task_id
     belongs_to :worker, ProjeXpert.Accounts.User, foreign_key: :worker_id

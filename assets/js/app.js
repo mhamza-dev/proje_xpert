@@ -26,13 +26,14 @@ import dragHook from "./drag"
 import disableEditor from "./disableEditor";
 import TrixEditor from "trix"
 import ChartJS from "./chart";
-// import TextEditor from "./text_editor";
+import hideFlash from "./hideFlash";
 
 const Hooks = {
   dragHook,
   disableEditor,
   TrixEditor,
   ChartJS,
+  hideFlash,
 };
 window.Alpine = Alpine;
 Alpine.start();

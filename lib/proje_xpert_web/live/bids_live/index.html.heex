@@ -1,26 +1,25 @@
 <!-- component -->
 <section class="container px-4 mx-auto">
-  <div class="flex items-center justify-between">
-    <h1 class="text-xl font-semibold">Bids Listing</h1>
+  <div class="flex items-center justify-start mb-4">
+    <.live_component id="bread_crumb" module={ProjeXpertWeb.BreadCrumb} path={@current_path} />
   </div>
   <div class="mt-6 md:flex md:items-center md:justify-between">
-    <div class="inline-flex overflow-hidden bg-white border divide-x rounded-lg">
+    <div class="flex space-x-2 mb-4 sm:mb-0">
       <.link navigate={~p"/bids"}>
         <button class={[
-          "px-5 py-2 text-xs font-medium text-gray-600 transition-colors duration-200 sm:text-sm hover:bg-gray-100",
-          @current_tab == nil && "bg-gray-100"
+          "px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-primary/90 hover:text-white transition-colors",
+          @current_tab == nil && "bg-primary text-white"
         ]}>
           View all
         </button>
       </.link>
-
       <.link
         :for={status <- Bid.all_statuses()}
         navigate={~p"/bids?tab=#{Atom.to_string(status)}"}
       >
         <button class={[
-          "px-5 py-2 text-xs font-medium text-gray-600 transition-colors duration-200 sm:text-sm hover:bg-gray-100",
-          @current_tab == Atom.to_string(status) && "bg-gray-100"
+          "px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-primary/90 hover:text-white transition-colors",
+          @current_tab == Atom.to_string(status) && "bg-primary text-white"
         ]}>
           <%= camel_case_string(status) %>
         </button>
@@ -80,7 +79,7 @@
           <.status_pill status={bid.status} />
         </td>
         <td class="p-3 text-sm">
-          <%= format_datetime(bid.inserted_at) %>
+          <%= relative_time(bid.inserted_at) %>
         </td>
 
         <td class="p-3 text-sm">

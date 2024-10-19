@@ -9,5 +9,6 @@ defmodule ProjeXpertWeb.Nav do
   defp get_active_tab("ProjectsLive"), do: :projects
   defp get_active_tab("TasksLive"), do: :tasks
   defp get_active_tab("BidsLive"), do: :bids
+  defp get_active_tab("SettingsLive"), do: :settings
   defp get_active_tab(_), do: nil
 end

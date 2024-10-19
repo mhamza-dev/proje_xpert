@@ -1,4 +1,7 @@
-<main class="container mx-auto px-4 pt-12">
+<section class="container px-4 mx-auto">
+  <div class="flex items-center justify-between space-x-2">
+    <.live_component id="bread_crumb" module={ProjeXpertWeb.BreadCrumb} path={@current_path} />
+  </div>
   <div class="flex flex-col lg:flex-row gap-8">
     <!-- Main content -->
     <div class="lg:w-2/3 max-h-[750px] overflow-y-scroll">
@@ -31,25 +34,68 @@
       </div>
 
       <div class="bg-white rounded-xl shadow-md overflow-hidden">
-        <div class="p-8">
+        <div
+          :if={user_already_bidded?(@current_user, @task.bids)}
+          class="bg-white shadow rounded-lg p-6 mb-6"
+        >
+          <h3 class="text-xl font-semibold text-gray-800 mb-4">Proposal Already Submitted</h3>
+          <% user_bid = get_user_bid(@current_user, @task.bids) %>
+          <div class="space-y-4">
+            <div>
+              <p class="text-sm font-medium text-gray-500">Bid Amount</p>
+              <p class="text-lg font-semibold text-green-500">
+                <%= Number.Currency.number_to_currency(user_bid.amount) %>
+              </p>
+            </div>
+            <div>
+              <p class="text-sm font-medium text-gray-500">Cover Letter</p>
+              <p class="text-gray-600">
+                <%= raw(user_bid.description) %>
+              </p>
+            </div>
+            <div>
+              <p class="text-sm font-medium text-gray-500">Attachments</p>
+              <ul
+                :if={!is_nil(user_bid.attached_files)}
+                class="list-disc list-inside text-blue-600"
+              >
+                <.link
+                  :for={{attachemnt, index} <- Enum.with_index(user_bid.attached_files)}
+                  navigate={~p"/tasks/#{@task.id}/show?source=#{attachemnt}&title=#{index + 1}"}
+                  class="hover:underline"
+                >
+                  <li>Attachment: <%= "#{index + 1}" %></li>
+                </.link>
+              </ul>
+              <ul
+                :if={is_nil(user_bid.attached_files)}
+                class="list-disc list-inside text-blue-600"
+              >
+                <li>No Attachments</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div :if={!user_already_bidded?(@current_user, @task.bids)} class="p-8">
           <h3 class="text-2xl font-bold text-gray-800 mb-6">Submit a Proposal</h3>
           <.form
             :let={f}
             for={@changeset}
-            phx-change="validate-bid"
-            phx-submit="create-bid"
+            phx-change="validate_bid"
+            phx-submit="create_bid"
             class="flex flex-col space-y-4"
           >
             <div class="mb-6">
               <.input field={f[:worker_id]} type="hidden" value={@current_user.id} />
               <.input field={f[:task_id]} type="hidden" value={@task.id} />
               <label for="rate" class="block text-sm font-medium text-gray-700 mb-2">
-                Budget ($)
+                Bid Amount ($)
               </label>
               <.input
-                field={f[:budget]}
+                field={f[:amount]}
                 type="number"
-                class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary/50"
                 required
               />
             </div>
@@ -63,10 +109,104 @@
               <label for="attachment" class="block text-sm font-medium text-gray-700 mb-2">
                 Attachments
               </label>
-              <.live_file_input
-                class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                upload={@uploads.cv}
-              />
+              <.live_file_input class="hidden" upload={@uploads.cv} />
+              <div class="p-8 rounded-lg shadow-md w-full">
+                <h2 class="text-2xl font-semibold mb-4">File Upload</h2>
+                <div class="flex items-center space-x-4 mb-4">
+                  <p
+                    type="file"
+                    id="fileInput"
+                    class="flex items-center justify-center w-32 py-2 px-4 rounded-full border-0 text-sm font-semibold cursor-pointer bg-blue-50 text-blue-700 hover:bg-blue-100"
+                    phx-drop-target={@uploads.cv.ref}
+                    onclick={"document.getElementById('#{@uploads.cv.ref}').click()"}
+                  >
+                    Choose File
+                  </p>
+                  <p class="text-gray-400">
+                    Add <%= @uploads.cv.accept %> up to <%= @uploads.cv.max_entries %> (max <%= trunc(
+                      @uploads.cv.max_file_size / 1_000_000
+                    ) %> MB)
+                  </p>
+                </div>
+                <div :if={!Enum.empty?(@uploads.cv.entries)}>
+                  <div id="totalProgressContainer" class="mb-4">
+                    <div class="flex justify-between items-center mb-1">
+                      <span class="text-sm font-medium text-gray-700">Total Progress</span>
+                      <span class="text-sm font-medium text-gray-700" id="totalProgressText">
+                        0%
+                      </span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-2.5">
+                      <div
+                        class="bg-green-600 h-2.5 rounded-full"
+                        style={"width: #{average_progress_percentage(@uploads.cv.entries)}%"}
+                        id="totalProgressBar"
+                      >
+                      </div>
+                    </div>
+                  </div>
+                  <ul :for={entry <- @uploads.cv.entries} id="fileList" class="space-y-4">
+                    <li class="bg-gray-50 p-4 rounded">
+                      <div class="flex justify-between items-center mb-1">
+                        <span class="text-sm font-medium text-gray-900">
+                          <svg
+                            class="w-12 h-12 text-blue-600"
+                            aria-hidden="true"
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="24"
+                            height="24"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              stroke="currentColor"
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                              stroke-width="1.5"
+                              d="M5 17v-5h1.5a1.5 1.5 0 1 1 0 3H5m12 2v-5h2m-2 3h2M5 10V7.914a1 1 0 0 1 .293-.707l3.914-3.914A1 1 0 0 1 9.914 3H18a1 1 0 0 1 1 1v6M5 19v1a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-1M10 3v4a1 1 0 0 1-1 1H5m6 4v5h1.375A1.627 1.627 0 0 0 14 15.375v-1.75A1.627 1.627 0 0 0 12.375 12H11Z"
+                            />
+                          </svg>
+                        </span>
+                        <div class="flex items-center space-x-3">
+                          <span class="text-xs text-gray-500" id={"progress-#{entry.ref}"}>
+                            <%= entry.progress %>%
+                          </span>
+                          <svg
+                            phx-click="cancel_cv"
+                            phx-value-ref={entry.ref}
+                            class="w-6 h-6 text-red-500"
+                            aria-hidden="true"
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="24"
+                            height="24"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              stroke="currentColor"
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                              stroke-width="1.5"
+                              d="m15 9-6 6m0-6 6 6m6-3a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+                            />
+                          </svg>
+                        </div>
+                      </div>
+                      <div class="w-full bg-gray-200 rounded-full h-2">
+                        <div
+                          class="bg-blue-600 h-2 rounded-full"
+                          style={"width: #{entry.progress}%"}
+                          id={"progress-bar-#{entry.ref}"}
+                        >
+                        </div>
+                      </div>
+                      <.error :for={error <- upload_errors(@uploads.cv, entry)}>
+                        <%= error %>
+                      </.error>
+                    </li>
+                  </ul>
+                </div>
+              </div>
             </div>
             <button
               type="submit"
@@ -85,6 +225,10 @@
           <h3 class="text-xl font-bold text-gray-800 mb-4">Task Details</h3>
           <ul class="space-y-4">
             <li class="flex justify-between items-center">
+              <span class="text-gray-600">Project:</span>
+              <span class="font-semibold text-primary/80"><%= @task.project.title %></span>
+            </li>
+            <li class="flex justify-between items-center">
               <span class="text-gray-600">Budget:</span>
               <span class="font-semibold text-primary/80">
                 <%= Number.Currency.number_to_currency(@task.budget) %>
@@ -99,10 +243,6 @@
               <span class="font-semibold text-primary/80">
                 <%= camel_case_string(@task.experience_required) %>
               </span>
-            </li>
-            <li class="flex justify-between items-center">
-              <span class="text-gray-600">Location:</span>
-              <span class="font-semibold text-primary/80">Remote</span>
             </li>
           </ul>
         </div>
@@ -139,4 +279,22 @@
       </div>
     </div>
   </div>
-</main>
+</section>
+
+
+<.modal
+  :if={@show_attachment}
+  show={@show_attachment}
+  id="attachment_modal"
+  max_width="max-w[900px]"
+  on_cancel={JS.navigate(~p"/tasks/#{@task.id}/show")}
+>
+  <.live_component
+    module={ProjeXpertWeb.Attchements}
+    id="attachment_modal_component"
+    title={@page_title}
+    source={@source}
+    redirect_to={~p"/tasks/#{@task.id}/show"}
+    current_user={@current_user}
+  />
+</.modal>

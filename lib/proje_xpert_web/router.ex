@@ -72,7 +72,11 @@ defmodule ProjeXpertWeb.Router do
     pipe_through [:browser, :require_authenticated_user]
 
     live_session :require_authenticated_user,
-      on_mount: [{ProjeXpertWeb.UserAuth, :ensure_authenticated}, ProjeXpertWeb.Nav] do
+      on_mount: [
+        {ProjeXpertWeb.UserAuth, :ensure_authenticated},
+        {ProjeXpertWeb.Path, :put_path_in_socket},
+        ProjeXpertWeb.Nav
+      ] do
       live "/dashboard", DashboardLive.Index, :index
       live "/tasks", TasksLive.Index, :index
       live "/tasks/new", TasksLive.Index, :new
@@ -86,12 +90,12 @@ defmodule ProjeXpertWeb.Router do
       live "/projects/:id/show", ProjectsLive.Show, :show
       live "/projects/:id/new_column", ProjectsLive.Show, :new_column
       live "/projects/:id/new_task", ProjectsLive.Show, :projects_new_task
-      live "/projects/:id/edit_task/:task_id", ProjectsLive.Show, :projects_edit_task
-      live "/projects/:id/show_task/:task_id", ProjectsLive.Show, :projects_show_task
-      live "/projects/:id/edit_column/:column_id", ProjectsLive.Show, :edit_column
+      live "/projects/:id/tasks/:task_id/edit", ProjectsLive.Show, :projects_edit_task
+      live "/projects/:id/tasks/:task_id/show", ProjectsLive.Show, :projects_show_task
+      live "/projects/:id/column/:column_id/edit", ProjectsLive.Show, :edit_column
       live "/projects/show/:id/edit", ProjectsLive.Show, :edit
-      live "/settings", UserSettingsLive, :edit
-      live "/settings/confirm_email/:token", UserSettingsLive, :confirm_email
+      live "/settings", SettingsLive.Index, :edit
+      live "/settings/email/:token/confirm", SettingsLive.Index, :confirm_email
     end
   end
 

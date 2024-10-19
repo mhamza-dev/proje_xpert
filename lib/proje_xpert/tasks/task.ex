@@ -10,6 +10,7 @@ defmodule ProjeXpert.Tasks.Task do
     :title,
     :description,
     :is_completed?,
+    :find_worker?,
     :attachments,
     :tags,
     :budget,

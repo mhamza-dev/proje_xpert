@@ -19,7 +19,7 @@ defmodule ProjeXpert.MixProject do
   def application do
     [
       mod: {ProjeXpert.Application, []},
-      extra_applications: [:logger, :runtime_tools]
+      extra_applications: [:logger, :runtime_tools, :cloudex]
     ]
   end
 
@@ -66,7 +66,8 @@ defmodule ProjeXpert.MixProject do
       {:ueberauth_google, "~> 0.12.1"},
       {:plug, "~> 1.16"},
       {:multipart, "~> 0.4.0"},
-      {:stripity_stripe, "~> 3.2.0"}
+      {:stripity_stripe, "~> 3.2.0"},
+      {:cloudex, "~> 1.4"}
     ]
   end
 

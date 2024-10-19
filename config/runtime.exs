@@ -30,7 +30,6 @@ if config_env() == :prod do
 
   maybe_ipv6 = if System.get_env("ECTO_IPV6") in ~w(true 1), do: [:inet6], else: []
 
-
   config :proje_xpert, ProjeXpert.Repo,
     ssl: true,
     url: database_url,
@@ -119,4 +118,10 @@ if config_env() == :prod do
   # config :swoosh, :api_client, Swoosh.ApiClient.Hackney
   #
   # See https://hexdocs.pm/swoosh/Swoosh.html#module-installation for details.
+
+  # Configures Cloudinary
+  config :cloudex,
+    api_key: System.get_env("CLOUDINARY_API_KEY"),
+    secret: System.get_env("CLOUDINARY_API_SECRET"),
+    cloud_name: System.get_env("CLOUDINARY_CLOUD_NAME")
 end

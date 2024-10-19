@@ -118,7 +118,7 @@ defmodule ProjeXpertWeb.CoreComponents do
       phx-click={JS.push("lv:clear-flash", value: %{key: @kind}) |> hide("##{@id}")}
       role="alert"
       class={[
-        "fixed top-2 right-2 mr-2 w-80 sm:w-96 z-50 rounded-lg p-3 ring-1",
+        "flash fixed top-2 right-2 mr-2 w-80 sm:w-96 z-50 rounded-lg p-3 ring-1",
         @kind == :info && "bg-emerald-50 text-emerald-800 ring-emerald-500 fill-cyan-900",
         @kind == :error && "bg-rose-50 text-rose-900 shadow-md ring-rose-500 fill-rose-900"
       ]}
@@ -149,7 +149,7 @@ defmodule ProjeXpertWeb.CoreComponents do
 
   def flash_group(assigns) do
     ~H"""
-    <div id={@id}>
+    <div id={@id} phx-hook="hideFlash">
       <.flash kind={:info} title={gettext("Success!")} flash={@flash} />
       <.flash kind={:error} title={gettext("Error!")} flash={@flash} />
       <.flash
@@ -235,7 +235,7 @@ defmodule ProjeXpertWeb.CoreComponents do
     <button
       type={@type}
       class={[
-        "phx-submit-loading:opacity-75 bg-primary rounded-lg hover:bg-primary/80 py-2 px-3",
+        "phx-submit-loading:opacity-75 bg-primary/80 rounded-lg hover:bg-primary py-2 px-3",
         "text-sm font-semibold leading-6 text-white active:text-white/80",
         @class
       ]}
@@ -576,7 +576,7 @@ defmodule ProjeXpertWeb.CoreComponents do
     <div>
       <.link
         navigate={@navigate}
-        class="flex items-center space-x-2 text-xl font-bold font-nunito text-primary hover:text-primary/80"
+        class="flex items-center space-x-2 text-xl font-bold font-nunito text-primary hover:text-primary/50"
       >
         <.icon name="hero-arrow-left-micro" class="h-4 w-4 font-bold" />
         <%= render_slot(@inner_block) %>
@@ -738,6 +738,7 @@ defmodule ProjeXpertWeb.CoreComponents do
     """
   end
 
+  attr :ticket_dropdown, :string, default: "right-[7.5rem] w-48"
   slot(:inner_block, required: true)
 
   def dropdown(assigns) do
@@ -765,7 +766,10 @@ defmodule ProjeXpertWeb.CoreComponents do
       </button>
       <div
         x-show="open"
-        class="absolute right-[7.5rem] z-[60] mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
+        class={[
+          "absolute z-[60] mt-2 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none",
+          @ticket_dropdown
+        ]}
         style="top: 30%; transform: translateY(-10px);"
       >
         <%= render_slot(@inner_block) %>
