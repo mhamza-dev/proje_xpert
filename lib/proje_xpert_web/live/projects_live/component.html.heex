@@ -36,7 +36,10 @@
             label="Status"
             type="select"
             field={f[:status]}
-            options={Project.statuses_as_options() |> Enum.filter(&(elem(&1, 1) != :pending))}
+            options={
+              Project.statuses_as_options()
+              |> Enum.filter(&(elem(&1, 1) in [:in_progress, :on_hold]))
+            }
             prompt="Select Status"
             class="w-[350px]"
           />

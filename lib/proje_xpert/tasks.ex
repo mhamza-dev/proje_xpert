@@ -31,8 +31,6 @@ defmodule ProjeXpert.Tasks do
   """
 
   def list_client_projects(id, filters) do
-    dbg(filters)
-
     from(p in Project, where: p.client_id == ^id)
     |> filter_projects_query(filters)
     |> preload([:client, :worker_projects, tasks: [:column, :worker_tasks, bids: :worker]])
@@ -153,6 +151,56 @@ defmodule ProjeXpert.Tasks do
   """
   def list_tasks do
     Repo.all(Task) |> Repo.preload([:worker_tasks, :comments, project: :client])
+  end
+
+  def list_tasks_for_worker(worker, params) do
+    from(t in Task,
+      join: wt in assoc(t, :worker_tasks),
+      where: t.find_worker? == true,
+      where: wt.worker_id != ^worker.id
+    )
+    |> task_query_for_fragment(params)
+    |> Repo.all()
+    |> Repo.preload([:worker_tasks, :comments, project: :client])
+  end
+
+  def list_tasks_for_client(client, params) do
+    from(t in Task,
+      join: p in assoc(t, :project),
+      where: p.client_id == ^client.id
+    )
+    |> task_query_for_fragment(params)
+    |> Repo.all()
+    |> Repo.preload([:worker_tasks, :comments, project: :client])
+  end
+
+  defp task_query_for_fragment(query, %{"tab" => current_tab}) do
+    current_date = NaiveDateTime.utc_now()
+
+    query_date = get_date_range(current_date, current_tab)
+
+    from(q in query,
+      where: q.inserted_at <= ^query_date,
+      order_by: [asc: q.inserted_at]
+    )
+  end
+
+  defp task_query_for_fragment(query, _), do: query
+
+  defp get_date_range(current_date, current_tab) do
+    case current_tab do
+      "latest" ->
+        # Last 24 hours
+        current_date
+
+      "last_week" ->
+        # Last 7 days
+        NaiveDateTime.add(current_date, -7 * 86400, :second)
+
+      "last_month" ->
+        # Last 30 days
+        NaiveDateTime.add(current_date, -30 * 86400, :second)
+    end
   end
 
   @doc """

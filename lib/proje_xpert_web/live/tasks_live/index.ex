@@ -3,13 +3,12 @@ defmodule ProjeXpertWeb.TasksLive.Index do
 
   alias ProjeXpert.Tasks
 
-  def mount(params, _session, socket) do
+  def mount(params, _session, %{assigns: %{current_user: current_user}} = socket) do
     {:ok,
      socket
-     |> assign(current_tab: Map.get(params, "tab"))
      |> assign(
-       :tasks,
-       Enum.filter(Tasks.list_tasks(), & &1.find_worker?)
+       current_tab: Map.get(params, "tab"),
+       tasks: Tasks.list_tasks_for_worker(current_user, params)
      )}
   end
 end
