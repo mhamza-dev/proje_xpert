@@ -36,6 +36,9 @@ defmodule ProjeXpert.Accounts.User do
     has_many :projects_as_client, ProjeXpert.Tasks.Project, foreign_key: :client_id
     has_many :worker_projects, ProjeXpert.Tasks.WorkerProject, foreign_key: :worker_id
     has_many :worker_tasks, ProjeXpert.Tasks.WorkerTask, foreign_key: :worker_id
+    has_many :created_channels, ProjeXpert.Chats.Channel, foreign_key: :created_by_id
+    has_many :channel_users, ProjeXpert.Chats.ChannelUser, foreign_key: :user_id
+    has_many :messages, ProjeXpert.Chats.Message, foreign_key: :sender_id
 
     many_to_many :projects_as_worker, ProjeXpert.Tasks.Project,
       join_through: ProjeXpert.Tasks.WorkerProject,
@@ -44,6 +47,10 @@ defmodule ProjeXpert.Accounts.User do
     many_to_many :taks_as_worker, ProjeXpert.Tasks.Task,
       join_through: ProjeXpert.Tasks.WorkerTask,
       join_keys: [worker_id: :id, task_id: :id]
+
+    many_to_many :channels, ProjeXpert.Chats.Channel,
+      join_through: ProjeXpert.Chats.ChannelUser,
+      join_keys: [user_id: :id, channel_id: :id]
 
     timestamps(type: :utc_datetime)
   end
