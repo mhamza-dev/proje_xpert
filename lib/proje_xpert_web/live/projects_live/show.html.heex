@@ -267,7 +267,7 @@
     :if={@live_action in [:projects_new_task, :projects_edit_task, :projects_show_task]}
     show={@live_action in [:projects_new_task, :projects_edit_task, :projects_show_task]}
     id="task_modal"
-    max_width="max-w-5xl"
+    max_width="max-w-7xl"
     on_cancel={JS.navigate(~p"/projects/#{@project.id}/show")}
   >
     <.live_component

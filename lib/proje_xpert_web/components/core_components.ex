@@ -778,6 +778,115 @@ defmodule ProjeXpertWeb.CoreComponents do
     """
   end
 
+  attr :upload_field, :any, required: true
+  attr :label, :string, required: true
+  attr :class, :string, default: "mb-6"
+
+  def upload_attachments(assigns) do
+    ~H"""
+    <div class={@class}>
+      <.live_file_input class="hidden" upload={@upload_field} />
+      <div class="p-8 rounded-lg shadow-md w-full">
+        <h2 class="text-2xl font-semibold mb-4"><%= @label %></h2>
+        <div class="flex items-center space-x-4 mb-4">
+          <p
+            type="file"
+            id="fileInput"
+            class="flex items-center justify-center w-32 py-2 px-4 rounded-full border-0 text-sm font-semibold cursor-pointer bg-blue-50 text-blue-700 hover:bg-blue-100"
+            phx-drop-target={@upload_field.ref}
+            onclick={"document.getElementById('#{@upload_field.ref}').click()"}
+          >
+            Choose File
+          </p>
+          <p class="text-gray-400">
+            Add <%= @upload_field.accept %> up to <%= @upload_field.max_entries %> (max <%= trunc(
+              @upload_field.max_file_size / 1_000_000
+            ) %> MB)
+          </p>
+        </div>
+        <div :if={!Enum.empty?(@upload_field.entries)}>
+          <div id="totalProgressContainer" class="mb-4">
+            <div class="flex justify-between items-center mb-1">
+              <span class="text-sm font-medium text-gray-700">Total Progress</span>
+              <span class="text-sm font-medium text-gray-700" id="totalProgressText">
+                <%= average_progress_percentage(@upload_field.entries) %>%
+              </span>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-2.5">
+              <div
+                class="bg-green-600 h-2.5 rounded-full"
+                style={"width: #{average_progress_percentage(@upload_field.entries)}%"}
+                id="totalProgressBar"
+              >
+              </div>
+            </div>
+          </div>
+          <ul :for={entry <- @upload_field.entries} id="fileList" class="space-y-4">
+            <li class="bg-gray-50 p-4 rounded">
+              <div class="flex justify-between items-center mb-1">
+                <span class="text-sm font-medium text-gray-900">
+                  <svg
+                    class="w-12 h-12 text-blue-600"
+                    aria-hidden="true"
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke="currentColor"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="1.5"
+                      d="M5 17v-5h1.5a1.5 1.5 0 1 1 0 3H5m12 2v-5h2m-2 3h2M5 10V7.914a1 1 0 0 1 .293-.707l3.914-3.914A1 1 0 0 1 9.914 3H18a1 1 0 0 1 1 1v6M5 19v1a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-1M10 3v4a1 1 0 0 1-1 1H5m6 4v5h1.375A1.627 1.627 0 0 0 14 15.375v-1.75A1.627 1.627 0 0 0 12.375 12H11Z"
+                    />
+                  </svg>
+                </span>
+                <div class="flex items-center space-x-3">
+                  <span class="text-xs text-gray-500" id={"progress-#{entry.ref}"}>
+                    <%= entry.progress %>%
+                  </span>
+                  <svg
+                    phx-click="cancel_cv"
+                    phx-value-ref={entry.ref}
+                    class="w-6 h-6 text-red-500"
+                    aria-hidden="true"
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke="currentColor"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="1.5"
+                      d="m15 9-6 6m0-6 6 6m6-3a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+                    />
+                  </svg>
+                </div>
+              </div>
+              <div class="w-full bg-gray-200 rounded-full h-2">
+                <div
+                  class="bg-blue-600 h-2 rounded-full"
+                  style={"width: #{entry.progress}%"}
+                  id={"progress-bar-#{entry.ref}"}
+                >
+                </div>
+              </div>
+              <.error :for={error <- upload_errors(@upload_field, entry)}>
+                <%= error %>
+              </.error>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    """
+  end
+
   ## JS Commands
 
   def show(js \\ %JS{}, selector) do

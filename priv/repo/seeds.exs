@@ -30,29 +30,149 @@ alias ProjeXpert.Tasks.{
 
 # Create some users
 clients = [
-  %{first_name: "Alice", last_name: "Doe", email: "alice@example.com"},
-  %{first_name: "Jessica", last_name: "Rodriguez", email: "jessica.r@example.com"}
+  %{
+    first_name: "Alice",
+    last_name: "Doe",
+    email: "alice@example.com",
+    location: "New York, NY",
+    bio: "<p>Dynamic entrepreneur with a passion for tech.</p>"
+  },
+  %{
+    first_name: "Jessica",
+    last_name: "Rodriguez",
+    email: "jessica.r@example.com",
+    location: "Los Angeles, CA",
+    bio: "<p>Creative designer with an eye for detail.</p>"
+  }
 ]
 
 workers = [
-  %{first_name: "Bob", last_name: "Smith", email: "bob.smith@example.com"},
-  %{first_name: "Charlie", last_name: "Johnson", email: "charlie.j@example.com"},
-  %{first_name: "Diana", last_name: "Brown", email: "diana.brown@example.com"},
-  %{first_name: "Ethan", last_name: "Williams", email: "ethan.w@example.com"},
-  %{first_name: "Fiona", last_name: "Jones", email: "fiona.jones@example.com"},
-  %{first_name: "George", last_name: "Davis", email: "george.d@example.com"},
-  %{first_name: "Hannah", last_name: "Garcia", email: "hannah.g@example.com"},
-  %{first_name: "Ian", last_name: "Martinez", email: "ian.martinez@example.com"},
-  %{first_name: "Kyle", last_name: "Lopez", email: "kyle.lopez@example.com"},
-  %{first_name: "Lily", last_name: "Gonzalez", email: "lily.g@example.com"},
-  %{first_name: "Mason", last_name: "Wilson", email: "mason.w@example.com"},
-  %{first_name: "Nina", last_name: "Anderson", email: "nina.a@example.com"},
-  %{first_name: "Oliver", last_name: "Thomas", email: "oliver.thomas@example.com"},
-  %{first_name: "Paula", last_name: "Taylor", email: "paula.t@example.com"},
-  %{first_name: "Quentin", last_name: "Moore", email: "quentin.moore@example.com"},
-  %{first_name: "Rachel", last_name: "White", email: "rachel.w@example.com"},
-  %{first_name: "Samuel", last_name: "Harris", email: "samuel.h@example.com"},
-  %{first_name: "Tina", last_name: "Clark", email: "tina.clark@example.com"}
+  %{
+    first_name: "Bob",
+    last_name: "Smith",
+    email: "bob.smith@example.com",
+    location: "Chicago, IL",
+    bio: "<p>Skilled developer with 5 years of experience.</p>"
+  },
+  %{
+    first_name: "Charlie",
+    last_name: "Johnson",
+    email: "charlie.j@example.com",
+    location: "Houston, TX",
+    bio: "<p>Full-stack engineer who loves coding.</p>"
+  },
+  %{
+    first_name: "Diana",
+    last_name: "Brown",
+    email: "diana.brown@example.com",
+    location: "Phoenix, AZ",
+    bio: "<p>Passionate project manager with a knack for organization.</p>"
+  },
+  %{
+    first_name: "Ethan",
+    last_name: "Williams",
+    email: "ethan.w@example.com",
+    location: "Philadelphia, PA",
+    bio: "<p>Data analyst with expertise in insights.</p>"
+  },
+  %{
+    first_name: "Fiona",
+    last_name: "Jones",
+    email: "fiona.jones@example.com",
+    location: "San Antonio, TX",
+    bio: "<p>UX/UI designer focused on user experience.</p>"
+  },
+  %{
+    first_name: "George",
+    last_name: "Davis",
+    email: "george.d@example.com",
+    location: "San Diego, CA",
+    bio: "<p>Web developer with a passion for innovation.</p>"
+  },
+  %{
+    first_name: "Hannah",
+    last_name: "Garcia",
+    email: "hannah.g@example.com",
+    location: "Dallas, TX",
+    bio: "<p>Marketing strategist with a creative edge.</p>"
+  },
+  %{
+    first_name: "Ian",
+    last_name: "Martinez",
+    email: "ian.martinez@example.com",
+    location: "San Jose, CA",
+    bio: "<p>Software engineer with a focus on efficiency.</p>"
+  },
+  %{
+    first_name: "Kyle",
+    last_name: "Lopez",
+    email: "kyle.lopez@example.com",
+    location: "Austin, TX",
+    bio: "<p>Cybersecurity expert dedicated to protecting data.</p>"
+  },
+  %{
+    first_name: "Lily",
+    last_name: "Gonzalez",
+    email: "lily.g@example.com",
+    location: "Jacksonville, FL",
+    bio: "<p>Content creator who loves storytelling.</p>"
+  },
+  %{
+    first_name: "Mason",
+    last_name: "Wilson",
+    email: "mason.w@example.com",
+    location: "San Francisco, CA",
+    bio: "<p>Tech enthusiast and software developer.</p>"
+  },
+  %{
+    first_name: "Nina",
+    last_name: "Anderson",
+    email: "nina.a@example.com",
+    location: "Columbus, OH",
+    bio: "<p>Graphic designer with a passion for visuals.</p>"
+  },
+  %{
+    first_name: "Oliver",
+    last_name: "Thomas",
+    email: "oliver.thomas@example.com",
+    location: "Fort Worth, TX",
+    bio: "<p>Entrepreneur with a love for innovation.</p>"
+  },
+  %{
+    first_name: "Paula",
+    last_name: "Taylor",
+    email: "paula.t@example.com",
+    location: "Charlotte, NC",
+    bio: "<p>SEO specialist with a data-driven mindset.</p>"
+  },
+  %{
+    first_name: "Quentin",
+    last_name: "Moore",
+    email: "quentin.moore@example.com",
+    location: "Seattle, WA",
+    bio: "<p>Product manager with a focus on user feedback.</p>"
+  },
+  %{
+    first_name: "Rachel",
+    last_name: "White",
+    email: "rachel.w@example.com",
+    location: "Denver, CO",
+    bio: "<p>Tech consultant with a passion for solutions.</p>"
+  },
+  %{
+    first_name: "Samuel",
+    last_name: "Harris",
+    email: "samuel.h@example.com",
+    location: "Washington, DC",
+    bio: "<p>Database administrator with a focus on security.</p>"
+  },
+  %{
+    first_name: "Tina",
+    last_name: "Clark",
+    email: "tina.clark@example.com",
+    location: "Boston, MA",
+    bio: "<p>Business analyst with a keen analytical mind.</p>"
+  }
 ]
 
 created_workers =
@@ -65,8 +185,9 @@ created_workers =
         email: user.email,
         password: "Pa$$w0rd!",
         role: :worker,
-        # Random rating between 0.00 to 5.00
-        rating: Float.round(:rand.uniform() * 5, 2)
+        rating: Float.round(:rand.uniform() * 5, 2),
+        location: user.location,
+        bio: user.bio
       }
 
       %User{}
@@ -84,7 +205,10 @@ created_clients =
         last_name: user.last_name,
         email: user.email,
         password: "Pa$$w0rd!",
-        role: :client
+        role: :client,
+        rating: Float.round(:rand.uniform() * 5, 2),
+        location: user.location,
+        bio: user.bio
       }
 
       %User{}

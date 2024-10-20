@@ -97,194 +97,327 @@
         </div>
       </div>
     </.form>
-    <div :if={@action == :projects_show_task} class="shadow overflow-hidden rounded-lg">
-      <div class="py-5 px-6 text-center">
-        <h3 class="text-lg leading-6 font-medium text-gray-900"><%= @task.title %></h3>
-      </div>
-      <div class="px-4 py-5 sm:px-6">
-        <dl class="grid grid-cols-1 gap-x-4 gap-y-8 sm:grid-cols-2">
-          <div class="sm:col-span-1">
-            <dt class="text-sm font-medium text-gray-500 flex items-center">
-              <svg
-                class="mr-1 h-4 w-4"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+  </div>
+  <div :if={@action == :projects_show_task} class="overflow-hidden">
+    <div class="grid grid-cols-12 gap-6">
+      <!-- Task Details -->
+      <div class="col-span-5 py-3 px-4 shadow-lg">
+        <h3 class="text-lg leading-6 font-medium text-gray-900 text-center mb-4">
+          Title: <%= @task.title %>
+        </h3>
+        <div class="px-4 py-5 sm:px-6">
+          <dl class="grid grid-cols-1 gap-x-4 gap-y-8">
+            <div class="sm:col-span-1">
+              <dt class="text-sm font-medium text-gray-500 flex items-center">
+                <svg
+                  class="mr-1 h-4 w-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
                 >
-                </path>
-              </svg>
-              Task Budget
-            </dt>
-            <dd class="mt-1 text-sm text-gray-900">
-              <%= Number.Currency.number_to_currency(@task.budget) %>
-            </dd>
-          </div>
-          <div class="sm:col-span-1">
-            <dt class="text-sm font-medium text-gray-500 flex items-center">
-              <svg
-                class="mr-1 h-4 w-4"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  >
+                  </path>
+                </svg>
+                Task Budget
+              </dt>
+              <dd class="mt-1 text-sm text-gray-900">
+                <%= Number.Currency.number_to_currency(@task.budget) %>
+              </dd>
+            </div>
+            <div class="sm:col-span-1">
+              <dt class="text-sm font-medium text-gray-500 flex items-center">
+                <svg
+                  class="mr-1 h-4 w-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
                 >
-                </path>
-              </svg>
-              Posted Date
-            </dt>
-            <dd class="mt-1 text-sm text-gray-900">
-              <%= relative_time(@task.inserted_at) %>
-            </dd>
-          </div>
-          <div class="sm:col-span-2">
-            <dt class="text-sm font-medium text-gray-500">Description</dt>
-            <dd class="mt-1 text-sm text-gray-900" x-data="{ isTruncated: true }">
-              <div class="antialiased font-normal leading-normal text-gray-700 overflow-hidden">
-                <%= raw(@task.description) %>
-              </div>
-            </dd>
-          </div>
-        </dl>
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                  >
+                  </path>
+                </svg>
+                Posted Date
+              </dt>
+              <dd class="mt-1 text-sm text-gray-900">
+                <%= relative_time(@task.inserted_at) %>
+              </dd>
+            </div>
+            <div class="sm:col-span-2">
+              <dt class="text-sm font-medium text-gray-500">Description</dt>
+              <dd class="mt-1 text-sm text-gray-900" x-data="{ isTruncated: true }">
+                <div class="antialiased font-normal leading-normal text-gray-700 overflow-hidden">
+                  <%= raw(@task.description) %>
+                </div>
+              </dd>
+            </div>
+          </dl>
+        </div>
       </div>
-    </div>
-    <div :if={@action == :projects_show_task}>
-      <div>
-        <div class="py-8">
-          <h1 class="text-2xl font-medium border-b border-gray-300 text-center">
-            Ticket Comments
-          </h1>
-          <!-- Add New Comment Button -->
-          <div :if={!@add_new_comment} class="text-end p-4 mr-10">
-            <span
-              class="cursor-pointer text-gray-500 hover:text-primary hover:underline hover:underline-offset-2"
-              phx-click="add_new_comment"
-              phx-target={@myself}
-            >
-              Add New Comment
-            </span>
-          </div>
-
-          <.form
-            :let={cc}
-            :if={@add_new_comment}
-            for={@cc}
-            phx-change="validate_comment"
-            phx-submit="save_comment"
+      <!-- Comments and Replies -->
+      <div class="col-span-7 py-3 px-4 shadow-lg">
+        <h3 class="text-lg leading-6 font-medium text-gray-900 text-center mb-4">
+          Ticket Comments
+        </h3>
+        <hr class="border-b border-gray-100 my-4" />
+        <div :if={!@add_new_comment} class="text-end p-4">
+          <span
+            class="cursor-pointer text-gray-500 hover:text-primary hover:underline hover:underline-offset-2"
+            phx-click="add_new_comment"
             phx-target={@myself}
           >
-            <.text_editor class="m-3" label="Comment" field={cc[:message]} id="message-comment" />
-            <div class="flex justify-end mr-3">
-              <div class="flex space-x-3">
-                <button
-                  type="button"
-                  class="text-gray-900 rounded-lg hover:bg-gray-100 py-2 px-3"
-                  phx-click="add_new_comment"
-                  phx-target={@myself}
-                >
-                  Cancel
-                </button>
-                <.button type="submit">Add Comment</.button>
-              </div>
-            </div>
-          </.form>
-          <ul class="space-y-8 max-h-[300px] overflow-y-scroll">
-            <!-- Comment 1 -->
-            <li :for={comment <- @task.comments} class="p-6">
-              <div class="flex items-start space-x-4">
-                <img
-                  class="h-10 w-10 rounded-full"
-                  src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
-                  alt=""
-                />
-                <div class="flex-1 min-w-0">
-                  <p class="text-lg font-medium text-gray-500">
-                    <%= if @current_user.id == comment.user.id,
-                      do: "You",
-                      else: full_name(comment.user) %>
-                  </p>
-                  <p class="text-gray-500 mt-1">
-                    <%= raw(comment.message) %>
-                  </p>
-                  <span class="text-sm text-gray-500 mt-2 inline-block">
-                    <%= relative_time(comment.inserted_at) %>
-                  </span>
-                </div>
-              </div>
-              <!-- Replies for Comment 1 -->
-              <ul :for={reply <- comment.replies} class="mt-6 space-y-6">
-                <li class="rounded-lg p-4 ml-10 relative before:absolute before:top-0 before:-left-5 before:w-px before:h-full before:bg-primary/50">
-                  <div class="flex items-start space-x-3">
-                    <img
-                      class="h-10 w-10 rounded-full"
-                      src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
-                      alt=""
-                    />
-                    <div>
-                      <p class="text-gray-500 font-medium">
-                        <%= if @current_user.id == reply.user.id,
-                          do: "You",
-                          else: full_name(reply.user) %>
-                      </p>
-                      <p class="text-gray-500 mt-1">
-                        <%= raw(reply.message) %>
-                      </p>
-                      <span class="text-sm text-gray-500 mt-2 inline-block">
-                        <%= relative_time(reply.inserted_at) %>
-                      </span>
-                    </div>
-                  </div>
-                </li>
-              </ul>
-              <div :if={!@add_new_reply} class="text-start p-4 ml-10 ">
-                <span
-                  class="cursor-pointer text-gray-500 hover:text-primary hover:underline hover:underline-offset-2"
-                  phx-click="add_new_reply"
-                  phx-value-id={comment.id}
-                  phx-target={@myself}
-                >
-                  Add New Reply
-                </span>
-              </div>
-              <.form
-                :let={cfc}
-                :if={@add_new_reply and @selected_comment == comment.id}
-                for={@rc}
-                phx-change="validate_message"
-                phx-submit="save_message"
+            Add New Comment
+          </span>
+        </div>
+        <!-- Add New Comment Form -->
+        <.form
+          :let={cc}
+          :if={@add_new_comment}
+          for={@cc}
+          phx-change="validate_comment"
+          phx-submit="save_comment"
+          phx-target={@myself}
+          as={:comment}
+        >
+          <.input type="hidden" field={cc[:user_id]} value={@current_user.id} />
+          <.input type="hidden" field={cc[:task_id]} value={@task.id} />
+          <.text_editor class="m-3" label="Comment" field={cc[:message]} id="message-comment" />
+          <div class="flex justify-end mr-3">
+            <div class="flex space-x-3">
+              <button
+                type="button"
+                class="text-gray-900 rounded-lg hover:bg-gray-100 py-2 px-3"
+                phx-click="add_new_comment"
                 phx-target={@myself}
               >
-                <.text_editor class="m-3" label="Reply" field={cfc[:message]} id="message-reply" />
-                <div class="flex justify-end mr-3">
-                  <div class="flex space-x-3">
-                    <button
-                      type="button"
-                      class="text-gray-900 rounded-lg hover:bg-gray-100 py-2 px-3"
-                      phx-click="add_new_reply"
-                      phx-value-id="0"
-                      phx-target={@myself}
-                    >
-                      Cancel
-                    </button>
-                    <.button type="submit">Add Reply</.button>
+                Cancel
+              </button>
+              <.button type="submit">Add Comment</.button>
+            </div>
+          </div>
+        </.form>
+
+        <ul class="space-y-8 max-h-[300px] overflow-y-scroll">
+          <li
+            :for={comment <- Enum.sort_by(@new_comments, & &1.inserted_at, :desc)}
+            :if={!Enum.empty?(@new_comments)}
+            class="mb-2"
+          >
+            <div class="flex items-start space-x-4">
+              <img
+                class="h-10 w-10 rounded-full"
+                src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
+                alt=""
+              />
+              <div class="flex-1 min-w-0">
+                <p class="text-lg font-medium text-gray-500">
+                  <%= if @current_user.id == comment.user.id,
+                    do: "You",
+                    else: full_name(comment.user) %>
+                </p>
+                <p class="text-gray-500 mt-1">
+                  <%= raw(comment.message) %>
+                </p>
+                <span class="text-sm text-gray-500 mt-2 inline-block">
+                  <%= relative_time(comment.inserted_at) %>
+                </span>
+              </div>
+            </div>
+            <!-- Replies -->
+            <ul class="mt-6 space-y-6">
+              <li
+                :for={reply <- Enum.sort_by(@new_replies, & &1.inserted_at, :asc)}
+                :if={reply.comment_id == comment.id}
+                class="rounded-lg p-4 ml-10 relative before:absolute before:top-0 before:-left-5 before:w-px before:h-full before:bg-primary/50"
+              >
+                <div class="flex items-start space-x-3">
+                  <img
+                    class="h-10 w-10 rounded-full"
+                    src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
+                    alt=""
+                  />
+                  <div>
+                    <p class="text-gray-500 font-medium">
+                      <%= if @current_user.id == reply.user.id,
+                        do: "You",
+                        else: full_name(reply.user) %>
+                    </p>
+                    <p class="text-gray-500 mt-1">
+                      <%= raw(reply.message) %>
+                    </p>
+                    <span class="text-sm text-gray-500 mt-2 inline-block">
+                      <%= relative_time(reply.inserted_at) %>
+                    </span>
                   </div>
                 </div>
-              </.form>
-            </li>
-          </ul>
-        </div>
+              </li>
+            </ul>
+
+            <div :if={!@add_new_reply} class="text-start p-4 ml-10">
+              <span
+                class="cursor-pointer text-gray-500 hover:text-primary hover:underline hover:underline-offset-2"
+                phx-click="add_new_reply"
+                phx-value-id={comment.id}
+                phx-target={@myself}
+              >
+                Add New Reply
+              </span>
+            </div>
+            <!-- Add New Reply Form -->
+            <.form
+              :let={cfc}
+              :if={@add_new_reply and @selected_comment == comment.id}
+              for={@rc}
+              phx-change="validate_reply"
+              phx-submit="save_reply"
+              phx-target={@myself}
+              as={:reply}
+            >
+              <.input type="hidden" field={cfc[:user_id]} value={@current_user.id} />
+              <.input type="hidden" field={cfc[:comment_id]} value={@selected_comment} />
+              <.text_editor class="m-3" label="Reply" field={cfc[:message]} id="message-reply" />
+              <div class="flex justify-end mr-3">
+                <div class="flex space-x-3">
+                  <button
+                    type="button"
+                    class="text-gray-900 rounded-lg hover:bg-gray-100 py-2 px-3"
+                    phx-click="add_new_reply"
+                    phx-value-id="0"
+                    phx-target={@myself}
+                  >
+                    Cancel
+                  </button>
+                  <.button type="submit">Add Reply</.button>
+                </div>
+              </div>
+            </.form>
+          </li>
+          <li :for={comment <- Enum.sort_by(@task.comments, & &1.inserted_at, :desc)} class="mb-2">
+            <div class="flex items-start space-x-4">
+              <img
+                class="h-10 w-10 rounded-full"
+                src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
+                alt=""
+              />
+              <div class="flex-1 min-w-0">
+                <p class="text-lg font-medium text-gray-500">
+                  <%= if @current_user.id == comment.user.id,
+                    do: "You",
+                    else: full_name(comment.user) %>
+                </p>
+                <p class="text-gray-500 mt-1">
+                  <%= raw(comment.message) %>
+                </p>
+                <span class="text-sm text-gray-500 mt-2 inline-block">
+                  <%= relative_time(comment.inserted_at) %>
+                </span>
+              </div>
+            </div>
+            <!-- Replies -->
+            <ul class="mt-2 space-y-2">
+              <li
+                :for={reply <- Enum.sort_by(comment.replies, & &1.inserted_at, :asc)}
+                class="rounded-lg p-4 ml-10 relative before:absolute before:top-0 before:-left-5 before:w-px before:h-full before:bg-primary/50"
+              >
+                <div class="flex items-start space-x-3">
+                  <img
+                    class="h-10 w-10 rounded-full"
+                    src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
+                    alt=""
+                  />
+                  <div>
+                    <p class="text-gray-500 font-medium">
+                      <%= if @current_user.id == reply.user.id,
+                        do: "You",
+                        else: full_name(reply.user) %>
+                    </p>
+                    <p class="text-gray-500 mt-1">
+                      <%= raw(reply.message) %>
+                    </p>
+                    <span class="text-sm text-gray-500 mt-2 inline-block">
+                      <%= relative_time(reply.inserted_at) %>
+                    </span>
+                  </div>
+                </div>
+              </li>
+              <li
+                :for={reply <- Enum.sort_by(@new_replies, & &1.inserted_at, :asc)}
+                :if={reply.comment_id == comment.id}
+                class="rounded-lg p-4 ml-10 relative before:absolute before:top-0 before:-left-5 before:w-px before:h-full before:bg-primary/50"
+              >
+                <div class="flex items-start space-x-3">
+                  <img
+                    class="h-10 w-10 rounded-full"
+                    src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
+                    alt=""
+                  />
+                  <div>
+                    <p class="text-gray-500 font-medium">
+                      <%= if @current_user.id == reply.user.id,
+                        do: "You",
+                        else: full_name(reply.user) %>
+                    </p>
+                    <p class="text-gray-500 mt-1">
+                      <%= raw(reply.message) %>
+                    </p>
+                    <span class="text-sm text-gray-500 mt-2 inline-block">
+                      <%= relative_time(reply.inserted_at) %>
+                    </span>
+                  </div>
+                </div>
+              </li>
+            </ul>
+
+            <div :if={!@add_new_reply} class="text-start p-4 ml-10">
+              <span
+                class="cursor-pointer text-gray-500 hover:text-primary hover:underline hover:underline-offset-2"
+                phx-click="add_new_reply"
+                phx-value-id={comment.id}
+                phx-target={@myself}
+              >
+                Add New Reply
+              </span>
+            </div>
+            <!-- Add New Reply Form -->
+            <.form
+              :let={cfc}
+              :if={@add_new_reply and @selected_comment == comment.id}
+              for={@rc}
+              phx-change="validate_reply"
+              phx-submit="save_reply"
+              phx-target={@myself}
+              as={:reply}
+            >
+              <.input type="hidden" field={cfc[:user_id]} value={@current_user.id} />
+              <.input type="hidden" field={cfc[:comment_id]} value={@selected_comment} />
+              <.text_editor class="m-3" label="Reply" field={cfc[:message]} id="message-reply" />
+              <div class="flex justify-end mr-3">
+                <div class="flex space-x-3">
+                  <button
+                    type="button"
+                    class="text-gray-900 rounded-lg hover:bg-gray-100 py-2 px-3"
+                    phx-click="add_new_reply"
+                    phx-value-id="0"
+                    phx-target={@myself}
+                  >
+                    Cancel
+                  </button>
+                  <.button type="submit">Add Reply</.button>
+                </div>
+              </div>
+            </.form>
+          </li>
+        </ul>
       </div>
     </div>
   </div>
