@@ -556,6 +556,13 @@ defmodule ProjeXpert.Tasks do
     %Comment{}
     |> Comment.changeset(attrs)
     |> Repo.insert()
+    |> case do
+      {:ok, comment} ->
+        {:ok, Repo.preload(comment, [:user, replies: :user])}
+
+      e ->
+        e
+    end
   end
 
   @doc """
@@ -943,6 +950,13 @@ defmodule ProjeXpert.Tasks do
     %Reply{}
     |> Reply.changeset(attrs)
     |> Repo.insert()
+    |> case do
+      {:ok, reply} ->
+        {:ok, Repo.preload(reply, [:user])}
+
+      e ->
+        e
+    end
   end
 
   @doc """

@@ -62,4 +62,20 @@ defmodule ProjeXpertWeb.ProjectsLive.Index do
          |> push_navigate(to: ~p"/projects")}
     end
   end
+
+  def handle_event("update_project_status", %{"id" => id, "status" => status}, socket) do
+    with %Project{} = project <- Tasks.get_project!(id),
+         {:ok, _} <- Tasks.update_project(project, %{"status" => status}) do
+      {:noreply,
+       socket
+       |> put_flash(:info, "Project \"#{status}\" successfully")
+       |> push_navigate(to: ~p"/projects")}
+    else
+      _ ->
+        {:noreply,
+         socket
+         |> put_flash(:error, "Somehting went wrong while deleting the Project")
+         |> push_navigate(to: ~p"/projects")}
+    end
+  end
 end

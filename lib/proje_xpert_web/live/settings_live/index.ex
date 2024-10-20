@@ -20,6 +20,7 @@ defmodule ProjeXpertWeb.SettingsLive.Index do
     user = socket.assigns.current_user
     email_changeset = Accounts.change_user_email(user)
     password_changeset = Accounts.change_user_password(user)
+    profile_changeset = Accounts.change_user_profile(user)
 
     socket =
       socket
@@ -30,7 +31,13 @@ defmodule ProjeXpertWeb.SettingsLive.Index do
         current_email: user.email,
         email_form: to_form(email_changeset),
         password_form: to_form(password_changeset),
-        trigger_submit: false
+        trigger_submit: false,
+        profile_changeset: profile_changeset
+      )
+      |> allow_upload(:profile,
+        max_entries: 1,
+        accept: ~w(.png .jpeg .jpg),
+        max_file_size: 5_000_000
       )
 
     {:ok, socket}
@@ -95,6 +102,36 @@ defmodule ProjeXpertWeb.SettingsLive.Index do
 
       {:error, changeset} ->
         {:noreply, assign(socket, password_form: to_form(changeset))}
+    end
+  end
+
+  def handle_event("validate_profile", %{"profile" => params}, socket) do
+    changeset =
+      socket.assigns.current_user
+      |> Accounts.change_user_profile(params)
+      |> Map.put(:action, :validate)
+
+    {:noreply, assign(socket, profile_changeset: changeset)}
+  end
+
+  def handle_event("update_profile", %{"profile" => params}, socket) do
+    params =
+      if Enum.empty?(socket.assigns.uploads.profile.entries) do
+        params
+      else
+        url = List.first(upload_files(socket, :profile))
+        Map.put(params, "profile_image", url)
+      end
+
+    case Accounts.update_user_profile(socket.assigns.current_user, params) do
+      {:ok, _user} ->
+        {:noreply,
+         socket
+         |> put_flash(:info, "Profile has been updated Successfully")
+         |> push_navigate(to: ~p"/settings")}
+
+      {:error, changeset} ->
+        {:noreply, assign(socket, profile_changeset: changeset)}
     end
   end
 end

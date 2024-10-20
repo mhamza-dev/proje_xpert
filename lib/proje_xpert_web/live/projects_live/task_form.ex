@@ -18,9 +18,12 @@ defmodule ProjeXpertWeb.ProjectsLive.TaskForm do
        cc: cc,
        rc: rc,
        comment: %Comment{},
+       reply: %Reply{},
        add_new_comment: false,
        add_new_reply: false,
-       selected_comment: nil
+       selected_comment: nil,
+       new_comments: [],
+       new_replies: []
      )}
   end
 
@@ -92,14 +95,17 @@ defmodule ProjeXpertWeb.ProjectsLive.TaskForm do
 
   def handle_event("save_comment", %{"comment" => comment_params}, socket) do
     case Tasks.create_comment(comment_params) do
-      {:ok, _comment} ->
+      {:ok, comment} ->
         Phoenix.PubSub.broadcast!(
           ProjeXpert.PubSub,
           "project:#{socket.assigns.task.project_id}",
           {:task, socket.assigns.task.project_id}
         )
 
-        {:noreply, socket |> put_flash(:info, "Comment created successfully")}
+        {:noreply,
+         socket
+         |> assign(add_new_comment: false, new_comments: socket.assigns.new_comments ++ [comment])
+         |> put_flash(:info, "Comment created successfully")}
 
       {:error, cc} ->
         {:noreply, socket |> assign(cc: cc)}
@@ -117,14 +123,17 @@ defmodule ProjeXpertWeb.ProjectsLive.TaskForm do
 
   def handle_event("save_reply", %{"reply" => reply_params}, socket) do
     case Tasks.create_reply(reply_params) do
-      {:ok, _reply} ->
+      {:ok, reply} ->
         Phoenix.PubSub.broadcast!(
           ProjeXpert.PubSub,
           "project:#{socket.assigns.task.project_id}",
           {:task, socket.assigns.task.project_id}
         )
 
-        {:noreply, socket |> put_flash(:info, "Reply created successfully")}
+        {:noreply,
+         socket
+         |> assign(add_new_reply: false, new_replies: socket.assigns.new_replies ++ [reply])
+         |> put_flash(:info, "Reply created successfully")}
 
       {:error, cc} ->
         {:noreply, socket |> assign(cc: cc)}

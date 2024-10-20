@@ -45,7 +45,7 @@ defmodule ProjeXpertWeb.TasksLive.Show do
   end
 
   def handle_event("create_bid", %{"bid" => bid_params}, socket) do
-    urls = upload_files(socket)
+    urls = upload_files(socket, :cv)
 
     if Enum.any?(urls, &(&1 == :error)) do
       {:noreply,
@@ -58,7 +58,7 @@ defmodule ProjeXpertWeb.TasksLive.Show do
   end
 
   def create_bid(bid_params, %{assigns: assigns} = socket) do
-    case Tasks.create_bid(bid_params) |> dbg() do
+    case Tasks.create_bid(bid_params) do
       {:ok, bid} ->
         Phoenix.PubSub.broadcast!(ProjeXpert.PubSub, "bids", {:bid_created})
 

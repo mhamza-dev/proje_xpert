@@ -167,8 +167,8 @@ defmodule ProjeXpertWeb.LiveHelpers do
     "#{entry.uuid}.#{ext}"
   end
 
-  def upload_files(socket) do
-    LiveView.consume_uploaded_entries(socket, :cv, fn %{path: path}, _entry ->
+  def upload_files(socket, key) do
+    LiveView.consume_uploaded_entries(socket, key, fn %{path: path}, _entry ->
       case Cloudex.upload(path) do
         {:ok, %Cloudex.UploadedImage{secure_url: secure_url}} ->
           {:ok, secure_url}
@@ -183,7 +183,7 @@ defmodule ProjeXpertWeb.LiveHelpers do
     total_progress = Enum.reduce(entries, 0, fn entry, acc -> acc + entry.progress end)
     count = length(entries)
 
-    if count > 0, do: total_progress / count * 100, else: 0.00
+    if count > 0, do: total_progress / count, else: 0.00
   end
 
   def get_user_bid(user, bids) do
