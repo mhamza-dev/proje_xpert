@@ -3,8 +3,10 @@ export default {
     let flash = document.querySelector(".flash");
     if (flash) {
       setTimeout(() => {
-        flash.classList.add("hide");
-        this.pushEvent("lv:clear-flash");
+        flash.classList.add("animate-fade-out-left");
+        setTimeout(() => {
+          this.pushEvent("lv:clear-flash");
+        }, 500);
       }, 3000);
     }
   },
@@ -13,8 +15,10 @@ export default {
     let flash = document.querySelector(".flash");
     if (flash) {
       setTimeout(() => {
-        flash.classList.add("hide");
-        this.pushEvent("lv:clear-flash");
+        flash.classList.add("animate-fade-out-left");
+        setTimeout(()=> {
+          this.pushEvent("lv:clear-flash");
+        }, 500)
       }, 3000);
     }
   },

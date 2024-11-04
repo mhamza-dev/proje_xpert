@@ -1,4 +1,4 @@
-defmodule ProjeXpertWeb.ProjectsLive.ColumnForm do
+defmodule ProjeXpertWeb.ProjectsLive.Components.Column do
   use ProjeXpertWeb, :live_component
 
   alias ProjeXpert.Tasks

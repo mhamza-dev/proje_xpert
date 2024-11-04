@@ -12,8 +12,10 @@
 
 # priv/repo/seeds.exs
 
-alias ProjeXpert.Repo
+alias ProjeXpert.Accounts
 alias ProjeXpert.Accounts.User
+alias ProjeXpert.Chats.{Channel, Message}
+alias ProjeXpert.Repo
 alias ProjeXpert.Tasks
 
 alias ProjeXpert.Tasks.{
@@ -23,10 +25,10 @@ alias ProjeXpert.Tasks.{
   Project,
   # Payment,
   Task,
-  WorkerProject,
-  WorkerTask,
   Reply
 }
+
+import ProjeXpertWeb.LiveHelpers
 
 # Create some users
 clients = [
@@ -372,19 +374,17 @@ projects = [
 ]
 
 for proj <- projects do
+  client = Enum.random(created_clients)
+  project_status = Project.all_statuses() |> Enum.reject(&(&1 == :completed)) |> Enum.random()
+
   project =
     Repo.insert!(%Project{
       title: proj.title,
       description: proj.description,
-      status: Enum.random(Project.all_statuses()),
+      status: project_status,
       budget: Decimal.new(Enum.random(1000..10000)),
-      client_id: Enum.random(created_clients).id
+      client_id: client.id
     })
-
-  Repo.insert!(%WorkerProject{
-    worker_id: Enum.random(created_workers).id,
-    project_id: project.id
-  })
 
   # Create columns for the project
 
@@ -429,7 +429,7 @@ for proj <- projects do
         title: task_title,
         description: task_description,
         is_completed?: if(find_worker?, do: Enum.random([true, false]), else: false),
-        find_worker?: Enum.random([true, false]),
+        find_worker?: find_worker?,
         budget: Decimal.new(Enum.random(1000..10000)),
         deadline: deadline,
         column_id: column1.id,
@@ -453,7 +453,7 @@ for proj <- projects do
           status: :submitted,
           description: """
             <p>
-              <p>Dear [Hiring Manager],</p>
+              <p>Dear #{full_name(client)},</p>
               <p>
                   I am writing to express my interest in the Frontend Developer position for your E-commerce Website Development project. With a strong background in web development and hands-on experience in building scalable, user-friendly interfaces, I am confident in my ability to contribute to the success of your project.
               </p>
@@ -467,7 +467,7 @@ for proj <- projects do
                   Thank you for considering my application. I look forward to the opportunity to discuss how my skills can align with your team’s needs.
               </p>
               <p>Best regards,<br>
-              <strong>[Your Name]</strong>
+              <strong>#{full_name(worker)}</strong>
               </p>
             </p>
           """,
@@ -489,40 +489,69 @@ for proj <- projects do
 
       if bid.status == :accepted do
         if j == Enum.random(3..5) do
-          Tasks.update_task(task, %{"column_id" => column3.id, "is_completed?" => true})
+          Tasks.update_task(task, %{
+            "column_id" => column3.id,
+            "is_completed?" => true,
+            "worker_id" => bid.worker_id
+          })
         else
-          Tasks.update_task(task, %{"column_id" => column2.id})
+          Tasks.update_task(task, %{"column_id" => column2.id, "worker_id" => bid.worker_id})
         end
 
-        Repo.insert!(%WorkerTask{
-          worker_id: bid.worker_id,
-          task_id: task.id
-        })
+        is_user_already_in_project(Repo.preload(bid, task: :project))
+
+        # Add comments and replies
+        Enum.each(1..3, fn _ ->
+          comment =
+            Repo.insert!(%Comment{
+              message: "This is a comment on task: #{task.title}.",
+              task_id: task.id,
+              user_id: client.id
+            })
+
+          Enum.each(1..3, fn index ->
+            user = if rem(index, 2) == 0, do: client, else: Accounts.get_user!(bid.worker_id)
+
+            Repo.insert!(%Reply{
+              message:
+                "This is a reply to comment: #{comment.id} by #{user.first_name} #{user.last_name}.",
+              comment_id: comment.id,
+              user_id: user.id
+            })
+          end)
+        end)
       end
     end
+  end
 
-    # Add comments and replies
-    Enum.each(1..3, fn _ ->
-      client = Enum.random(created_clients)
+  joiners =
+    project
+    |> Repo.preload(project_workers: :worker)
+    |> get_project_workers()
+    |> Enum.map(& &1.id)
 
-      comment =
-        Repo.insert!(%Comment{
-          message: "This is a comment on task: #{task.title}.",
-          task_id: task.id,
-          user_id: client.id
-        })
+  if length(joiners) >= 2 do
+    channel =
+      Repo.insert!(%Channel{
+        name: "Channel for #{project.title}",
+        joiners: joiners,
+        project_id: project.id,
+        created_by_id: client.id
+      })
 
-      Enum.each(1..3, fn index ->
-        worker = Enum.random(created_workers)
-        user = if rem(index, 2) == 0, do: client, else: worker
+    senders = joiners ++ [client.id]
 
-        Repo.insert!(%Reply{
-          message:
-            "This is a reply to comment: #{comment.id} by #{user.first_name} #{user.last_name}.",
-          comment_id: comment.id,
-          user_id: user.id
-        })
-      end)
-    end)
+    for _ <- 1..Enum.random(3..10) do
+      Repo.insert!(%Message{
+        body: """
+          <p><strong>New message for #{project.title}:</strong></p>
+          <p>
+          #{Enum.random(["Looking forward to working on this project.", "Let’s discuss the project requirements in detail.", "Here are some ideas on how we could proceed.", "Please review the updates and let me know your feedback.", "Is there a specific deadline for this project?", "I'll send the initial draft by the end of the day."])}
+          </p>
+        """,
+        sender_id: Enum.random(senders),
+        channel_id: channel.id
+      })
+    end
   end
 end

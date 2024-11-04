@@ -14,6 +14,7 @@ defmodule ProjeXpert.Application do
       {Phoenix.PubSub, name: ProjeXpert.PubSub},
       # Start the Finch HTTP client for sending emails
       {Finch, name: ProjeXpert.Finch},
+      ProjeXpertWeb.UserPresence,
       # Start a worker by calling: ProjeXpert.Worker.start_link(arg)
       # {ProjeXpert.Worker, arg},
       # Start to serve requests, typically the last entry

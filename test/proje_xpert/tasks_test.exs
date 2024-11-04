@@ -380,16 +380,16 @@ defmodule ProjeXpert.TasksTest do
     end
   end
 
-  describe "worker_projects" do
-    alias ProjeXpert.Tasks.WorkerProject
+  describe "project_workers" do
+    alias ProjeXpert.Tasks.ProjectWorker
 
     import ProjeXpert.TasksFixtures
 
     @invalid_attrs %{}
 
-    test "list_worker_projects/0 returns all worker_projects" do
+    test "list_project_workers/0 returns all project_workers" do
       worker_project = worker_project_fixture()
-      assert Tasks.list_worker_projects() == [worker_project]
+      assert Tasks.list_project_workers() == [worker_project]
     end
 
     test "get_worker_project!/1 returns the worker_project with given id" do
@@ -400,7 +400,7 @@ defmodule ProjeXpert.TasksTest do
     test "create_worker_project/1 with valid data creates a worker_project" do
       valid_attrs = %{}
 
-      assert {:ok, %WorkerProject{} = worker_project} = Tasks.create_worker_project(valid_attrs)
+      assert {:ok, %ProjectWorker{} = worker_project} = Tasks.create_worker_project(valid_attrs)
     end
 
     test "create_worker_project/1 with invalid data returns error changeset" do
@@ -411,7 +411,7 @@ defmodule ProjeXpert.TasksTest do
       worker_project = worker_project_fixture()
       update_attrs = %{}
 
-      assert {:ok, %WorkerProject{} = worker_project} =
+      assert {:ok, %ProjectWorker{} = worker_project} =
                Tasks.update_worker_project(worker_project, update_attrs)
     end
 
@@ -426,66 +426,13 @@ defmodule ProjeXpert.TasksTest do
 
     test "delete_worker_project/1 deletes the worker_project" do
       worker_project = worker_project_fixture()
-      assert {:ok, %WorkerProject{}} = Tasks.delete_worker_project(worker_project)
+      assert {:ok, %ProjectWorker{}} = Tasks.delete_worker_project(worker_project)
       assert_raise Ecto.NoResultsError, fn -> Tasks.get_worker_project!(worker_project.id) end
     end
 
     test "change_worker_project/1 returns a worker_project changeset" do
       worker_project = worker_project_fixture()
       assert %Ecto.Changeset{} = Tasks.change_worker_project(worker_project)
-    end
-  end
-
-  describe "worker_tasks" do
-    alias ProjeXpert.Tasks.WorkerTask
-
-    import ProjeXpert.TasksFixtures
-
-    @invalid_attrs %{}
-
-    test "list_worker_tasks/0 returns all worker_tasks" do
-      worker_task = worker_task_fixture()
-      assert Tasks.list_worker_tasks() == [worker_task]
-    end
-
-    test "get_worker_task!/1 returns the worker_task with given id" do
-      worker_task = worker_task_fixture()
-      assert Tasks.get_worker_task!(worker_task.id) == worker_task
-    end
-
-    test "create_worker_task/1 with valid data creates a worker_task" do
-      valid_attrs = %{}
-
-      assert {:ok, %WorkerTask{} = worker_task} = Tasks.create_worker_task(valid_attrs)
-    end
-
-    test "create_worker_task/1 with invalid data returns error changeset" do
-      assert {:error, %Ecto.Changeset{}} = Tasks.create_worker_task(@invalid_attrs)
-    end
-
-    test "update_worker_task/2 with valid data updates the worker_task" do
-      worker_task = worker_task_fixture()
-      update_attrs = %{}
-
-      assert {:ok, %WorkerTask{} = worker_task} =
-               Tasks.update_worker_task(worker_task, update_attrs)
-    end
-
-    test "update_worker_task/2 with invalid data returns error changeset" do
-      worker_task = worker_task_fixture()
-      assert {:error, %Ecto.Changeset{}} = Tasks.update_worker_task(worker_task, @invalid_attrs)
-      assert worker_task == Tasks.get_worker_task!(worker_task.id)
-    end
-
-    test "delete_worker_task/1 deletes the worker_task" do
-      worker_task = worker_task_fixture()
-      assert {:ok, %WorkerTask{}} = Tasks.delete_worker_task(worker_task)
-      assert_raise Ecto.NoResultsError, fn -> Tasks.get_worker_task!(worker_task.id) end
-    end
-
-    test "change_worker_task/1 returns a worker_task changeset" do
-      worker_task = worker_task_fixture()
-      assert %Ecto.Changeset{} = Tasks.change_worker_task(worker_task)
     end
   end
 

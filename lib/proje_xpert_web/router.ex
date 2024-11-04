@@ -11,6 +11,7 @@ defmodule ProjeXpertWeb.Router do
     plug :protect_from_forgery
     plug :put_secure_browser_headers
     plug :fetch_current_user
+    plug :put_user_token
   end
 
   pipeline :api do
@@ -52,9 +53,12 @@ defmodule ProjeXpertWeb.Router do
 
     live_session :redirect_if_user_is_authenticated,
       on_mount: [{ProjeXpertWeb.UserAuth, :redirect_if_user_is_authenticated}] do
-      live "/admins/register", UserRegistrationLive, :admin
-      live "/client/register", UserRegistrationLive, :client
-      live "/worker/register", UserRegistrationLive, :worker
+      scope "/register" do
+        live "/admins", UserRegistrationLive, :admin
+        live "/client", UserRegistrationLive, :client
+        live "/worker", UserRegistrationLive, :worker
+      end
+
       live "/log_in", UserLoginLive, :new
       live "/reset_password", UserForgotPasswordLive, :new
       live "/reset_password/:token", UserResetPasswordLive, :edit
@@ -77,25 +81,45 @@ defmodule ProjeXpertWeb.Router do
         {ProjeXpertWeb.Path, :put_path_in_socket},
         ProjeXpertWeb.Nav
       ] do
+      scope "/bids", BidsLive do
+        live "/", Index, :index
+        live "/:id/edit", Index, :edit
+        live "/:id/show", Show, :show
+      end
+
+      scope "/channels", ChannelsLive do
+        live "/", Index, :index
+        live "/:id/edit", Index, :edit
+        live "/:id/show", Show, :show
+      end
+
       live "/dashboard", DashboardLive.Index, :index
-      live "/tasks", TasksLive.Index, :index
-      live "/tasks/new", TasksLive.Index, :new
-      live "/tasks/bids/new", TasksLive.Index, :new_bid
-      live "/tasks/:id/show", TasksLive.Show, :show
-      live "/bids", BidsLive.Index, :index
-      live "/bids/:id/edit", BidsLive.Index, :edit
-      live "/projects", ProjectsLive.Index, :index
-      live "/projects/new", ProjectsLive.Index, :new
-      live "/projects/:id/edit", ProjectsLive.Index, :edit
-      live "/projects/:id/show", ProjectsLive.Show, :show
-      live "/projects/:id/new_column", ProjectsLive.Show, :new_column
-      live "/projects/:id/new_task", ProjectsLive.Show, :projects_new_task
-      live "/projects/:id/tasks/:task_id/edit", ProjectsLive.Show, :projects_edit_task
-      live "/projects/:id/tasks/:task_id/show", ProjectsLive.Show, :projects_show_task
-      live "/projects/:id/column/:column_id/edit", ProjectsLive.Show, :edit_column
-      live "/projects/show/:id/edit", ProjectsLive.Show, :edit
-      live "/settings", SettingsLive.Index, :edit
-      live "/settings/email/:token/confirm", SettingsLive.Index, :confirm_email
+
+      scope "/projects", ProjectsLive do
+        live "/", Index, :index
+        live "/new", Index, :new
+        live "/:id/edit", Index, :edit
+        live "/:id/show", Show, :show
+        live "/:id/new_column", Show, :new_column
+        live "/:id/new_task", Show, :projects_new_task
+        live "/:id/tasks/:task_id/edit", Show, :projects_edit_task
+        live "/:id/tasks/:task_id/show", Show, :projects_show_task
+        live "/:id/column/:column_id/edit", Show, :edit_column
+        live "/show/:id/edit", Show, :edit
+        live "/:id/channels/new", Show, :new_channel
+      end
+
+      scope "/tasks", TasksLive do
+        live "/", Index, :index
+        live "/new", Index, :new
+        live "/bids/new", Index, :new_bid
+        live "/:id/show", Show, :show
+      end
+
+      scope "/settings", SettingsLive do
+        live "/", Index, :edit
+        live "/email/:token/confirm", Index, :confirm_email
+      end
     end
   end
 
@@ -108,6 +132,15 @@ defmodule ProjeXpertWeb.Router do
       on_mount: [{ProjeXpertWeb.UserAuth, :mount_current_user}] do
       live "/confirm/:token", UserConfirmationLive, :edit
       live "/confirm", UserConfirmationInstructionsLive, :new
+    end
+  end
+
+  defp put_user_token(conn, _) do
+    if current_user = conn.assigns[:current_user] do
+      token = Phoenix.Token.sign(conn, System.get_env("PROJECT_SECRET_KEY"), current_user.id)
+      assign(conn, :user_token, token)
+    else
+      conn
     end
   end
 end

@@ -1,40 +1,92 @@
 <!-- component -->
 <section class="container px-4 mx-auto">
   <div class="flex items-center justify-between space-x-2">
-    <.live_component id="bread_crumb" module={ProjeXpertWeb.BreadCrumb} path={@current_path} />
+    <.live_component
+      id="bread_crumb"
+      module={ProjeXpertWeb.BreadCrumb}
+      path={@current_path}
+      title={@project.title}
+    />
     <div class="flex items-center space-x-2">
-      <.link :if={is_client?(@current_user)} patch={~p"/projects/show/#{@project.id}/edit"}>
-        <button class="flex items-center justify-center w-1/2 px-5 py-2 text-sm tracking-wide text-white transition-colors duration-200 bg-primary rounded-lg shrink-0 sm:w-auto gap-x-2 hover:bg-blue-600">
-          <.icon name="hero-pencil-square" class="w-4 h-4" />
+      <.link
+        :if={is_client?(@current_user)}
+        patch={~p"/projects/show/#{@project.id}/edit"}
+        class="group"
+      >
+        <.button class="flex items-center justify-center w-1/2 px-5 py-2 text-sm tracking-wide text-white transition-colors duration-200 bg-primary rounded-lg shrink-0 sm:w-auto gap-x-2 hover:bg-blue-600">
+          <.icon
+            name="hero-pencil-square transition-transform duration-300 ease-out transform group-hover:rotate-12 group-hover:scale-110"
+            class="w-4 h-4"
+          />
           <span>Edit Project</span>
-        </button>
+        </.button>
       </.link>
       <.link
         :if={@project.status != :completed and is_client?(@current_user)}
         patch={~p"/projects/#{@project.id}/new_column"}
+        class="group"
       >
-        <button class="flex items-center justify-center w-1/2 px-5 py-2 text-sm tracking-wide text-white transition-colors duration-200 bg-primary rounded-lg shrink-0 sm:w-auto gap-x-2 hover:bg-blue-600">
-          <.icon name="hero-plus-circle" class="w-4 h-4" />
+        <.button class="flex items-center justify-center w-1/2 px-5 py-2 text-sm tracking-wide text-white transition-colors duration-200 bg-primary rounded-lg shrink-0 sm:w-auto gap-x-2 hover:bg-blue-600">
+          <.icon
+            name="hero-plus-circle transition-transform duration-300 ease-out transform group-hover:rotate-90 group-hover:scale-110"
+            class="w-4 h-4"
+          />
           <span>Add Column</span>
-        </button>
+        </.button>
       </.link>
       <.link
         :if={@project.status != :completed and is_client?(@current_user)}
         patch={~p"/projects/#{@project.id}/new_task"}
+        class="group"
       >
-        <button class="flex items-center justify-center w-1/2 px-5 py-2 text-sm tracking-wide text-white transition-colors duration-200 bg-primary rounded-lg shrink-0 sm:w-auto gap-x-2 hover:bg-blue-600">
-          <.icon name="hero-plus-circle" class="w-4 h-4" />
+        <.button class="flex items-center justify-center w-1/2 px-5 py-2 text-sm tracking-wide text-white transition-colors duration-200 bg-primary rounded-lg shrink-0 sm:w-auto gap-x-2 hover:bg-blue-600">
+          <.icon
+            name="hero-plus-circle transition-transform duration-300 ease-out transform group-hover:rotate-90 group-hover:scale-110"
+            class="w-4 h-4"
+          />
           <span>Add Task</span>
-        </button>
+        </.button>
+      </.link>
+      <.link
+        :if={
+          is_nil(@project.channel) and @project.status != :completed and is_client?(@current_user)
+        }
+        patch={~p"/projects/#{@project.id}/channels/new"}
+        class="group"
+      >
+        <.button class="flex items-center justify-center w-1/2 px-5 py-2 text-sm tracking-wide text-white transition-colors duration-200 bg-primary rounded-lg shrink-0 sm:w-auto gap-x-2 hover:bg-blue-600">
+          <.icon
+            name="hero-plus-circle transition-transform duration-300 ease-out transform group-hover:rotate-90 group-hover:scale-110"
+            class="w-4 h-4"
+          />
+          <span>Create Channel</span>
+        </.button>
+      </.link>
+      <.link
+        :if={
+          !is_nil(@project.channel) and @project.status != :completed and
+            is_client?(@current_user)
+        }
+        navigate={~p"/channels/#{@project.channel.id}/show"}
+        class="group"
+      >
+        <.button class="flex items-center justify-center w-1/2 px-5 py-2 text-sm tracking-wide text-white transition-colors duration-200 bg-primary rounded-lg shrink-0 sm:w-auto gap-x-2 hover:bg-blue-600">
+          <.icon
+            name="hero-plus-circle transition-transform duration-300 ease-out transform group-hover:rotate-90 group-hover:scale-110"
+            class="w-4 h-4"
+          />
+          <span>View Channel</span>
+        </.button>
       </.link>
     </div>
   </div>
 
   <div class="mt-6 flex items-center justify-between">
-    <div class="flex flex-col">
-      <ul>
-        <li>Budget: <%= Number.Currency.number_to_currency(@project.budget) %></li>
-      </ul>
+    <div class="flex text-md font-semibold">
+      Budget:
+      <span class="text-success">
+        <%= Number.Currency.number_to_currency(@project.budget) %>
+      </span>
     </div>
     <div class="flex">
       <div class="relative flex items-center mt-4 md:mt-0">
@@ -68,7 +120,7 @@
     <div>
       <div class="min-w-full py-2 align-middle px-8">
         <div class="border border-gray-200 md:rounded-lg">
-          <div class="flex space-x-6 p-4 h-[550px] overflow-x-scroll">
+          <div class="flex space-x-6 p-4 h-[calc(100vh-15rem)] overflow-x-scroll">
             <div
               :for={column <- @project.columns}
               class="relative flex flex-col text-gray-700 bg-white shadow-md border rounded-xl w-64 overflow-y-scroll"
@@ -254,7 +306,7 @@
     on_cancel={JS.navigate(~p"/projects/#{@project.id}/show")}
   >
     <.live_component
-      module={ProjeXpertWeb.ProjectsLive.ColumnForm}
+      module={Components.Column}
       id={@column.id || :new}
       title={@page_title}
       action={@live_action}
@@ -271,7 +323,7 @@
     on_cancel={JS.navigate(~p"/projects/#{@project.id}/show")}
   >
     <.live_component
-      module={ProjeXpertWeb.ProjectsLive.TaskForm}
+      module={Components.Task}
       id={@task.id || :new}
       title={@page_title}
       action={@live_action}
@@ -289,11 +341,28 @@
     on_cancel={JS.navigate(~p"/projects/#{@project.id}/show")}
   >
     <.live_component
-      module={ProjeXpertWeb.ProjectsLive.Component}
+      module={Components.Project}
       id={@project.id}
       title={@page_title}
       action={@live_action}
       project={@project}
+      current_user={@current_user}
+    />
+  </.modal>
+  <.modal
+    :if={@live_action == :new_channel}
+    show={@live_action == :new_channel}
+    id="channel_modal"
+    max_width="max-w-3xl"
+    on_cancel={JS.navigate(~p"/projects/#{@project.id}/show")}
+  >
+    <.live_component
+      module={Components.Channel}
+      id={@project.id}
+      title={@page_title}
+      action={@live_action}
+      project={@project}
+      channel={@channel}
       current_user={@current_user}
     />
   </.modal>

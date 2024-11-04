@@ -161,6 +161,14 @@
                 </div>
               </dd>
             </div>
+            <div class="flex items-center justify-between sm:col-span-2">
+              <dt class="text-sm font-medium text-gray-500">Assigned to:</dt>
+              <dd class="mt-1 text-sm text-gray-900">
+                <%= if @task.worker == @current_user.id,
+                  do: "You",
+                  else: if(is_nil(@task.worker), do: "N/A", else: full_name(@task.worker)) %>
+              </dd>
+            </div>
           </dl>
         </div>
       </div>
@@ -207,18 +215,14 @@
           </div>
         </.form>
 
-        <ul class="space-y-8 max-h-[300px] overflow-y-scroll">
+        <ul class="mt-2 pt-2 space-y-8 max-h-[300px] overflow-y-scroll">
           <li
             :for={comment <- Enum.sort_by(@new_comments, & &1.inserted_at, :desc)}
             :if={!Enum.empty?(@new_comments)}
             class="mb-2"
           >
             <div class="flex items-start space-x-4">
-              <img
-                class="h-10 w-10 rounded-full"
-                src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
-                alt=""
-              />
+              <.dot_profile_image user={comment.user} />
               <div class="flex-1 min-w-0">
                 <p class="text-lg font-medium text-gray-500">
                   <%= if @current_user.id == comment.user.id,
@@ -241,11 +245,7 @@
                 class="rounded-lg p-4 ml-10 relative before:absolute before:top-0 before:-left-5 before:w-px before:h-full before:bg-primary/50"
               >
                 <div class="flex items-start space-x-3">
-                  <img
-                    class="h-10 w-10 rounded-full"
-                    src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
-                    alt=""
-                  />
+                  <.dot_profile_image user={reply.user} />
                   <div>
                     <p class="text-gray-500 font-medium">
                       <%= if @current_user.id == reply.user.id,
@@ -304,11 +304,7 @@
           </li>
           <li :for={comment <- Enum.sort_by(@task.comments, & &1.inserted_at, :desc)} class="mb-2">
             <div class="flex items-start space-x-4">
-              <img
-                class="h-10 w-10 rounded-full"
-                src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
-                alt=""
-              />
+              <.dot_profile_image user={comment.user} />
               <div class="flex-1 min-w-0">
                 <p class="text-lg font-medium text-gray-500">
                   <%= if @current_user.id == comment.user.id,
@@ -330,11 +326,7 @@
                 class="rounded-lg p-4 ml-10 relative before:absolute before:top-0 before:-left-5 before:w-px before:h-full before:bg-primary/50"
               >
                 <div class="flex items-start space-x-3">
-                  <img
-                    class="h-10 w-10 rounded-full"
-                    src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
-                    alt=""
-                  />
+                  <.dot_profile_image user={reply.user} />
                   <div>
                     <p class="text-gray-500 font-medium">
                       <%= if @current_user.id == reply.user.id,
@@ -356,11 +348,7 @@
                 class="rounded-lg p-4 ml-10 relative before:absolute before:top-0 before:-left-5 before:w-px before:h-full before:bg-primary/50"
               >
                 <div class="flex items-start space-x-3">
-                  <img
-                    class="h-10 w-10 rounded-full"
-                    src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
-                    alt=""
-                  />
+                  <.dot_profile_image user={reply.user} />
                   <div>
                     <p class="text-gray-500 font-medium">
                       <%= if @current_user.id == reply.user.id,

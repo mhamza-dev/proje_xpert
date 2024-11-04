@@ -61,7 +61,7 @@ defmodule ProjeXpertWeb.BidsLive.Index do
              "worker_id" => bid.worker_id
            }),
          {:ok, _} <-
-           Tasks.create_worker_task(%{"task_id" => bid.task_id, "worker_id" => bid.worker_id}) do
+           Tasks.update_task(task, %{"worker_id" => bid.worker_id}) do
       {:noreply,
        put_flash(socket, :info, "Bid has been update to #{camel_case_string("accepted")}")
        |> redirect(to: get_parent_url_by_params(socket.assigns.current_tab))}

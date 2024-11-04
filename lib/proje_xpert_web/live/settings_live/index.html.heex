@@ -40,7 +40,9 @@
             <div class="grid md:grid-cols-2 gap-8">
               <div class="flex flex-col items-center justify-between">
                 <img
-                  :if={is_nil(@current_user.profile_image)}
+                  :if={
+                    is_nil(@current_user.profile_image) and Enum.empty?(@uploads.profile.entries)
+                  }
                   class="h-30 w-30 object-cover rounded-full border-2 border-primary/60"
                   src="https://via.placeholder.com/150"
                   alt="Profile Picture"
@@ -50,6 +52,11 @@
                   class="h-44 w-44 object-cover rounded-full border-2 border-primary/60"
                   src={@current_user.profile_image}
                   alt="Profile Picture"
+                />
+                <.live_img_preview
+                  :if={!Enum.empty?(@uploads.profile.entries)}
+                  class="h-44 w-44 object-cover rounded-full border-2 border-primary/60"
+                  entry={List.first(@uploads.profile.entries)}
                 />
                 <.upload_attachments
                   label="Change Photo"

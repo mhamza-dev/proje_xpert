@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="csrf-token" content={get_csrf_token()} />
-    <.live_title suffix=" · Phoenix Framework">
+    <.live_title>
       <%= assigns[:page_title] || "ProjeXpert" %>
     </.live_title>
     <link rel="icon" type="image/x-icon" href="/images/logo_3_croped.png" />
@@ -15,7 +15,11 @@
       href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap"
       rel="stylesheet"
     />
+    <link href="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.snow.css" rel="stylesheet" />
     <script defer phx-track-static type="text/javascript" src={~p"/assets/app.js"}>
+    </script>
+    <script>
+      window.userToken = "<%= assigns[:user_token] %>"
     </script>
   </head>
   <body class="bg-white">

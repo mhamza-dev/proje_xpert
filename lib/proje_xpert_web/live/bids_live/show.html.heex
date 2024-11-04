@@ -1,0 +1,67 @@
+<div class="container mx-auto px-4 py-8">
+  <div class="flex items-center justify-start mb-4">
+    <.live_component id="bread_crumb" module={ProjeXpertWeb.BreadCrumb} path={@current_path} title={full_name(@bid.worker)} />
+  </div>
+  <div class="max-h-[650px] shadow-md rounded-lg overflow-y-scroll p-6">
+    <div class="flex justify-between">
+      <h2 class="text-2xl font-semibold text-gray-800 mb-4">
+        Project: <%= @bid.task.project.title %>
+      </h2>
+      <div class="flex space-x-4 mb-6 text-2xl ">
+        <h3 class="font-semibold text-primary mb-2">Bid Amount</h3>
+        <p class="font-bold text-success">
+          <%= Number.Currency.number_to_currency(@bid.amount) %>
+        </p>
+      </div>
+    </div>
+    <div class="mb-6">
+      <h3 class="text-lg font-semibold text-primary mb-2">Cover Letter</h3>
+      <p class="text-gray-700">
+        <%= raw(@bid.description) %>
+      </p>
+    </div>
+    <div class="mb-6">
+      <h3 class="text-lg font-semibold text-primary mb-2">Attachments</h3>
+      <ul :if={!is_nil(@bid.attached_files)} class="list-disc list-inside text-blue-600">
+        <.link
+          :for={{attachemnt, index} <- Enum.with_index(@bid.attached_files)}
+          navigate={~p"/bids/#{@bid.id}/show?source=#{attachemnt}&title=#{index + 1}"}
+          class="hover:underline"
+        >
+          <li>Attachment: <%= "#{index + 1}" %></li>
+        </.link>
+      </ul>
+      <ul :if={is_nil(@bid.attached_files)} class="list-disc list-inside text-blue-600">
+        <li>No Attachments</li>
+      </ul>
+    </div>
+  </div>
+  <div class="shadow-lg px-6 py-4">
+    <div class="flex justify-between items-center">
+      <span class="text-gray-600">Submitted on: <%= relative_time(@bid.inserted_at) %></span>
+      <.button
+        phx-click="accept-bid"
+        class="bg-primary hover:bg-primary-dark text-white font-bold py-2 px-4 rounded"
+      >
+        Accept Bid
+      </.button>
+    </div>
+  </div>
+</div>
+
+<.modal
+  :if={@show_attachment}
+  show={@show_attachment}
+  id="attachment_modal"
+  max_width="max-w[900px]"
+  on_cancel={JS.navigate(~p"/bids/#{@bid.id}/show")}
+>
+  <.live_component
+    module={ProjeXpertWeb.Attchements}
+    id="attachment_modal_component"
+    title={@page_title}
+    source={@source}
+    redirect_to={~p"/bids/#{@bid.id}/show"}
+    current_user={@current_user}
+  />
+</.modal>
