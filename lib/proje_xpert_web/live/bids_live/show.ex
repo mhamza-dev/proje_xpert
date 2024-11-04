@@ -22,7 +22,7 @@ defmodule ProjeXpertWeb.BidsLive.Show do
     with {:ok, _bid} <- Tasks.update_bid(bid, %{"status" => "accepted"}),
          {:ok, _} <- is_user_already_in_project(bid),
          %Task{} = task <- Tasks.get_task!(bid.task_id),
-         {:ok, _} <- Tasks.update_task(task, %{"worker_id" => bid.worker_id}) do
+         {:ok, _} <- Tasks.update_task(task, %{"freelancer_id" => bid.freelancer_id}) do
       {:noreply,
        socket
        |> put_flash(:info, "Bid accepted successfully")

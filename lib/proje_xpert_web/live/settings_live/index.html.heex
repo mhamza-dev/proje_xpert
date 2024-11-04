@@ -1,12 +1,16 @@
-<main class="container mx-auto px-4 py-8">
+<div>
   <.live_component id="bread_crumb" module={ProjeXpertWeb.BreadCrumb} path={@current_path} />
   <div class="my-6">
     <ul class="flex space-x-2 mb-4 sm:mb-0">
       <.link navigate={~p"/settings"}>
-        <button class={[
-          "px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-primary/90 hover:text-white transition-colors",
-          @current_tab == nil && "bg-primary text-white"
-        ]}>
+        <button class={
+          [
+            "px-4 py-2 text-sm font-medium rounded-md hover:bg-blue-600 hover:text-white transition-colors",
+            @current_tab == nil && "bg-blue-600 text-white",
+            @current_tab != nil && "text-gray-700 bg-gray-100"
+          ]
+          |> combine_classes()
+        }>
           Profile
         </button>
       </.link>
@@ -14,21 +18,25 @@
         :for={status <- [:security, :payment]}
         navigate={~p"/settings?tab=#{Atom.to_string(status)}"}
       >
-        <button class={[
-          "px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-primary/90 hover:text-white transition-colors",
-          @current_tab == Atom.to_string(status) && "bg-primary text-white"
-        ]}>
+        <button class={
+          [
+            "px-4 py-2 text-sm font-medium rounded-md hover:bg-blue-600 hover:text-white transition-colors",
+            @current_tab == Atom.to_string(status) && "bg-blue-600 text-white",
+            @current_tab != Atom.to_string(status) && "text-gray-700 bg-gray-100"
+          ]
+          |> combine_classes()
+        }>
           <%= camel_case_string(status) %>
         </button>
       </.link>
     </ul>
   </div>
-  <div class="max-h-[650px] overflow-y-scroll">
-    <div :if={@current_tab == nil} class="p-4">
-      <div class="grid gap-8 mt-6">
-        <!-- Password Update Section -->
-        <section class="rounded-lg shadow-lg p-6">
-          <h2 class="text-2xl font-semibold mb-6 text-primary">Update Profile</h2>
+  <div class="max-h-[calc(100vh-23vh)] overflow-y-scroll">
+    <div :if={@current_tab == nil}>
+      <div class="grid gap-8">
+        <!-- Password Update div -->
+        <div class="rounded-lg shadow-lg p-6">
+          <h2 class="text-2xl font-semibold mb-6 text-blue-600">Update Profile</h2>
           <.form
             :let={pc}
             for={@profile_changeset}
@@ -41,53 +49,52 @@
               <div class="flex flex-col items-center justify-between">
                 <img
                   :if={
-                    is_nil(@current_user.profile_image) and Enum.empty?(@uploads.profile.entries)
+                    is_nil(@current_user.profile_image) and
+                      Enum.empty?(@uploads.profile.entries)
                   }
-                  class="h-30 w-30 object-cover rounded-full border-2 border-primary/60"
+                  class="h-30 w-30 object-cover rounded-full border-2 border-blue-400"
                   src="https://via.placeholder.com/150"
                   alt="Profile Picture"
                 />
                 <img
                   :if={!is_nil(@current_user.profile_image)}
-                  class="h-44 w-44 object-cover rounded-full border-2 border-primary/60"
+                  class="h-44 w-44 object-cover rounded-full border-2 border-blue-400"
                   src={@current_user.profile_image}
                   alt="Profile Picture"
                 />
                 <.live_img_preview
                   :if={!Enum.empty?(@uploads.profile.entries)}
-                  class="h-44 w-44 object-cover rounded-full border-2 border-primary/60"
+                  class="h-44 w-44 object-cover rounded-full border-2 border-blue-400"
                   entry={List.first(@uploads.profile.entries)}
                 />
+                <.text_editor field={pc[:bio]} id="user-bio" label="Bio" class="max-w-lg" />
+              </div>
+              <div class="flex flex-col space-y-4">
                 <.upload_attachments
                   label="Change Photo"
                   upload_field={@uploads.profile}
                   class="mb-0"
                 />
-              </div>
-              <div class="flex flex-col space-y-4">
                 <div class="flex space-x-2">
                   <.input
                     type="text"
                     field={pc[:first_name]}
                     label="First Name"
-                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary/60 focus:border-primary/60 transition-colors"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition-colors"
                   />
                   <.input
                     type="text"
                     field={pc[:last_name]}
                     label="Last Name"
-                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary/60 focus:border-primary/60 transition-colors"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition-colors"
                   />
-                </div>
-                <div>
-                  <.text_editor field={pc[:bio]} id="user-bio" label="Bio" />
                 </div>
                 <div>
                   <.input
                     type="text"
                     field={pc[:location]}
                     label="Location"
-                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary/60 focus:border-primary/60 transition-colors"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition-colors"
                   />
                 </div>
                 <.button class="w-full" type="submit" phx-disable-with="Updating...">
@@ -96,16 +103,15 @@
               </div>
             </div>
           </.form>
-        </section>
-        <!-- Email Update Section -->
-        <section class="rounded-lg shadow-lg p-6">
-          <h2 class="text-2xl font-semibold mb-6 text-primary">Notification Preferences</h2>
+        </div>
+        <div class="rounded-lg shadow-lg p-6">
+          <h2 class="text-2xl font-semibold mb-6 text-blue-600">Notification Preferences</h2>
           <form class="space-y-4">
             <div class="flex items-center justify-between">
               <span class="text-sm font-medium text-gray-700">Email Notifications</span>
               <label class="switch">
                 <input type="checkbox" class="sr-only peer" />
-                <span class="slider bg-gray-200 peer-focus:ring-2 peer-focus:ring-primary/60 peer-checked:bg-primary/80">
+                <span class="slider bg-gray-200 peer-focus:ring-2 peer-focus:ring-blue-400 peer-checked:bg-blue-500">
                 </span>
               </label>
             </div>
@@ -113,7 +119,7 @@
               <span class="text-sm font-medium text-gray-700">SMS Notifications</span>
               <label class="switch">
                 <input type="checkbox" class="sr-only peer" />
-                <span class="slider bg-gray-200 peer-focus:ring-2 peer-focus:ring-primary/60 peer-checked:bg-primary/80">
+                <span class="slider bg-gray-200 peer-focus:ring-2 peer-focus:ring-blue-400 peer-checked:bg-blue-500">
                 </span>
               </label>
             </div>
@@ -121,38 +127,28 @@
               <span class="text-sm font-medium text-gray-700">Push Notifications</span>
               <label class="switch">
                 <input type="checkbox" class="sr-only peer" />
-                <span class="slider bg-gray-200 peer-focus:ring-2 peer-focus:ring-primary/60 peer-checked:bg-primary/80">
+                <span class="slider bg-gray-200 peer-focus:ring-2 peer-focus:ring-blue-400 peer-checked:bg-blue-500">
                 </span>
               </label>
             </div>
             <button
               type="submit"
-              class="w-full bg-primary/80 text-white py-2 px-4 rounded-md hover:bg-primary focus:outline-none focus:ring-2 focus:ring-primary/60 focus:ring-offset-2 transition-colors"
+              class="w-full bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 transition-colors"
             >
               Save Preferences
             </button>
           </form>
-        </section>
-      </div>
-    </div>
-    <div :if={@current_tab == "security"} class="p-4">
-      <h2 class="text-2xl font-semibold text-primary mb-6">Security Settings</h2>
-      <div class="rounded-lg shadow-lg p-6 mt-8">
-        <h3 class="text-xl font-semibold text-primary mb-4">Two-Factor Authentication</h3>
-        <div class="flex items-center justify-between">
-          <span class="text-sm font-medium text-gray-700">Enable 2FA</span>
-          <label class="switch">
-            <input type="checkbox" class="sr-only peer" />
-            <span class="slider bg-gray-200 peer-focus:ring-2 peer-focus:ring-primary/60 peer-checked:bg-primary/80">
-            </span>
-          </label>
         </div>
       </div>
+    </div>
+    <div :if={@current_tab == "security"}>
+      <h2 class="text-2xl font-semibold text-blue-600 mb-6">Security Settings</h2>
       <div class="grid md:grid-cols-2 gap-8 mt-6">
-        <!-- Password Update Section -->
-        <section class="rounded-lg shadow-lg p-6">
-          <h2 class="text-2xl font-semibold mb-6 text-primary">Update Password</h2>
+        <!-- Password Update div -->
+        <div class="rounded-lg shadow-lg p-6">
+          <h2 class="text-2xl font-semibold mb-6 text-blue-600">Update Password</h2>
           <.form
+            :let={pf}
             class="space-y-4"
             for={@password_form}
             id="password_form"
@@ -162,25 +158,22 @@
             phx-submit="update_password"
             phx-trigger-action={@trigger_submit}
           >
-            <input
-              name={@password_form[:email].name}
+            <.input
+              name={pf[:email].name}
               type="hidden"
               id="hidden_user_email"
               value={@current_email}
             />
+            <div class="grid grid-cols-2 gap-3">
+              <.input field={pf[:password]} type="password" label="New password" required />
+              <.input
+                field={pf[:password_confirmation]}
+                type="password"
+                label="Confirm new password"
+              />
+            </div>
             <.input
-              field={@password_form[:password]}
-              type="password"
-              label="New password"
-              required
-            />
-            <.input
-              field={@password_form[:password_confirmation]}
-              type="password"
-              label="Confirm new password"
-            />
-            <.input
-              field={@password_form[:current_password]}
+              field={pf[:current_password]}
               name="current_password"
               type="password"
               label="Current password"
@@ -188,12 +181,14 @@
               value={@current_password}
               required
             />
-            <.button type="submit" phx-disable-with="Updating...">Update Password</.button>
+            <.button type="submit" class="w-full" phx-disable-with="Updating...">
+              Update Password
+            </.button>
           </.form>
-        </section>
-        <!-- Email Update Section -->
-        <section class="rounded-lg shadow-lg p-6">
-          <h2 class="text-2xl font-semibold mb-6 text-primary">Update Email</h2>
+        </div>
+        <!-- Email Update div -->
+        <div class="rounded-lg shadow-lg p-6">
+          <h2 class="text-2xl font-semibold mb-6 text-blue-600">Update Email</h2>
 
           <.form
             class="space-y-4"
@@ -212,13 +207,26 @@
               value={@email_form_current_password}
               required
             />
-            <.button type="submit" phx-disable-with="Updating...">Update Email</.button>
+            <.button type="submit" class="w-full" phx-disable-with="Updating...">
+              Update Email
+            </.button>
           </.form>
-        </section>
+        </div>
+      </div>
+      <div class="rounded-lg shadow-lg p-6 mt-8">
+        <h2 class="text-2xl font-semibold text-blue-600 mb-6">Two-Factor Authentication</h2>
+        <div class="flex items-center justify-between">
+          <span class="text-sm font-medium text-gray-700">Enable 2FA</span>
+          <label class="switch">
+            <input type="checkbox" class="sr-only peer" />
+            <span class="slider bg-gray-200 peer-focus:ring-2 peer-focus:ring-blue-400 peer-checked:bg-blue-500">
+            </span>
+          </label>
+        </div>
       </div>
     </div>
-    <div :if={@current_tab == "payment"} class="p-4">
-      <h2 class="text-2xl font-semibold text-primary mb-6">Payment Methods</h2>
+    <div :if={@current_tab == "payment"}>
+      <h2 class="text-2xl font-semibold text-blue-600 mb-6">Payment Methods</h2>
       <div class="space-y-4">
         <div class="flex items-center justify-between p-4 rounded-lg border border-gray-200">
           <div class="flex items-center space-x-3">
@@ -235,12 +243,12 @@
               <p class="text-sm text-gray-500">Expires 12/2024</p>
             </div>
           </div>
-          <button class="text-indigo-600 hover:text-primary transition-colors">Edit</button>
+          <button class="text-indigo-600 hover:text-blue-600 transition-colors">Edit</button>
         </div>
-        <button class="w-full bg-primary/80 text-white py-2 px-4 rounded-md hover:bg-primary focus:outline-none focus:ring-2 focus:ring-primary/60 focus:ring-offset-2 transition-colors">
+        <button class="w-full bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 transition-colors">
           Add New Payment Method
         </button>
       </div>
     </div>
   </div>
-</main>
+</div>

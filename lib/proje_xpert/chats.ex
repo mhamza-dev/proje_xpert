@@ -27,8 +27,8 @@ defmodule ProjeXpert.Chats do
     |> Repo.all()
   end
 
-  def list_channels_for_worker(worker_id, _params) do
-    from(c in Channel, where: ^worker_id in c.joiners)
+  def list_channels_for_freelancer(freelancer_id, _params) do
+    from(c in Channel, where: ^freelancer_id in c.joiners)
     |> preload([:project, :created_by])
     |> Repo.all()
   end
@@ -47,7 +47,8 @@ defmodule ProjeXpert.Chats do
       ** (Ecto.NoResultsError)
 
   """
-  def get_channel!(id), do: Repo.get!(Channel, id) |> Repo.preload([messages: [:sender], project: [:client]])
+  def get_channel!(id),
+    do: Repo.get!(Channel, id) |> Repo.preload(messages: [:sender], project: [:client])
 
   @doc """
   Creates a channel.

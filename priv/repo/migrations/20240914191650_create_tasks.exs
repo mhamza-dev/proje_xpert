@@ -5,7 +5,7 @@ defmodule ProjeXpert.Repo.Migrations.CreateTasks do
     create table(:tasks) do
       add :title, :string
       add :description, :text
-      add :find_worker?, :boolean
+      add :find_freelancer?, :boolean
       add :budget, :decimal
       add :deadline, :date
       add :attachments, {:array, :string}, default: []
@@ -13,11 +13,11 @@ defmodule ProjeXpert.Repo.Migrations.CreateTasks do
       add :tags, {:array, :string}, default: []
       add :experience_required, :string
       add :project_id, references(:projects, on_delete: :delete_all)
-      add :worker_id, references(:users, on_delete: :delete_all)
+      add :freelancer_id, references(:users, on_delete: :delete_all)
 
       timestamps(type: :utc_datetime)
     end
 
-    create index(:tasks, [:project_id, :worker_id])
+    create index(:tasks, [:project_id, :freelancer_id])
   end
 end

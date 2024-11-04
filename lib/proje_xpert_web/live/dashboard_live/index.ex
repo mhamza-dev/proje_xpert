@@ -10,63 +10,36 @@ defmodule ProjeXpertWeb.DashboardLive.Index do
     {:ok,
      assign(socket,
        projects: projects,
-       total_projects: total_projects(projects),
-       projects_this_month: projects_this_month(projects),
-       ongoing_projects: ongoing_projects(projects),
-       ongoing_projects_this_month: ongoing_projects_this_month(projects),
-       hired_workers: hired_workers(projects),
-       hired_workers_this_month: hired_workers_this_month(projects)
+       active_project: active_projects(projects),
+       hired_freelancers: hired_freelancers(projects),
+       completed_projects: completed_projects(projects)
      )}
   end
 
-  defp total_projects(projects), do: Enum.count(projects)
-
-  defp projects_this_month(projects) do
-    start_of_month = start_of_month()
-
+  defp active_projects(projects) do
     projects
-    |> Enum.filter(&(DateTime.compare(&1.inserted_at, start_of_month) != :lt))
-    |> Enum.count()
-  end
-
-  defp ongoing_projects(projects),
-    do:
-      projects
-      |> Enum.filter(&(&1.status == :in_progress))
-      |> Enum.count()
-
-  defp ongoing_projects_this_month(projects) do
-    start_of_month = start_of_month()
-
-    projects
-    |> Enum.filter(&(DateTime.compare(&1.inserted_at, start_of_month) != :lt))
     |> Enum.filter(&(&1.status == :in_progress))
-    |> Enum.count()
+    |> length
   end
 
-  defp hired_workers(projects) do
+  defp completed_projects(projects) do
+    projects
+    |> Enum.filter(&(&1.status == :in_progress))
+    |> length
+  end
+
+  defp hired_freelancers(projects) do
     projects
     |> Enum.flat_map(& &1.tasks)
-    |> Enum.uniq_by(& &1.worker_id)
+    |> Enum.uniq_by(& &1.freelancer_id)
     |> Enum.count()
   end
 
-  defp hired_workers_this_month(projects) do
-    start_of_month = start_of_month()
+  defp recent_projects(projects) do
+    start_of_month = DateTime.utc_now() |> DateTime.shift(day: -1)
 
     projects
     |> Enum.filter(&(DateTime.compare(&1.inserted_at, start_of_month) != :lt))
-    |> Enum.flat_map(& &1.tasks)
-    |> Enum.uniq_by(& &1.worker_id)
-    |> Enum.count()
-  end
-
-  defp start_of_month do
-    today = Date.utc_today()
-    beginning_of_month = Date.beginning_of_month(today)
-
-    beginning_of_month
-    |> NaiveDateTime.new!(~T[00:00:00])
-    |> DateTime.from_naive!("Etc/UTC")
+    |> Enum.take(3)
   end
 end

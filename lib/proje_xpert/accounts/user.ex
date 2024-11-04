@@ -6,7 +6,7 @@ defmodule ProjeXpert.Accounts.User do
     :client,
     # Permissions: Post/manage projects and tasks, review/select bids, handle payments.
     # Features: Project dashboard, task management, bid review, payment processing.
-    :worker,
+    :freelancer,
     # Permissions: Bid on tasks, complete work, receive payments.
     # Features: Task bidding, communication with clients, task status updates.
     :admin
@@ -33,16 +33,19 @@ defmodule ProjeXpert.Accounts.User do
     field :bio, :string
 
     # Associations
-    has_many :bids, ProjeXpert.Tasks.Bid, foreign_key: :worker_id
+    has_many :bids, ProjeXpert.Tasks.Bid, foreign_key: :freelancer_id
     has_many :projects_as_client, ProjeXpert.Tasks.Project, foreign_key: :client_id
-    has_many :projects_as_worker, ProjeXpert.Tasks.ProjectWorker, foreign_key: :worker_id
-    has_many :tasks_as_worker, ProjeXpert.Tasks.Task, foreign_key: :worker_id
+
+    has_many :projects_as_freelancer, ProjeXpert.Tasks.Projectfreelancer,
+      foreign_key: :freelancer_id
+
+    has_many :tasks_as_freelancer, ProjeXpert.Tasks.Task, foreign_key: :freelancer_id
     has_many :created_channels, ProjeXpert.Chats.Channel, foreign_key: :created_by_id
     has_many :messages, ProjeXpert.Chats.Message, foreign_key: :sender_id
 
     many_to_many :projects, ProjeXpert.Tasks.Project,
-      join_through: ProjeXpert.Tasks.ProjectWorker,
-      join_keys: [worker_id: :id, project_id: :id]
+      join_through: ProjeXpert.Tasks.Projectfreelancer,
+      join_keys: [freelancer_id: :id, project_id: :id]
 
     timestamps(type: :utc_datetime)
   end

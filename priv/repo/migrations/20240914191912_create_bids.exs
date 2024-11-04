@@ -8,13 +8,13 @@ defmodule ProjeXpert.Repo.Migrations.CreateBids do
       add :description, :text
       add :attached_files, {:array, :string}
       add :task_id, references(:tasks, on_delete: :delete_all)
-      add :worker_id, references(:users, on_delete: :delete_all)
+      add :freelancer_id, references(:users, on_delete: :delete_all)
 
       timestamps(type: :utc_datetime)
     end
 
     create index(:bids, [:task_id])
-    create index(:bids, [:worker_id])
-    create unique_index(:bids, [:worker_id, :task_id])
+    create index(:bids, [:freelancer_id])
+    create unique_index(:bids, [:freelancer_id, :task_id])
   end
 end

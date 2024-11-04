@@ -1,9 +1,9 @@
 <!-- component -->
-<section class="container px-4 mx-auto">
+<div>
   <div class="flex items-center justify-between mb-4">
     <.live_component id="bread_crumb" module={ProjeXpertWeb.BreadCrumb} path={@current_path} />
     <.link patch={~p"/channels/new"}>
-      <button class="flex items-center justify-center w-1/2 px-5 py-2 text-sm tracking-wide text-white transition-colors duration-200 bg-primary rounded-lg shrink-0 sm:w-auto gap-x-2 hover:bg-blue-600">
+      <button class="flex items-center justify-center w-1/2 px-5 py-2 text-sm tracking-wide text-white transition-colors duration-200 bg-blue-600 rounded-lg shrink-0 sm:w-auto gap-x-2 hover:bg-blue-600">
         <.icon name="hero-plus-circle" class="w-4 h-4" />
         <span>Add Channel</span>
       </button>
@@ -141,4 +141,4 @@
       current_user={@current_user}
     />
   </.modal>
-</section>
+</div>
