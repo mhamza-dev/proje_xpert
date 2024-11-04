@@ -1,15 +1,19 @@
 <!-- component -->
-<section class="container px-4 mx-auto">
+<div>
   <div class="flex items-center justify-start mb-4">
     <.live_component id="bread_crumb" module={ProjeXpertWeb.BreadCrumb} path={@current_path} />
   </div>
   <div class="mt-6 md:flex md:items-center md:justify-between">
     <div class="flex space-x-2 mb-4 sm:mb-0">
       <.link navigate={~p"/bids"}>
-        <button class={[
-          "px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-primary/90 hover:text-white transition-colors",
-          @current_tab == nil && "bg-primary text-white"
-        ]}>
+        <button class={
+          [
+            "px-4 py-2 text-sm font-medium rounded-md hover:bg-blue-600 hover:text-white transition-colors",
+            @current_tab == nil && "bg-blue-600 text-white",
+            @current_tab != nil && "text-gray-700 bg-gray-100"
+          ]
+          |> combine_classes()
+        }>
           View all
         </button>
       </.link>
@@ -17,10 +21,14 @@
         :for={status <- Bid.all_statuses()}
         navigate={~p"/bids?tab=#{Atom.to_string(status)}"}
       >
-        <button class={[
-          "px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-primary/90 hover:text-white transition-colors",
-          @current_tab == Atom.to_string(status) && "bg-primary text-white"
-        ]}>
+        <button class={
+          [
+            "px-4 py-2 text-sm font-medium rounded-md hover:bg-blue-600 hover:text-white transition-colors",
+            @current_tab == Atom.to_string(status) && "bg-blue-600 text-white",
+            @current_tab != Atom.to_string(status) && "text-gray-700 bg-gray-100"
+          ]
+          |> combine_classes()
+        }>
           <%= camel_case_string(status) %>
         </button>
       </.link>
@@ -65,8 +73,8 @@
         <td class="px-6 py-4 whitespace-nowrap">
           <.link navigate={~p"/bids/#{bid.id}/show"}>
             <div class="flex items-center space-x-4">
-              <.dot_profile_image user={bid.worker} />
-              <h2 class="font-medium text-gray-800 "><%= full_name(bid.worker) %></h2>
+              <.dot_profile_image user={bid.freelancer} />
+              <h2 class="font-medium text-gray-800 "><%= full_name(bid.freelancer) %></h2>
             </div>
           </.link>
         </td>
@@ -166,7 +174,9 @@
               <span class="group-hover:text-red-500">Reject</span>
             </li>
           </.dropdown>
-          <.dropdown :if={is_worker?(@current_user) and bid.status not in [:rejected, :withdrawn]}>
+          <.dropdown :if={
+            is_freelancer?(@current_user) and bid.status not in [:rejected, :withdrawn]
+          }>
             <p
               class="flex items-center space-x-2 px-4 py-2 text-lg text-gray-600 hover:bg-gray-100 cursor-pointer group"
               phx-click="set_status"
@@ -286,4 +296,4 @@
       current_user={@current_user}
     />
   </.modal>
-</section>
+</div>

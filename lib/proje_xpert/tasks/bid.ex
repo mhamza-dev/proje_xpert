@@ -3,8 +3,8 @@ defmodule ProjeXpert.Tasks.Bid do
   import Ecto.Changeset
 
   @statuses [:submitted, :under_review, :accepted, :rejected, :withdrawn]
-  @default_cast [:amount, :status, :description, :attached_files, :task_id, :worker_id]
-  @default_required [:amount, :status, :description, :task_id, :worker_id]
+  @default_cast [:amount, :status, :description, :attached_files, :task_id, :freelancer_id]
+  @default_required [:amount, :status, :description, :task_id, :freelancer_id]
   schema "bids" do
     field :status, Ecto.Enum, values: @statuses, default: :submitted
     field :amount, :decimal
@@ -12,7 +12,7 @@ defmodule ProjeXpert.Tasks.Bid do
     field :attached_files, {:array, :string}
 
     belongs_to :task, ProjeXpert.Tasks.Task, foreign_key: :task_id
-    belongs_to :worker, ProjeXpert.Accounts.User, foreign_key: :worker_id
+    belongs_to :freelancer, ProjeXpert.Accounts.User, foreign_key: :freelancer_id
 
     timestamps(type: :utc_datetime)
   end

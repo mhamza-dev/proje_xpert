@@ -48,7 +48,7 @@ clients = [
   }
 ]
 
-workers = [
+freelancers = [
   %{
     first_name: "Bob",
     last_name: "Smith",
@@ -177,16 +177,16 @@ workers = [
   }
 ]
 
-created_workers =
+created_freelancers =
   Enum.map(
-    workers,
+    freelancers,
     fn user ->
       params = %{
         first_name: user.first_name,
         last_name: user.last_name,
         email: user.email,
         password: "Pa$$w0rd!",
-        role: :worker,
+        role: :freelancer,
         rating: Float.round(:rand.uniform() * 5, 2),
         location: user.location,
         bio: user.bio
@@ -422,14 +422,14 @@ for proj <- projects do
       "https://example.com/image3.jpg"
     ]
 
-    find_worker? = Enum.random([true, false])
+    find_freelancer? = Enum.random([true, false])
 
     task =
       Repo.insert!(%Task{
         title: task_title,
         description: task_description,
-        is_completed?: if(find_worker?, do: Enum.random([true, false]), else: false),
-        find_worker?: find_worker?,
+        is_completed?: if(find_freelancer?, do: Enum.random([true, false]), else: false),
+        find_freelancer?: find_freelancer?,
         budget: Decimal.new(Enum.random(1000..10000)),
         deadline: deadline,
         column_id: column1.id,
@@ -441,13 +441,13 @@ for proj <- projects do
       })
 
     # Add bids for tasks
-    Enum.each(Enum.take_random(created_workers, 5), fn worker ->
+    Enum.each(Enum.take_random(created_freelancers, 5), fn freelancer ->
       attached_files =
         Enum.map(1..4, fn _ ->
           "https://asset.cloudinary.com/dmkkivjv3/cb13850a32552725cc83943f00496892"
         end)
 
-      if task.find_worker? do
+      if task.find_freelancer? do
         Repo.insert!(%Bid{
           amount: Decimal.new(Enum.random(100..1000)),
           status: :submitted,
@@ -467,19 +467,19 @@ for proj <- projects do
                   Thank you for considering my application. I look forward to the opportunity to discuss how my skills can align with your team’s needs.
               </p>
               <p>Best regards,<br>
-              <strong>#{full_name(worker)}</strong>
+              <strong>#{full_name(freelancer)}</strong>
               </p>
             </p>
           """,
           task_id: task.id,
-          worker_id: worker.id,
+          freelancer_id: freelancer.id,
           attached_files: attached_files
         })
       end
     end)
 
-    # Assign worker to task based on accepted bid
-    if task.find_worker? do
+    # Assign freelancer to task based on accepted bid
+    if task.find_freelancer? do
       task_with_bids = Repo.preload(task, :bids)
 
       {:ok, bid} =
@@ -492,10 +492,13 @@ for proj <- projects do
           Tasks.update_task(task, %{
             "column_id" => column3.id,
             "is_completed?" => true,
-            "worker_id" => bid.worker_id
+            "freelancer_id" => bid.freelancer_id
           })
         else
-          Tasks.update_task(task, %{"column_id" => column2.id, "worker_id" => bid.worker_id})
+          Tasks.update_task(task, %{
+            "column_id" => column2.id,
+            "freelancer_id" => bid.freelancer_id
+          })
         end
 
         is_user_already_in_project(Repo.preload(bid, task: :project))
@@ -510,7 +513,7 @@ for proj <- projects do
             })
 
           Enum.each(1..3, fn index ->
-            user = if rem(index, 2) == 0, do: client, else: Accounts.get_user!(bid.worker_id)
+            user = if rem(index, 2) == 0, do: client, else: Accounts.get_user!(bid.freelancer_id)
 
             Repo.insert!(%Reply{
               message:
@@ -526,8 +529,8 @@ for proj <- projects do
 
   joiners =
     project
-    |> Repo.preload(project_workers: :worker)
-    |> get_project_workers()
+    |> Repo.preload(project_freelancers: :freelancer)
+    |> get_project_freelancers()
     |> Enum.map(& &1.id)
 
   if length(joiners) >= 2 do

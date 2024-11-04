@@ -1,4 +1,4 @@
-<section class="container px-4 mx-auto">
+<div>
   <div class="flex items-center justify-between space-x-2">
     <.live_component
       id="bread_crumb"
@@ -89,7 +89,7 @@
             class="flex flex-col space-y-4"
           >
             <div class="mb-6">
-              <.input field={f[:worker_id]} type="hidden" value={@current_user.id} />
+              <.input field={f[:freelancer_id]} type="hidden" value={@current_user.id} />
               <.input field={f[:task_id]} type="hidden" value={@task.id} />
               <label for="rate" class="block text-sm font-medium text-gray-700 mb-2">
                 Bid Amount ($)
@@ -97,7 +97,7 @@
               <.input
                 field={f[:amount]}
                 type="number"
-                class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary/50"
+                class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-600/50"
                 required
               />
             </div>
@@ -110,7 +110,7 @@
             <.upload_attachments label="Attchments" upload_field={@uploads.cv} />
             <button
               type="submit"
-              class="w-full bg-primary/80 text-white font-semibold py-3 px-4 rounded-md hover:bg-primary focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition duration-150 ease-in-out"
+              class="w-full bg-blue-500 text-white font-semibold py-3 px-4 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition duration-150 ease-in-out"
             >
               Submit Proposal
             </button>
@@ -126,21 +126,21 @@
           <ul class="space-y-4">
             <li class="flex justify-between items-center">
               <span class="text-gray-600">Project:</span>
-              <span class="font-semibold text-primary/80"><%= @task.project.title %></span>
+              <span class="font-semibold text-blue-500"><%= @task.project.title %></span>
             </li>
             <li class="flex justify-between items-center">
               <span class="text-gray-600">Budget:</span>
-              <span class="font-semibold text-primary/80">
+              <span class="font-semibold text-blue-500">
                 <%= Number.Currency.number_to_currency(@task.budget) %>
               </span>
             </li>
             <li class="flex justify-between items-center">
               <span class="text-gray-600">Deadline:</span>
-              <span class="font-semibold text-primary/80"><%= @task.deadline %></span>
+              <span class="font-semibold text-blue-500"><%= @task.deadline %></span>
             </li>
             <li class="flex justify-between items-center">
               <span class="text-gray-600">Experience Level:</span>
-              <span class="font-semibold text-primary/80">
+              <span class="font-semibold text-blue-500">
                 <%= camel_case_string(@task.experience_required) %>
               </span>
             </li>
@@ -179,7 +179,7 @@
       </div>
     </div>
   </div>
-</section>
+</div>
 
 <.modal
   :if={@show_attachment}

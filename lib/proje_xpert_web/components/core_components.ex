@@ -235,8 +235,8 @@ defmodule ProjeXpertWeb.CoreComponents do
     <button
       type={@type}
       class={[
-        "phx-submit-loading:opacity-75 bg-primary rounded-lg py-2 px-3",
-        "text-sm font-semibold leading-6 text-white active:text-white/80",
+        "phx-submit-loading:opacity-75 bg-blue-600 rounded-lg py-2 px-4",
+        "flex items-center justify-center border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500",
         @class
       ]}
       {@rest}
@@ -276,7 +276,7 @@ defmodule ProjeXpertWeb.CoreComponents do
   attr(:name, :any)
   attr(:label, :string, default: nil)
   attr(:value, :any)
-  attr(:class, :string, default: "w-full")
+  attr(:class, :string, default: "")
 
   attr(:type, :string,
     default: "text",
@@ -320,7 +320,7 @@ defmodule ProjeXpertWeb.CoreComponents do
 
     ~H"""
     <div class={@div_class}>
-      <label class="flex items-center gap-4 text-sm leading-6 text-zinc-600">
+      <div class="flex items-center space-x-4">
         <input type="hidden" name={@name} value="false" disabled={@rest[:disabled]} />
         <input
           type="checkbox"
@@ -328,11 +328,16 @@ defmodule ProjeXpertWeb.CoreComponents do
           name={@name}
           value="true"
           checked={@checked}
-          class="rounded border-zinc-300 text-zinc-900 focus:ring-0"
+          class={[
+            "block h-4 w-4 bg-white border border-gray-300 rounded-sm text-sm shadow-sm placeholder-gray-400 focus:outline-none focus:ring-1",
+            @class,
+            @errors == [] && "focus:border-blue-500 focus:ring-blue-500",
+            @errors != [] && "focus:border-rose-500 focus:ring-rose-500"
+          ]}
           {@rest}
         />
-        <%= @label %>
-      </label>
+        <label class="block text-md font-medium text-gray-700"><%= @label %></label>
+      </div>
       <.error :for={msg <- @errors}><%= msg %></.error>
     </div>
     """
@@ -341,20 +346,24 @@ defmodule ProjeXpertWeb.CoreComponents do
   def input(%{type: "select"} = assigns) do
     ~H"""
     <div class={@div_class}>
-      <.label for={@id}><%= @label %></.label>
-      <select
-        id={@id}
-        name={@name}
-        class={[
-          "mt-2 block rounded-lg text-zinc-900 sm:text-sm sm:leading-6 focus:border-blue-400 focus:ring-blue-300 focus:outline-none focus:ring focus:ring-opacity-40",
-          @class
-        ]}
-        multiple={@multiple}
-        {@rest}
-      >
-        <option :if={@prompt} value=""><%= @prompt %></option>
-        <%= Phoenix.HTML.Form.options_for_select(@options, @value) %>
-      </select>
+      <label class="block text-md font-medium text-gray-700">
+        <%= @label %>
+        <select
+          id={@id}
+          name={@name}
+          class={[
+            "mt-2 block px-3 py-2 bg-white border border-gray-300 rounded-md text-sm shadow-sm placeholder-gray-400 focus:outline-none focus:ring-1",
+            @class,
+            @errors == [] && "focus:border-blue-500 focus:ring-blue-500",
+            @errors != [] && "focus:border-rose-500 focus:ring-rose-500"
+          ]}
+          multiple={@multiple}
+          {@rest}
+        >
+          <option :if={@prompt} value=""><%= @prompt %></option>
+          <%= Phoenix.HTML.Form.options_for_select(@options, @value) %>
+        </select>
+      </label>
       <.error :for={msg <- @errors}><%= msg %></.error>
     </div>
     """
@@ -363,18 +372,20 @@ defmodule ProjeXpertWeb.CoreComponents do
   def input(%{type: "textarea"} = assigns) do
     ~H"""
     <div class={@div_class}>
-      <.label for={@id}><%= @label %></.label>
-      <textarea
-        id={@id}
-        name={@name}
-        class={[
-          "mt-2 block rounded-lg text-zinc-900 sm:text-sm sm:leading-6 min-h-[12rem] max-h-[12rem] focus:border-blue-400 focus:ring-blue-300 focus:outline-none focus:ring focus:ring-opacity-40",
-          @class,
-          @errors == [] && "border-zinc-300 focus:border-zinc-400",
-          @errors != [] && "border-rose-400 focus:border-rose-400"
-        ]}
-        {@rest}
-      ><%= Phoenix.HTML.Form.normalize_value("textarea", @value) %></textarea>
+      <label class="block text-md font-medium text-gray-700">
+        <%= @label %>
+        <textarea
+          id={@id}
+          name={@name}
+          class={[
+            "mt-2 block px-3 py-2 bg-white border border-gray-300 rounded-md text-sm shadow-sm placeholder-gray-400 focus:outline-none focus:ring-1",
+            @class,
+            @errors == [] && "focus:border-blue-500 focus:ring-blue-500",
+            @errors != [] && "focus:border-rose-500 focus:ring-rose-500"
+          ]}
+          {@rest}
+        ><%= Phoenix.HTML.Form.normalize_value("textarea", @value) %></textarea>
+      </label>
       <.error :for={msg <- @errors}><%= msg %></.error>
     </div>
     """
@@ -384,18 +395,11 @@ defmodule ProjeXpertWeb.CoreComponents do
   def input(%{type: "hidden"} = assigns) do
     ~H"""
     <div class={@div_class}>
-      <.label for={@id}><%= @label %></.label>
       <input
         type="hidden"
         name={@name}
         id={@id}
         value={Phoenix.HTML.Form.normalize_value(@type, @value)}
-        class={[
-          "mt-2 block rounded-lg text-zinc-900 sm:text-sm sm:leading-6 focus:border-blue-400 focus:ring-blue-300 focus:outline-none focus:ring focus:ring-opacity-40",
-          @class,
-          @errors == [] && "border-zinc-300 focus:border-zinc-400",
-          @errors != [] && "border-rose-400 focus:border-rose-400"
-        ]}
         {@rest}
       />
       <.error :for={msg <- @errors} :if={@with_error}><%= msg %></.error>
@@ -407,20 +411,22 @@ defmodule ProjeXpertWeb.CoreComponents do
   def input(assigns) do
     ~H"""
     <div class={@div_class}>
-      <.label for={@id}><%= @label %></.label>
-      <input
-        type={@type}
-        name={@name}
-        id={@id}
-        value={Phoenix.HTML.Form.normalize_value(@type, @value)}
-        class={[
-          "mt-2 block rounded-lg text-zinc-900 sm:text-sm sm:leading-6 focus:border-blue-400 focus:ring-blue-300 focus:outline-none focus:ring focus:ring-opacity-40",
-          @class,
-          @errors == [] && "border-zinc-300 focus:border-zinc-400",
-          @errors != [] && "border-rose-400 focus:border-rose-400"
-        ]}
-        {@rest}
-      />
+      <label class="block text-md font-medium text-gray-700">
+        <%= @label %>
+        <input
+          type={@type}
+          name={@name}
+          id={@id}
+          value={Phoenix.HTML.Form.normalize_value(@type, @value)}
+          class={[
+            "mt-2 block px-3 py-2 bg-white border border-gray-300 rounded-md text-sm shadow-sm placeholder-gray-400 focus:outline-none focus:ring-1",
+            @class,
+            @errors == [] && "focus:border-blue-500 focus:ring-blue-500",
+            @errors != [] && "focus:border-rose-500 focus:ring-rose-500"
+          ]}
+          {@rest}
+        />
+      </label>
       <.error :for={msg <- @errors}><%= msg %></.error>
     </div>
     """
@@ -600,7 +606,7 @@ defmodule ProjeXpertWeb.CoreComponents do
     <div>
       <.link
         navigate={@navigate}
-        class="flex items-center space-x-2 text-xl font-bold font-nunito text-primary hover:text-primary/50"
+        class="flex items-center space-x-2 text-xl font-bold font-nunito text-blue-600 hover:text-blue-600/50"
       >
         <.icon name="hero-arrow-left-micro" class="h-4 w-4 font-bold" />
         <%= render_slot(@inner_block) %>
@@ -764,17 +770,27 @@ defmodule ProjeXpertWeb.CoreComponents do
   end
 
   attr :ticket_dropdown, :string, default: "right-[7.5rem] w-48"
+  attr :with_dots, :boolean, default: true
+  attr :label, :string, default: "Actions"
   slot(:inner_block, required: true)
 
   def dropdown(assigns) do
     ~H"""
     <div x-data="{ open: false }" class="relative">
       <button
-        class="text-gray-500 transition-colors duration-200 rounded-lg hover:bg-gray-100"
+        class={
+          [
+            @with_dots && "text-gray-500 transition-colors duration-200 rounded-lg hover:bg-gray-100",
+            !@with_dots &&
+              "w-full px-4 py-2 bg-white border border-gray-300 rounded-lg text-zinc-900 sm:text-sm sm:leading-6 focus:border-blue-400 focus:ring-blue-300 focus:outline-none focus:ring focus:ring-opacity-40"
+          ]
+          |> Enum.join(" ")
+        }
         @click="open = !open"
         @click.outside="open = false"
       >
         <svg
+          :if={@with_dots}
           xmlns="http://www.w3.org/2000/svg"
           fill="none"
           viewBox="0 0 24 24"
@@ -788,6 +804,23 @@ defmodule ProjeXpertWeb.CoreComponents do
             d="M12 6.75a.75.75 0 110-1.5.75.75 0 010 1.5zM12 12.75a.75.75 0 110-1.5.75.75 0 010 1.5zM12 18.75a.75.75 0 110-1.5.75.75 0 010 1.5z"
           />
         </svg>
+        <div>
+          <span :if={!@with_dots} class="mr-3"><%= @label %></span>
+          <span
+            :if={!@with_dots}
+            class="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none"
+          >
+            <svg
+              class="w-5 h-5 text-gray-400"
+              x-bind:class="{'transform rotate-180': open}"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+              aria-hidden="true"
+            >
+              <path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" />
+            </svg>
+          </span>
+        </div>
       </button>
       <div
         x-show="open"
@@ -880,7 +913,7 @@ defmodule ProjeXpertWeb.CoreComponents do
                   <svg
                     phx-click="cancel_cv"
                     phx-value-ref={entry.ref}
-                    class="w-6 h-6 text-danger"
+                    class="w-6 h-6 text-red-500"
                     aria-hidden="true"
                     xmlns="http://www.w3.org/2000/svg"
                     width="24"
@@ -982,7 +1015,7 @@ defmodule ProjeXpertWeb.CoreComponents do
       <span class={
         [
           "absolute bottom-0 right-[-0.25rem] w-3 h-3 border-2 border-white rounded-full",
-          is_user_online?(@user) && "bg-primary animate-pulse-slow",
+          is_user_online?(@user) && "bg-blue-600 animate-pulse-slow",
           !is_user_online?(@user) && "bg-gray-300"
         ]
         |> Enum.join(" ")

@@ -1,9 +1,9 @@
 <header class="px-6 sm:px-8 lg:px-10 border border-b-2">
-  <div class="flex items-center justify-between h-16">
+  <div class="flex items-center justify-between">
     <.link navigate="/">
       <div class="flex justify-center items-center space-x-2">
         <img src={~p"/images/logo_3_croped.png"} alt="ProjeXpert Logo" class="h-12 w-12" />
-        <span class="text-left text-2xl text-primary font-nunito font-bold">ProjeXpert</span>
+        <span class="text-left text-2xl text-blue-600 font-nunito font-bold">ProjeXpert</span>
       </div>
     </.link>
     <div :if={!@current_user} class="flex items-center space-x-2">
@@ -11,15 +11,15 @@
         :if={@socket.view != ProjeXpertWeb.UserLoginLive}
         navigate="/log_in"
         type="button"
-        class="hidden md:inline-flex font-semibold text-primary"
+        class="hidden md:inline-flex font-semibold text-blue-600"
       >
         Log In
       </.link>
       <.link
         :if={@socket.view != ProjeXpertWeb.UserRegistrationLive}
-        navigate="/register/worker"
+        navigate="/register/freelancer"
         type="button"
-        class="hidden md:inline-flex font-semibold text-primary"
+        class="hidden md:inline-flex font-semibold text-blue-600"
       >
         Sign Up
       </.link>
@@ -102,24 +102,26 @@
     </div>
   </div>
 </header>
-<main class="mt-2">
+<main class={
+  [!@current_user && "min-h-[94vh] flex items-center justify-center"] |> Enum.join(" ")
+}>
   <.flash_group flash={@flash} />
-  <div :if={@current_user} class="flex space-x-3">
+  <div :if={@current_user} class="flex space-x-3 min-h-[94vh]">
     <!-- aside -->
     <div class="w-[18%]">
-      <aside class="flex flex-col h-[calc(100vh-5rem)] space-y-2 border-r-2 border-gray-200 bg-white p-2">
+      <aside class="flex flex-col h-full space-y-2 border-r-2 border-gray-200 bg-white p-2">
         <.link
           navigate="/dashboard"
           class={[
             "flex items-center space-x-1 rounded-md px-2 py-3 hover:bg-gray-100 group",
-            @active_tab == :dashboard && "font-medium bg-gray-100 text-primary"
+            @active_tab == :dashboard && "font-medium bg-gray-100 text-blue-600"
           ]}
         >
           <svg
             class={[
-              "w-6 h-6 group-hover:text-primary",
+              "w-6 h-6 group-hover:text-blue-600",
               @active_tab != :dashboard && "text-gray-800",
-              @active_tab == :dashboard && "group-text-primary"
+              @active_tab == :dashboard && "group-text-blue-600"
             ]}
             aria-hidden="true"
             xmlns="http://www.w3.org/2000/svg"
@@ -137,20 +139,20 @@
             />
           </svg>
 
-          <span class="group-hover:text-primary">Dashboard</span>
+          <span class="group-hover:text-blue-600">Dashboard</span>
         </.link>
         <.link
           navigate={~p"/projects"}
           class={[
             "flex items-center space-x-1 rounded-md px-2 py-3 hover:bg-gray-100 group",
-            @active_tab == :projects && "font-medium bg-gray-100 text-primary"
+            @active_tab == :projects && "font-medium bg-gray-100 text-blue-600"
           ]}
         >
           <svg
             class={[
-              "w-6 h-6 group-hover:text-primary",
+              "w-6 h-6 group-hover:text-blue-600",
               @active_tab != :projects && "text-gray-800",
-              @active_tab == :projects && "text-primary"
+              @active_tab == :projects && "text-blue-600"
             ]}
             aria-hidden="true"
             xmlns="http://www.w3.org/2000/svg"
@@ -168,21 +170,21 @@
             />
           </svg>
 
-          <span class="group-hover:text-primary">Projects</span>
+          <span class="group-hover:text-blue-600">Projects</span>
         </.link>
         <.link
-          :if={is_worker?(@current_user)}
+          :if={is_freelancer?(@current_user)}
           navigate="/tasks"
           class={[
             "flex items-center space-x-1 rounded-md px-2 py-3 hover:bg-gray-100 group",
-            @active_tab == :tasks && "font-medium bg-gray-100 text-primary"
+            @active_tab == :tasks && "font-medium bg-gray-100 text-blue-600"
           ]}
         >
           <svg
             class={[
-              "w-6 h-6 group-hover:text-primary",
+              "w-6 h-6 group-hover:text-blue-600",
               @active_tab != :tasks && "text-gray-800",
-              @active_tab == :tasks && "text-primary"
+              @active_tab == :tasks && "text-blue-600"
             ]}
             aria-hidden="true"
             xmlns="http://www.w3.org/2000/svg"
@@ -200,21 +202,21 @@
             />
           </svg>
 
-          <span class="group-hover:text-primary">Tasks</span>
+          <span class="group-hover:text-blue-600">Tasks</span>
         </.link>
         <.link
           :if={is_client?(@current_user)}
           navigate="/bids"
           class={[
             "flex items-center space-x-1 rounded-md px-2 py-3 hover:bg-gray-100 group",
-            @active_tab == :bids && "font-medium bg-gray-100 text-primary"
+            @active_tab == :bids && "font-medium bg-gray-100 text-blue-600"
           ]}
         >
           <svg
             class={[
-              "w-6 h-6 group-hover:text-primary",
+              "w-6 h-6 group-hover:text-blue-600",
               @active_tab != :bids && "text-gray-800",
-              @active_tab == :bids && "text-primary"
+              @active_tab == :bids && "text-blue-600"
             ]}
             aria-hidden="true"
             xmlns="http://www.w3.org/2000/svg"
@@ -232,20 +234,20 @@
             />
           </svg>
 
-          <span class="group-hover:text-primary">Bids</span>
+          <span class="group-hover:text-blue-600">Bids</span>
         </.link>
         <.link
           navigate={~p"/channels"}
           class={[
             "flex items-center space-x-1 rounded-md px-2 py-3 hover:bg-gray-100 group",
-            @active_tab == :channels && "font-medium bg-gray-100 text-primary"
+            @active_tab == :channels && "font-medium bg-gray-100 text-blue-600"
           ]}
         >
           <svg
             class={[
-              "w-6 h-6 group-hover:text-primary",
+              "w-6 h-6 group-hover:text-blue-600",
               @active_tab != :channels && "text-gray-800",
-              @active_tab == :channels && "text-primary"
+              @active_tab == :channels && "text-blue-600"
             ]}
             aria-hidden="true"
             xmlns="http://www.w3.org/2000/svg"
@@ -263,20 +265,20 @@
             />
           </svg>
 
-          <span class="group-hover:text-primary">Channels</span>
+          <span class="group-hover:text-blue-600">Channels</span>
         </.link>
         <.link
           navigate={~p"/settings"}
           class={[
             "flex items-center space-x-1 rounded-md px-2 py-3 hover:bg-gray-100 group",
-            @active_tab == :settings && "font-medium bg-gray-100 text-primary"
+            @active_tab == :settings && "font-medium bg-gray-100 text-blue-600"
           ]}
         >
           <svg
             class={[
-              "w-6 h-6 group-hover:text-primary",
+              "w-6 h-6 group-hover:text-blue-600",
               @active_tab != :settings && "text-gray-800",
-              @active_tab == :settings && "text-primary"
+              @active_tab == :settings && "text-blue-600"
             ]}
             aria-hidden="true"
             xmlns="http://www.w3.org/2000/svg"
@@ -294,15 +296,15 @@
             />
           </svg>
 
-          <span class="group-hover:text-primary">Settings</span>
+          <span class="group-hover:text-blue-600">Settings</span>
         </.link>
       </aside>
     </div>
-    <div class="w-[82%]">
+    <div class="w-[82%] py-3 px-4 sm:py-4 sm:px-6 lg:py-4 lg:px-8">
       <%= @inner_content %>
     </div>
   </div>
-  <div :if={!@current_user}>
+  <div :if={!@current_user} class="w-full flex items-center justify-center">
     <%= @inner_content %>
   </div>
 </main>

@@ -17,11 +17,11 @@ defmodule ProjeXpert.Tasks.Project do
     has_many :tasks, ProjeXpert.Tasks.Task
     has_many :columns, ProjeXpert.Tasks.Column
     has_one :channel, ProjeXpert.Chats.Channel
-    has_many :project_workers, ProjeXpert.Tasks.ProjectWorker, foreign_key: :project_id
+    has_many :project_freelancers, ProjeXpert.Tasks.Projectfreelancer, foreign_key: :project_id
 
-    many_to_many :workers, ProjeXpert.Accounts.User,
-      join_through: ProjeXpert.Tasks.ProjectWorker,
-      join_keys: [worker_id: :id, project_id: :id]
+    many_to_many :freelancers, ProjeXpert.Accounts.User,
+      join_through: ProjeXpert.Tasks.Projectfreelancer,
+      join_keys: [freelancer_id: :id, project_id: :id]
 
     timestamps(type: :utc_datetime)
   end

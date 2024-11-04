@@ -15,8 +15,8 @@ defmodule ProjeXpert.Application do
       # Start the Finch HTTP client for sending emails
       {Finch, name: ProjeXpert.Finch},
       ProjeXpertWeb.UserPresence,
-      # Start a worker by calling: ProjeXpert.Worker.start_link(arg)
-      # {ProjeXpert.Worker, arg},
+      # Start a freelancer by calling: ProjeXpert.freelancer.start_link(arg)
+      # {ProjeXpert.freelancer, arg},
       # Start to serve requests, typically the last entry
       ProjeXpertWeb.Endpoint
     ]

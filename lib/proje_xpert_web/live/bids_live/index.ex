@@ -56,12 +56,12 @@ defmodule ProjeXpertWeb.BidsLive.Index do
          {:ok, bid} <- Tasks.update_bid(bid, %{"status" => "accepted"}),
          %Task{} = task <- Tasks.get_task!(bid.task_id),
          {:ok, _} <-
-           Tasks.create_worker_project(%{
+           Tasks.create_freelancer_project(%{
              "task_id" => task.project_id,
-             "worker_id" => bid.worker_id
+             "freelancer_id" => bid.freelancer_id
            }),
          {:ok, _} <-
-           Tasks.update_task(task, %{"worker_id" => bid.worker_id}) do
+           Tasks.update_task(task, %{"freelancer_id" => bid.freelancer_id}) do
       {:noreply,
        put_flash(socket, :info, "Bid has been update to #{camel_case_string("accepted")}")
        |> redirect(to: get_parent_url_by_params(socket.assigns.current_tab))}

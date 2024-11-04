@@ -68,7 +68,7 @@ defmodule ProjeXpertWeb.ProjectsLive.BidForm do
   end
 
   defp get_bidder_option(bid) do
-    case Accounts.get_user!(bid.worker_id) do
+    case Accounts.get_user!(bid.freelancer_id) do
       %Accounts.User{} = user ->
         [{full_name(user), user.id}]
 

@@ -8,7 +8,7 @@ defmodule ProjeXpertWeb.TasksLive.Index do
      socket
      |> assign(
        current_tab: Map.get(params, "tab"),
-       tasks: Tasks.list_tasks_for_worker(current_user, params)
+       tasks: Tasks.list_tasks_for_freelancer(current_user, params)
      )}
   end
 end

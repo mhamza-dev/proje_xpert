@@ -5,7 +5,7 @@ defmodule ProjeXpertWeb.BreadCrumb do
     ~H"""
     <nav aria-label="Breadcrumb">
       <ol class="flex items-center space-x-2 text-sm text-gray-600">
-        <.link navigate={@home_link} class="hover:text-primary transition-colors duration-200">
+        <.link navigate={@home_link} class="hover:text-blue-600 transition-colors duration-200">
           <li>
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -25,7 +25,7 @@ defmodule ProjeXpertWeb.BreadCrumb do
           </li>
         </.link>
         <%= for {label, link} <- @breadcrumbs do %>
-          <li class="flex items-center">
+          <li :if={!is_integer?(label)} class="flex items-center">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               class="h-5 w-5 text-gray-400"
@@ -35,26 +35,25 @@ defmodule ProjeXpertWeb.BreadCrumb do
             >
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
             </svg>
+            <.link
+              navigate={link}
+              class={
+                [
+                  "text-base hover:text-blue-600 transition-colors duration-200",
+                  get_active_breadcrumb(label, @breadcrumbs) && "text-blue-600 font-semibold"
+                ]
+                |> Enum.join(" ")
+              }
+            >
+              <li :if={String.downcase(label) != "show"}>
+                <%= label %>
+              </li>
+
+              <li :if={String.downcase(label) == "show" and !is_nil(assigns[:title])}>
+                <%= @title %>
+              </li>
+            </.link>
           </li>
-          <.link
-            navigate={link}
-            class={
-              [
-                "text-base hover:text-primary transition-colors duration-200",
-                get_active_breadcrumb(label, @breadcrumbs) && "text-primary font-semibold"
-              ]
-              |> Enum.join(" ")
-            }
-          >
-
-            <li :if={String.downcase(label) != "show"}>
-              <%= label %>
-            </li>
-
-            <li :if={String.downcase(label) == "show" and !is_nil(assigns[:title])}>
-              <%= @title %>
-            </li>
-          </.link>
         <% end %>
       </ol>
     </nav>
@@ -75,26 +74,26 @@ defmodule ProjeXpertWeb.BreadCrumb do
   defp generate_breadcrumbs(segments) do
     segments
     |> Enum.with_index()
-    |> Enum.reduce([], fn {segment, index}, acc ->
+    |> Enum.reduce([], fn {segment, _index}, acc ->
       previous_link =
         case acc |> Enum.reverse() |> List.first() do
           {_, link} -> link
           nil -> "/"
         end
 
-      next_link =
-        cond do
-          segment == String.split(previous_link, "/") |> Enum.at(-1) ->
-            previous_link
+      # next_link =
+      #   cond do
+      #     segment == String.split(previous_link, "/") |> Enum.at(-1) ->
+      #       previous_link
 
-          is_integer?(segment) ->
-            previous_link |> Path.join(segment) |> Path.join(Enum.at(segments, index + 1))
+      #     is_integer?(segment) ->
+      #       previous_link |> Path.join(segment) |> Path.join(Enum.at(segments, index + 1))
 
-          true ->
-            Path.join(previous_link, segment)
-        end
+      #     true ->
+      #       Path.join(previous_link, segment)
+      #   end
 
-      acc ++ [{String.capitalize(segment), next_link}]
+      acc ++ [{String.capitalize(segment), Path.join(previous_link, segment)}]
     end)
   end
 

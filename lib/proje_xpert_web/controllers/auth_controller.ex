@@ -37,7 +37,7 @@ defmodule ProjeXpertWeb.AuthController do
           first_name: auth.info.first_name,
           last_name: auth.info.last_name,
           provider: provider,
-          role: :worker
+          role: :freelancer
         }
 
         case Accounts.register_oauth_user(user_params) do

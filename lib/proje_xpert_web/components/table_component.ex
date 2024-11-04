@@ -8,8 +8,8 @@ defmodule ProjeXpertWeb.TableComponent do
 
   def render(assigns) do
     ~H"""
-    <div class="flex flex-col mt-6">
-      <div class="overflow-x-auto border border-gray-200 rounded-lg min-h-[620px]">
+    <div class="flex flex-col">
+      <div class="overflow-x-auto border border-gray-200 rounded-lg min-h-[calc(100vh-33vh)]">
         <div class="inline-block min-w-full align-middle">
           <div class="max-h-[550px]">
             <table class="min-w-full">

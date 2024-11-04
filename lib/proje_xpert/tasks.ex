@@ -5,7 +5,7 @@ defmodule ProjeXpert.Tasks do
 
   import Ecto.Query, warn: false
   alias ProjeXpert.Repo
-  alias ProjeXpert.Tasks.{Bid, Comment, Column, Project, Payment, Task, ProjectWorker}
+  alias ProjeXpert.Tasks.{Bid, Comment, Column, Project, Payment, Task, Projectfreelancer}
 
   @doc """
   Returns the list of projects.
@@ -33,19 +33,19 @@ defmodule ProjeXpert.Tasks do
   def list_client_projects(id, filters) do
     from(p in Project, where: p.client_id == ^id)
     |> filter_projects_query(filters)
-    |> preload([:client, :project_workers, tasks: [:column, :worker, bids: :worker]])
+    |> preload([:client, :project_freelancers, tasks: [:column, :freelancer, bids: :freelancer]])
     |> Repo.all()
   end
 
-  def list_project_workers(id, filters) do
+  def list_project_freelancers(id, filters) do
     from(p in Project,
-      inner_join: wp in assoc(p, :project_workers),
+      inner_join: wp in assoc(p, :project_freelancers),
       inner_join: t in assoc(p, :tasks),
-      where: t.worker_id == ^id
+      where: t.freelancer_id == ^id
     )
     |> filter_projects_query(filters)
     |> distinct([p, _wp, _t, _wt], p.id)
-    |> preload([:client, :project_workers, tasks: [:column, :worker, bids: :worker]])
+    |> preload([:client, :project_freelancers, tasks: [:column, :freelancer, bids: :freelancer]])
     |> Repo.all()
   end
 
@@ -76,8 +76,8 @@ defmodule ProjeXpert.Tasks do
         :client,
         :tasks,
         :channel,
-        project_workers: [:worker],
-        columns: [tasks: [:worker, bids: :worker]]
+        project_freelancers: [:freelancer],
+        columns: [tasks: [:freelancer, bids: :freelancer]]
       ])
 
   @doc """
@@ -155,17 +155,17 @@ defmodule ProjeXpert.Tasks do
 
   """
   def list_tasks do
-    Repo.all(Task) |> Repo.preload([:worker, :comments, project: :client])
+    Repo.all(Task) |> Repo.preload([:freelancer, :comments, project: :client])
   end
 
-  def list_tasks_for_worker(worker, params) do
+  def list_tasks_for_freelancer(freelancer, params) do
     from(t in Task,
-      where: t.find_worker? == true,
-      where: t.worker_id != ^worker.id
+      where: t.find_freelancer? == true,
+      where: t.freelancer_id != ^freelancer.id
     )
     |> task_query_for_fragment(params)
     |> Repo.all()
-    |> Repo.preload([:worker, :comments, project: :client])
+    |> Repo.preload([:freelancer, :comments, project: :client])
   end
 
   def list_tasks_for_client(client, params) do
@@ -175,7 +175,7 @@ defmodule ProjeXpert.Tasks do
     )
     |> task_query_for_fragment(params)
     |> Repo.all()
-    |> Repo.preload([:worker, :comments, project: :client])
+    |> Repo.preload([:freelancer, :comments, project: :client])
   end
 
   defp task_query_for_fragment(query, %{"tab" => current_tab}) do
@@ -224,7 +224,11 @@ defmodule ProjeXpert.Tasks do
   def get_task!(id),
     do:
       Repo.get!(Task, id)
-      |> Repo.preload([:bids, :worker, [project: [:client], comments: [:user, replies: :user]]])
+      |> Repo.preload([
+        :bids,
+        :freelancer,
+        [project: [:client], comments: [:user, replies: :user]]
+      ])
 
   @doc """
   Creates a task.
@@ -315,24 +319,24 @@ defmodule ProjeXpert.Tasks do
       where: p.client_id == ^id
     )
     |> filter_bids_query(filters)
-    |> preload([:worker, task: :project])
+    |> preload([:freelancer, task: :project])
     |> Repo.all()
   end
 
-  def list_worker_bids(id, filters) do
+  def list_freelancer_bids(id, filters) do
     from(b in Bid,
       inner_join: t in assoc(b, :task),
-      inner_join: wt in assoc(t, :worker),
-      where: wt.worker_id == ^id
+      inner_join: wt in assoc(t, :freelancer),
+      where: wt.freelancer_id == ^id
     )
     |> filter_bids_query(filters)
-    |> preload([:worker, task: :project])
+    |> preload([:freelancer, task: :project])
     |> Repo.all()
   end
 
   defp filter_bids_query(query, %{"search_term" => search_term}) do
     from(q in query,
-      inner_join: w in assoc(q, :worker),
+      inner_join: w in assoc(q, :freelancer),
       where: ilike(w.first_name, ^"%#{String.trim(search_term)}%"),
       or_where: ilike(w.last_name, ^"%#{String.trim(search_term)}%")
     )
@@ -354,7 +358,7 @@ defmodule ProjeXpert.Tasks do
       ** (Ecto.NoResultsError)
 
   """
-  def get_bid!(id), do: Repo.get!(Bid, id) |> Repo.preload([:worker, task: :project])
+  def get_bid!(id), do: Repo.get!(Bid, id) |> Repo.preload([:freelancer, task: :project])
 
   @doc """
   Creates a bid.
@@ -717,108 +721,108 @@ defmodule ProjeXpert.Tasks do
   end
 
   @doc """
-  Returns the list of project_workers.
+  Returns the list of project_freelancers.
 
   ## Examples
 
-      iex> list_project_workers()
-      [%ProjectWorker{}, ...]
+      iex> list_project_freelancers()
+      [%Projectfreelancer{}, ...]
 
   """
-  def list_project_workers do
-    Repo.all(ProjectWorker)
+  def list_project_freelancers do
+    Repo.all(Projectfreelancer)
   end
 
-  def get_worker_project_by_worker_id(bid) do
-    from(wp in ProjectWorker,
-      where: wp.worker_id == ^bid.worker_id,
+  def get_freelancer_project_by_freelancer_id(bid) do
+    from(wp in Projectfreelancer,
+      where: wp.freelancer_id == ^bid.freelancer_id,
       where: wp.project_id == ^bid.task.project.id
     )
     |> Repo.one()
   end
 
   @doc """
-  Gets a single worker_project.
+  Gets a single freelancer_project.
 
-  Raises `Ecto.NoResultsError` if the Worker project does not exist.
+  Raises `Ecto.NoResultsError` if the freelancer project does not exist.
 
   ## Examples
 
-      iex> get_worker_project!(123)
-      %ProjectWorker{}
+      iex> get_freelancer_project!(123)
+      %Projectfreelancer{}
 
-      iex> get_worker_project!(456)
+      iex> get_freelancer_project!(456)
       ** (Ecto.NoResultsError)
 
   """
-  def get_worker_project!(id), do: Repo.get!(ProjectWorker, id)
+  def get_freelancer_project!(id), do: Repo.get!(Projectfreelancer, id)
 
-  def get_worker_project_by_task!(id),
-    do: ProjectWorker |> where([wp], wp.project_id == ^id) |> Repo.one!()
+  def get_freelancer_project_by_task!(id),
+    do: Projectfreelancer |> where([wp], wp.project_id == ^id) |> Repo.one!()
 
   @doc """
-  Creates a worker_project.
+  Creates a freelancer_project.
 
   ## Examples
 
-      iex> create_worker_project(%{field: value})
-      {:ok, %ProjectWorker{}}
+      iex> create_freelancer_project(%{field: value})
+      {:ok, %Projectfreelancer{}}
 
-      iex> create_worker_project(%{field: bad_value})
+      iex> create_freelancer_project(%{field: bad_value})
       {:error, %Ecto.Changeset{}}
 
   """
-  def create_worker_project(attrs \\ %{}) do
-    %ProjectWorker{}
-    |> ProjectWorker.changeset(attrs)
+  def create_freelancer_project(attrs \\ %{}) do
+    %Projectfreelancer{}
+    |> Projectfreelancer.changeset(attrs)
     |> Repo.insert()
   end
 
   @doc """
-  Updates a worker_project.
+  Updates a freelancer_project.
 
   ## Examples
 
-      iex> update_worker_project(worker_project, %{field: new_value})
-      {:ok, %ProjectWorker{}}
+      iex> update_freelancer_project(freelancer_project, %{field: new_value})
+      {:ok, %Projectfreelancer{}}
 
-      iex> update_worker_project(worker_project, %{field: bad_value})
+      iex> update_freelancer_project(freelancer_project, %{field: bad_value})
       {:error, %Ecto.Changeset{}}
 
   """
-  def update_worker_project(%ProjectWorker{} = worker_project, attrs) do
-    worker_project
-    |> ProjectWorker.changeset(attrs)
+  def update_freelancer_project(%Projectfreelancer{} = freelancer_project, attrs) do
+    freelancer_project
+    |> Projectfreelancer.changeset(attrs)
     |> Repo.update()
   end
 
   @doc """
-  Deletes a worker_project.
+  Deletes a freelancer_project.
 
   ## Examples
 
-      iex> delete_worker_project(worker_project)
-      {:ok, %ProjectWorker{}}
+      iex> delete_freelancer_project(freelancer_project)
+      {:ok, %Projectfreelancer{}}
 
-      iex> delete_worker_project(worker_project)
+      iex> delete_freelancer_project(freelancer_project)
       {:error, %Ecto.Changeset{}}
 
   """
-  def delete_worker_project(%ProjectWorker{} = worker_project) do
-    Repo.delete(worker_project)
+  def delete_freelancer_project(%Projectfreelancer{} = freelancer_project) do
+    Repo.delete(freelancer_project)
   end
 
   @doc """
-  Returns an `%Ecto.Changeset{}` for tracking worker_project changes.
+  Returns an `%Ecto.Changeset{}` for tracking freelancer_project changes.
 
   ## Examples
 
-      iex> change_worker_project(worker_project)
-      %Ecto.Changeset{data: %ProjectWorker{}}
+      iex> change_freelancer_project(freelancer_project)
+      %Ecto.Changeset{data: %Projectfreelancer{}}
 
   """
-  def change_worker_project(%ProjectWorker{} = worker_project, attrs \\ %{}) do
-    ProjectWorker.changeset(worker_project, attrs)
+  def change_freelancer_project(%Projectfreelancer{} = freelancer_project, attrs \\ %{}) do
+    Projectfreelancer.changeset(freelancer_project, attrs)
   end
 
   alias ProjeXpert.Tasks.Reply

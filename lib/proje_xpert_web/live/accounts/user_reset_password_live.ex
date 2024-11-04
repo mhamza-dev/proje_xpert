@@ -31,7 +31,8 @@ defmodule ProjeXpertWeb.UserResetPasswordLive do
       </.simple_form>
 
       <p class="text-center text-sm mt-4">
-        <.link href={~p"/register/worker"}>Register</.link> | <.link href={~p"/log_in"}>Log in</.link>
+        <.link href={~p"/register/freelancer"}>Register</.link>
+        | <.link href={~p"/log_in"}>Log in</.link>
       </p>
     </div>
     """
