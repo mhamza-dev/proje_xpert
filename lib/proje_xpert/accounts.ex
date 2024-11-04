@@ -60,6 +60,10 @@ defmodule ProjeXpert.Accounts do
   """
   def get_user!(id), do: Repo.get!(User, id)
 
+  def list_users_by_ids(ids) do
+    from(u in User, where: u.id in ^ids) |> Repo.all()
+  end
+
   ## User registration
 
   @doc """

@@ -18,7 +18,7 @@ defmodule ProjeXpertWeb.TasksLive.Show do
      )
      |> allow_upload(:cv,
        max_entries: 2,
-       accept: ~w(.pdf),
+       accept: exts_for_cover_letter(),
        max_file_size: 5_000_000
      )}
   end

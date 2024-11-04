@@ -13,7 +13,7 @@ defmodule ProjeXpert.Chats.Message do
   @doc false
   def changeset(message, attrs) do
     message
-    |> cast(attrs, [:body])
-    |> validate_required([:body])
+    |> cast(attrs, [:body, :sender_id, :channel_id])
+    |> validate_required([:body, :sender_id, :channel_id])
   end
 end

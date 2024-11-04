@@ -50,14 +50,14 @@ defmodule ProjeXpertWeb.UserRegistrationLive do
           Sign-up as
           <.link
             :if={@live_action == :worker}
-            navigate={~p"/client/register"}
+            navigate={~p"/register/client"}
             class="font-semibold text-primary hover:underline"
           >
             Job Poster
           </.link>
           <.link
             :if={@live_action == :client}
-            navigate={~p"/worker/register"}
+            navigate={~p"/register/worker"}
             class="font-semibold text-primary hover:underline"
           >
             Job Seeker

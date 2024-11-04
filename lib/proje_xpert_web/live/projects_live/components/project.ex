@@ -1,4 +1,4 @@
-defmodule ProjeXpertWeb.ProjectsLive.Component do
+defmodule ProjeXpertWeb.ProjectsLive.Components.Project do
   use ProjeXpertWeb, :live_component
 
   alias ProjeXpert.Tasks

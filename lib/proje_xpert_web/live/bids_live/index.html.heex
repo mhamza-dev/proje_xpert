@@ -62,9 +62,12 @@
   >
     <:table_cells>
       <tr :for={bid <- @bids} class="border-b-[1px]">
-        <td class="p-3 text-sm font-medium">
-          <.link navigate={~p"/bids/#{bid.id}/edit"}>
-            <h2 class="font-medium text-gray-800 "><%= full_name(bid.worker) %></h2>
+        <td class="px-6 py-4 whitespace-nowrap">
+          <.link navigate={~p"/bids/#{bid.id}/show"}>
+            <div class="flex items-center space-x-4">
+              <.dot_profile_image user={bid.worker} />
+              <h2 class="font-medium text-gray-800 "><%= full_name(bid.worker) %></h2>
+            </div>
           </.link>
         </td>
         <td class="p-3 text-sm">

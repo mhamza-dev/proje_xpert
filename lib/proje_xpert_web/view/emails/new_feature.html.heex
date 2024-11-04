@@ -1,0 +1,58 @@
+<td style="padding: 40px 30px;">
+  <h1 style="color: #333333; font-size: 24px; margin-bottom: 20px; text-align: center;">
+    Exciting New Feature: <%= assigns[:feature_name] %>!
+  </h1>
+  <p style="color: #666666; font-size: 16px; margin-bottom: 20px;">
+    We're thrilled to announce our latest feature: <%= assigns[:feature_name] %>! This cutting-edge technology will revolutionize your experience with our platform.
+  </p>
+  <table :if={Map.has_key?(assigns, :image)} width="100%" cellpadding="0" cellspacing="0">
+    <tr>
+      <td align="center" style="padding-bottom: 30px;">
+        <img
+          src={assigns[:image]}
+          alt="Feature"
+          style="max-width: 100%; height: auto; border-radius: 8px;"
+        />
+      </td>
+    </tr>
+  </table>
+  <h2 style="color: #333333; font-size: 20px; margin-bottom: 15px;">What's New?</h2>
+  <ul style="color: #666666; font-size: 16px; margin-bottom: 20px; padding-left: 20px;">
+    <li :for={feature <- assigns[:features]} style="margin-bottom: 10px;">
+      <%= feature %>
+    </li>
+  </ul>
+  <p style="color: #666666; font-size: 16px; margin-bottom: 20px;">
+    We can't wait for you to try it out! Log in to your account to experience the power of <%= assigns[
+      :feature_name
+    ] %>.
+  </p>
+  <table width="100%" cellpadding="0" cellspacing="0">
+    <tr>
+      <td align="center">
+        <a
+          href="https://deficient-marvelous-flounder.gigalixirapp.com/log_in"
+          target="_blank"
+          style="display: inline-block; background-color: #1D4ED8; color: #ffffff; text-decoration: none; padding: 12px 24px; border-radius: 4px; font-weight: bold; font-size: 16px;"
+        >
+          Try It Now
+        </a>
+      </td>
+    </tr>
+  </table>
+  <p style="color: #666666; font-size: 16px; margin-top: 30px;">
+    As always, we'd love to hear your feedback. Feel free to reach out to our support team with any questions or comments.
+  </p>
+  <table width="100%" cellpadding="0" cellspacing="0">
+    <tr>
+      <td align="center">
+        <a
+          href="mailto:messeydonna@gmail.com"
+          style="display: inline-block; background-color: #1D4ED8; color: #ffffff; text-decoration: none; padding: 12px 24px; border-radius: 4px; font-weight: bold; font-size: 16px;"
+        >
+          Contact Support
+        </a>
+      </td>
+    </tr>
+  </table>
+</td>

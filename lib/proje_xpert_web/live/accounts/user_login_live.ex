@@ -8,7 +8,7 @@ defmodule ProjeXpertWeb.UserLoginLive do
         Log in to account
         <:subtitle>
           Don't have an account?
-          <.link navigate="/worker/register" class="font-semibold text-primary hover:underline">
+          <.link navigate="/register/worker" class="font-semibold text-primary hover:underline">
             Sign up
           </.link>
           for an account now.

@@ -57,58 +57,6 @@ defmodule ProjeXpert.ChatsTest do
     end
   end
 
-  describe "channel_users" do
-    alias ProjeXpert.Chats.ChannelUser
-
-    import ProjeXpert.ChatsFixtures
-
-    @invalid_attrs %{}
-
-    test "list_channel_users/0 returns all channel_users" do
-      channel_user = channel_user_fixture()
-      assert Chats.list_channel_users() == [channel_user]
-    end
-
-    test "get_channel_user!/1 returns the channel_user with given id" do
-      channel_user = channel_user_fixture()
-      assert Chats.get_channel_user!(channel_user.id) == channel_user
-    end
-
-    test "create_channel_user/1 with valid data creates a channel_user" do
-      valid_attrs = %{}
-
-      assert {:ok, %ChannelUser{} = channel_user} = Chats.create_channel_user(valid_attrs)
-    end
-
-    test "create_channel_user/1 with invalid data returns error changeset" do
-      assert {:error, %Ecto.Changeset{}} = Chats.create_channel_user(@invalid_attrs)
-    end
-
-    test "update_channel_user/2 with valid data updates the channel_user" do
-      channel_user = channel_user_fixture()
-      update_attrs = %{}
-
-      assert {:ok, %ChannelUser{} = channel_user} = Chats.update_channel_user(channel_user, update_attrs)
-    end
-
-    test "update_channel_user/2 with invalid data returns error changeset" do
-      channel_user = channel_user_fixture()
-      assert {:error, %Ecto.Changeset{}} = Chats.update_channel_user(channel_user, @invalid_attrs)
-      assert channel_user == Chats.get_channel_user!(channel_user.id)
-    end
-
-    test "delete_channel_user/1 deletes the channel_user" do
-      channel_user = channel_user_fixture()
-      assert {:ok, %ChannelUser{}} = Chats.delete_channel_user(channel_user)
-      assert_raise Ecto.NoResultsError, fn -> Chats.get_channel_user!(channel_user.id) end
-    end
-
-    test "change_channel_user/1 returns a channel_user changeset" do
-      channel_user = channel_user_fixture()
-      assert %Ecto.Changeset{} = Chats.change_channel_user(channel_user)
-    end
-  end
-
   describe "messages" do
     alias ProjeXpert.Chats.Message
 

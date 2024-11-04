@@ -19,20 +19,6 @@ defmodule ProjeXpert.ChatsFixtures do
   end
 
   @doc """
-  Generate a channel_user.
-  """
-  def channel_user_fixture(attrs \\ %{}) do
-    {:ok, channel_user} =
-      attrs
-      |> Enum.into(%{
-
-      })
-      |> ProjeXpert.Chats.create_channel_user()
-
-    channel_user
-  end
-
-  @doc """
   Generate a message.
   """
   def message_fixture(attrs \\ %{}) do

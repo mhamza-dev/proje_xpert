@@ -36,7 +36,7 @@ defmodule ProjeXpertWeb.SettingsLive.Index do
       )
       |> allow_upload(:profile,
         max_entries: 1,
-        accept: ~w(.png .jpeg .jpg),
+        accept: exts_for_profile(),
         max_file_size: 5_000_000
       )
 

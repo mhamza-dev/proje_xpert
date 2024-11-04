@@ -1,6 +1,6 @@
 // If you want to use Phoenix channels, run `mix help phx.gen.channel`
 // to get started and then uncomment the line below.
-// import "./user_socket.js"
+import "./user_socket.js"
 
 // You can include dependencies in two ways.
 //
@@ -27,6 +27,8 @@ import disableEditor from "./disableEditor";
 import TrixEditor from "trix"
 import ChartJS from "./chart";
 import hideFlash from "./hideFlash";
+import ScrollToBottom from "./scrollToBottom";
+
 
 const Hooks = {
   dragHook,
@@ -34,6 +36,7 @@ const Hooks = {
   TrixEditor,
   ChartJS,
   hideFlash,
+  ScrollToBottom
 };
 window.Alpine = Alpine;
 Alpine.start();

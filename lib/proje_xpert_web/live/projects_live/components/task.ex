@@ -1,4 +1,4 @@
-defmodule ProjeXpertWeb.ProjectsLive.TaskForm do
+defmodule ProjeXpertWeb.ProjectsLive.Components.Task do
   alias Ecto.Changeset
   use ProjeXpertWeb, :live_component
 

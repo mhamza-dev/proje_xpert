@@ -13,10 +13,11 @@ defmodule ProjeXpert.Repo.Migrations.CreateTasks do
       add :tags, {:array, :string}, default: []
       add :experience_required, :string
       add :project_id, references(:projects, on_delete: :delete_all)
+      add :worker_id, references(:users, on_delete: :delete_all)
 
       timestamps(type: :utc_datetime)
     end
 
-    create index(:tasks, [:project_id])
+    create index(:tasks, [:project_id, :worker_id])
   end
 end

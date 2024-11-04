@@ -40,14 +40,19 @@ defmodule ProjeXpertWeb.BreadCrumb do
             navigate={link}
             class={
               [
-                "hover:text-primary transition-colors duration-200",
+                "text-base hover:text-primary transition-colors duration-200",
                 get_active_breadcrumb(label, @breadcrumbs) && "text-primary font-semibold"
               ]
               |> Enum.join(" ")
             }
           >
-            <li>
+
+            <li :if={String.downcase(label) != "show"}>
               <%= label %>
+            </li>
+
+            <li :if={String.downcase(label) == "show" and !is_nil(assigns[:title])}>
+              <%= @title %>
             </li>
           </.link>
         <% end %>
@@ -63,6 +68,7 @@ defmodule ProjeXpertWeb.BreadCrumb do
 
     {:ok,
      socket
+     |> assign(assigns)
      |> assign(breadcrumbs: breadcrumbs, home_link: "/", current_path: current_path)}
   end
 
