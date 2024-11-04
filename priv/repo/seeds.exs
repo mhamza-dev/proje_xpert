@@ -12,8 +12,10 @@
 
 # priv/repo/seeds.exs
 
-alias ProjeXpert.Repo
+alias ProjeXpert.Accounts
 alias ProjeXpert.Accounts.User
+alias ProjeXpert.Chats.{Channel, Message}
+alias ProjeXpert.Repo
 alias ProjeXpert.Tasks
 
 alias ProjeXpert.Tasks.{
@@ -23,36 +25,156 @@ alias ProjeXpert.Tasks.{
   Project,
   # Payment,
   Task,
-  WorkerProject,
-  WorkerTask,
   Reply
 }
 
+import ProjeXpertWeb.LiveHelpers
+
 # Create some users
 clients = [
-  %{first_name: "Alice", last_name: "Doe", email: "alice@example.com"},
-  %{first_name: "Jessica", last_name: "Rodriguez", email: "jessica.r@example.com"}
+  %{
+    first_name: "Alice",
+    last_name: "Doe",
+    email: "alice@example.com",
+    location: "New York, NY",
+    bio: "<p>Dynamic entrepreneur with a passion for tech.</p>"
+  },
+  %{
+    first_name: "Jessica",
+    last_name: "Rodriguez",
+    email: "jessica.r@example.com",
+    location: "Los Angeles, CA",
+    bio: "<p>Creative designer with an eye for detail.</p>"
+  }
 ]
 
 workers = [
-  %{first_name: "Bob", last_name: "Smith", email: "bob.smith@example.com"},
-  %{first_name: "Charlie", last_name: "Johnson", email: "charlie.j@example.com"},
-  %{first_name: "Diana", last_name: "Brown", email: "diana.brown@example.com"},
-  %{first_name: "Ethan", last_name: "Williams", email: "ethan.w@example.com"},
-  %{first_name: "Fiona", last_name: "Jones", email: "fiona.jones@example.com"},
-  %{first_name: "George", last_name: "Davis", email: "george.d@example.com"},
-  %{first_name: "Hannah", last_name: "Garcia", email: "hannah.g@example.com"},
-  %{first_name: "Ian", last_name: "Martinez", email: "ian.martinez@example.com"},
-  %{first_name: "Kyle", last_name: "Lopez", email: "kyle.lopez@example.com"},
-  %{first_name: "Lily", last_name: "Gonzalez", email: "lily.g@example.com"},
-  %{first_name: "Mason", last_name: "Wilson", email: "mason.w@example.com"},
-  %{first_name: "Nina", last_name: "Anderson", email: "nina.a@example.com"},
-  %{first_name: "Oliver", last_name: "Thomas", email: "oliver.thomas@example.com"},
-  %{first_name: "Paula", last_name: "Taylor", email: "paula.t@example.com"},
-  %{first_name: "Quentin", last_name: "Moore", email: "quentin.moore@example.com"},
-  %{first_name: "Rachel", last_name: "White", email: "rachel.w@example.com"},
-  %{first_name: "Samuel", last_name: "Harris", email: "samuel.h@example.com"},
-  %{first_name: "Tina", last_name: "Clark", email: "tina.clark@example.com"}
+  %{
+    first_name: "Bob",
+    last_name: "Smith",
+    email: "bob.smith@example.com",
+    location: "Chicago, IL",
+    bio: "<p>Skilled developer with 5 years of experience.</p>"
+  },
+  %{
+    first_name: "Charlie",
+    last_name: "Johnson",
+    email: "charlie.j@example.com",
+    location: "Houston, TX",
+    bio: "<p>Full-stack engineer who loves coding.</p>"
+  },
+  %{
+    first_name: "Diana",
+    last_name: "Brown",
+    email: "diana.brown@example.com",
+    location: "Phoenix, AZ",
+    bio: "<p>Passionate project manager with a knack for organization.</p>"
+  },
+  %{
+    first_name: "Ethan",
+    last_name: "Williams",
+    email: "ethan.w@example.com",
+    location: "Philadelphia, PA",
+    bio: "<p>Data analyst with expertise in insights.</p>"
+  },
+  %{
+    first_name: "Fiona",
+    last_name: "Jones",
+    email: "fiona.jones@example.com",
+    location: "San Antonio, TX",
+    bio: "<p>UX/UI designer focused on user experience.</p>"
+  },
+  %{
+    first_name: "George",
+    last_name: "Davis",
+    email: "george.d@example.com",
+    location: "San Diego, CA",
+    bio: "<p>Web developer with a passion for innovation.</p>"
+  },
+  %{
+    first_name: "Hannah",
+    last_name: "Garcia",
+    email: "hannah.g@example.com",
+    location: "Dallas, TX",
+    bio: "<p>Marketing strategist with a creative edge.</p>"
+  },
+  %{
+    first_name: "Ian",
+    last_name: "Martinez",
+    email: "ian.martinez@example.com",
+    location: "San Jose, CA",
+    bio: "<p>Software engineer with a focus on efficiency.</p>"
+  },
+  %{
+    first_name: "Kyle",
+    last_name: "Lopez",
+    email: "kyle.lopez@example.com",
+    location: "Austin, TX",
+    bio: "<p>Cybersecurity expert dedicated to protecting data.</p>"
+  },
+  %{
+    first_name: "Lily",
+    last_name: "Gonzalez",
+    email: "lily.g@example.com",
+    location: "Jacksonville, FL",
+    bio: "<p>Content creator who loves storytelling.</p>"
+  },
+  %{
+    first_name: "Mason",
+    last_name: "Wilson",
+    email: "mason.w@example.com",
+    location: "San Francisco, CA",
+    bio: "<p>Tech enthusiast and software developer.</p>"
+  },
+  %{
+    first_name: "Nina",
+    last_name: "Anderson",
+    email: "nina.a@example.com",
+    location: "Columbus, OH",
+    bio: "<p>Graphic designer with a passion for visuals.</p>"
+  },
+  %{
+    first_name: "Oliver",
+    last_name: "Thomas",
+    email: "oliver.thomas@example.com",
+    location: "Fort Worth, TX",
+    bio: "<p>Entrepreneur with a love for innovation.</p>"
+  },
+  %{
+    first_name: "Paula",
+    last_name: "Taylor",
+    email: "paula.t@example.com",
+    location: "Charlotte, NC",
+    bio: "<p>SEO specialist with a data-driven mindset.</p>"
+  },
+  %{
+    first_name: "Quentin",
+    last_name: "Moore",
+    email: "quentin.moore@example.com",
+    location: "Seattle, WA",
+    bio: "<p>Product manager with a focus on user feedback.</p>"
+  },
+  %{
+    first_name: "Rachel",
+    last_name: "White",
+    email: "rachel.w@example.com",
+    location: "Denver, CO",
+    bio: "<p>Tech consultant with a passion for solutions.</p>"
+  },
+  %{
+    first_name: "Samuel",
+    last_name: "Harris",
+    email: "samuel.h@example.com",
+    location: "Washington, DC",
+    bio: "<p>Database administrator with a focus on security.</p>"
+  },
+  %{
+    first_name: "Tina",
+    last_name: "Clark",
+    email: "tina.clark@example.com",
+    location: "Boston, MA",
+    bio: "<p>Business analyst with a keen analytical mind.</p>"
+  }
 ]
 
 created_workers =
@@ -65,8 +187,9 @@ created_workers =
         email: user.email,
         password: "Pa$$w0rd!",
         role: :worker,
-        # Random rating between 0.00 to 5.00
-        rating: Float.round(:rand.uniform() * 5, 2)
+        rating: Float.round(:rand.uniform() * 5, 2),
+        location: user.location,
+        bio: user.bio
       }
 
       %User{}
@@ -84,7 +207,10 @@ created_clients =
         last_name: user.last_name,
         email: user.email,
         password: "Pa$$w0rd!",
-        role: :client
+        role: :client,
+        rating: Float.round(:rand.uniform() * 5, 2),
+        location: user.location,
+        bio: user.bio
       }
 
       %User{}
@@ -248,19 +374,17 @@ projects = [
 ]
 
 for proj <- projects do
+  client = Enum.random(created_clients)
+  project_status = Project.all_statuses() |> Enum.reject(&(&1 == :completed)) |> Enum.random()
+
   project =
     Repo.insert!(%Project{
       title: proj.title,
       description: proj.description,
-      status: Enum.random(Project.all_statuses()),
+      status: project_status,
       budget: Decimal.new(Enum.random(1000..10000)),
-      client_id: Enum.random(created_clients).id
+      client_id: client.id
     })
-
-  Repo.insert!(%WorkerProject{
-    worker_id: Enum.random(created_workers).id,
-    project_id: project.id
-  })
 
   # Create columns for the project
 
@@ -305,7 +429,7 @@ for proj <- projects do
         title: task_title,
         description: task_description,
         is_completed?: if(find_worker?, do: Enum.random([true, false]), else: false),
-        find_worker?: Enum.random([true, false]),
+        find_worker?: find_worker?,
         budget: Decimal.new(Enum.random(1000..10000)),
         deadline: deadline,
         column_id: column1.id,
@@ -329,7 +453,7 @@ for proj <- projects do
           status: :submitted,
           description: """
             <p>
-              <p>Dear [Hiring Manager],</p>
+              <p>Dear #{full_name(client)},</p>
               <p>
                   I am writing to express my interest in the Frontend Developer position for your E-commerce Website Development project. With a strong background in web development and hands-on experience in building scalable, user-friendly interfaces, I am confident in my ability to contribute to the success of your project.
               </p>
@@ -343,7 +467,7 @@ for proj <- projects do
                   Thank you for considering my application. I look forward to the opportunity to discuss how my skills can align with your team’s needs.
               </p>
               <p>Best regards,<br>
-              <strong>[Your Name]</strong>
+              <strong>#{full_name(worker)}</strong>
               </p>
             </p>
           """,
@@ -365,40 +489,69 @@ for proj <- projects do
 
       if bid.status == :accepted do
         if j == Enum.random(3..5) do
-          Tasks.update_task(task, %{"column_id" => column3.id, "is_completed?" => true})
+          Tasks.update_task(task, %{
+            "column_id" => column3.id,
+            "is_completed?" => true,
+            "worker_id" => bid.worker_id
+          })
         else
-          Tasks.update_task(task, %{"column_id" => column2.id})
+          Tasks.update_task(task, %{"column_id" => column2.id, "worker_id" => bid.worker_id})
         end
 
-        Repo.insert!(%WorkerTask{
-          worker_id: bid.worker_id,
-          task_id: task.id
-        })
+        is_user_already_in_project(Repo.preload(bid, task: :project))
+
+        # Add comments and replies
+        Enum.each(1..3, fn _ ->
+          comment =
+            Repo.insert!(%Comment{
+              message: "This is a comment on task: #{task.title}.",
+              task_id: task.id,
+              user_id: client.id
+            })
+
+          Enum.each(1..3, fn index ->
+            user = if rem(index, 2) == 0, do: client, else: Accounts.get_user!(bid.worker_id)
+
+            Repo.insert!(%Reply{
+              message:
+                "This is a reply to comment: #{comment.id} by #{user.first_name} #{user.last_name}.",
+              comment_id: comment.id,
+              user_id: user.id
+            })
+          end)
+        end)
       end
     end
+  end
 
-    # Add comments and replies
-    Enum.each(1..3, fn _ ->
-      client = Enum.random(created_clients)
+  joiners =
+    project
+    |> Repo.preload(project_workers: :worker)
+    |> get_project_workers()
+    |> Enum.map(& &1.id)
 
-      comment =
-        Repo.insert!(%Comment{
-          message: "This is a comment on task: #{task.title}.",
-          task_id: task.id,
-          user_id: client.id
-        })
+  if length(joiners) >= 2 do
+    channel =
+      Repo.insert!(%Channel{
+        name: "Channel for #{project.title}",
+        joiners: joiners,
+        project_id: project.id,
+        created_by_id: client.id
+      })
 
-      Enum.each(1..3, fn index ->
-        worker = Enum.random(created_workers)
-        user = if rem(index, 2) == 0, do: client, else: worker
+    senders = joiners ++ [client.id]
 
-        Repo.insert!(%Reply{
-          message:
-            "This is a reply to comment: #{comment.id} by #{user.first_name} #{user.last_name}.",
-          comment_id: comment.id,
-          user_id: user.id
-        })
-      end)
-    end)
+    for _ <- 1..Enum.random(3..10) do
+      Repo.insert!(%Message{
+        body: """
+          <p><strong>New message for #{project.title}:</strong></p>
+          <p>
+          #{Enum.random(["Looking forward to working on this project.", "Let’s discuss the project requirements in detail.", "Here are some ideas on how we could proceed.", "Please review the updates and let me know your feedback.", "Is there a specific deadline for this project?", "I'll send the initial draft by the end of the day."])}
+          </p>
+        """,
+        sender_id: Enum.random(senders),
+        channel_id: channel.id
+      })
+    end
   end
 end

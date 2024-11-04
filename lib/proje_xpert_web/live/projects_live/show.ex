@@ -1,9 +1,11 @@
 defmodule ProjeXpertWeb.ProjectsLive.Show do
   use ProjeXpertWeb, :live_view
 
+  alias ProjeXpert.Chats.Channel
   alias ProjeXpert.Tasks
   alias ProjeXpert.Tasks.{Column, Task}
   alias ProjeXpert.Repo
+  alias ProjeXpertWeb.ProjectsLive.Components
 
   def mount(%{"id" => id}, _session, socket) do
     if connected?(socket), do: Phoenix.PubSub.subscribe(ProjeXpert.PubSub, "project:#{id}")
@@ -67,6 +69,14 @@ defmodule ProjeXpertWeb.ProjectsLive.Show do
       page_title: "Task Details",
       task: Tasks.get_task!(task_id),
       column: %Column{}
+    )
+  end
+
+  defp apply_action(socket, :new_channel, _params) do
+    socket
+    |> assign(
+      page_title: "New Channel",
+      channel: %Channel{}
     )
   end
 

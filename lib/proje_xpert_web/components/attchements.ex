@@ -8,9 +8,15 @@ defmodule ProjeXpertWeb.Attchements do
         <div class="font-medium self-center text-xl sm:text-3xl text-gray-900 mb-12">
           Attachment: <%= @title %>
         </div>
-        <div class="max-h-[500px] min-w-[900px] overflow-y-scroll"><iframe src={@source} width="900" height="700"></iframe></div>
+        <div class="max-h-[500px] min-w-[900px] overflow-y-scroll">
+          <iframe src={@source} width="900" height="700"></iframe>
+        </div>
         <div class="flex justify-center mr-3">
-          <.link navigate={@redirect_to} type="button" class="text-gray-900 rounded-lg hover:bg-gray-100 py-2 px-3">
+          <.link
+            navigate={@redirect_to}
+            type="button"
+            class="text-gray-900 rounded-lg hover:bg-gray-100 py-2 px-3"
+          >
             Cancel
           </.link>
         </div>

@@ -3,7 +3,7 @@ defmodule ProjeXpert.Tasks.Task do
   import Ecto.Changeset
 
   alias ProjeXpert.Accounts.User
-  alias ProjeXpert.Tasks.{Bid, Comment, Column, Project, WorkerTask, WorkerProject}
+  alias ProjeXpert.Tasks.{Bid, Comment, Column, Project}
   alias ProjeXpertWeb.LiveHelpers
 
   @default_cast [
@@ -16,6 +16,7 @@ defmodule ProjeXpert.Tasks.Task do
     :budget,
     :deadline,
     :project_id,
+    :worker_id,
     :column_id
   ]
   @default_required [:title, :description, :is_completed?, :budget, :deadline, :project_id]
@@ -34,13 +35,9 @@ defmodule ProjeXpert.Tasks.Task do
 
     belongs_to :project, Project, foreign_key: :project_id
     belongs_to :column, Column, foreign_key: :column_id
+    belongs_to :worker, User, foreign_key: :worker_id
     has_many :bids, Bid
     has_many :comments, Comment, foreign_key: :task_id
-    has_many :worker_tasks, WorkerTask, foreign_key: :task_id
-
-    many_to_many :workers, User,
-      join_through: WorkerProject,
-      join_keys: [worker_id: :id, task_id: :id]
 
     timestamps(type: :utc_datetime)
   end

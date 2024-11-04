@@ -1,0 +1,121 @@
+<!-- component -->
+<section class="container px-4 mx-auto">
+  <div class="flex items-center justify-start">
+    <.live_component
+      id="bread_crumb"
+      module={ProjeXpertWeb.BreadCrumb}
+      path={@current_path}
+      title={@channel.name}
+    />
+  </div>
+
+  <div class="flex flex-col py-4">
+    <div class="min-w-full align-middle">
+      <div class="border border-gray-200 md:rounded-lg">
+        <div class="flex flex-col">
+          <div class="flex-grow space-y-6">
+            <div class="flex-1 overflow-hidden flex">
+              <div class="py-4 w-[calc(100vw-25rem)]">
+                <!-- Messages -->
+                <div
+                  id="chatContainer"
+                  phx-hook="ScrollToBottom"
+                  class="scroller flex flex-col h-[calc(100vh-25rem)] overflow-x-hidden px-6 py-4 space-y-4"
+                >
+                  <div
+                    :for={message <- @messages}
+                    class={
+                      [
+                        "flex items-start gap-x-4",
+                        @current_user.id == message.sender_id && "flex-row-reverse"
+                      ]
+                      |> Enum.join(" ")
+                    }
+                  >
+                    <% sender = get_sender(assigns, message.sender_id) %>
+                    <%= if sender do %>
+                      <.profile_image user={sender} class="w-10 h-10 rounded-full" />
+                      <div class="flex flex-col max-w-[40%]">
+                        <div class="bg-gray-200 rounded-lg p-3">
+                          <%= raw(message.body) %>
+                        </div>
+                        <p
+                          :if={@current_user.id != message.sender_id}
+                          class="text-xs text-gray-500 mt-1"
+                        >
+                          <%= "#{full_name(message.sender)}
+                              - #{relative_time(message.inserted_at)}" %>
+                        </p>
+                        <p
+                          :if={@current_user.id == message.sender_id}
+                          class="text-xs text-gray-500 mt-1"
+                        >
+                          <%= "You - #{relative_time(message.inserted_at)}" %>
+                        </p>
+                      </div>
+                    <% end %>
+                  </div>
+                </div>
+              </div>
+              <!-- Online Users Card (Updated) -->
+              <div class="w-64 bg-white p-4 border-l border-gray-200">
+                <div class="bg-gray-50 rounded-lg p-4 shadow">
+                  <h3 class="text-lg font-semibold mb-2 text-gray-800">Online Users</h3>
+                  <div class="flex items-center mb-4">
+                    <span class="text-2xl font-bold mr-2 text-indigo-600">
+                      <%= length(list_channel_online_user(@channel.joiners)) + 1 %>
+                    </span>
+                    <span class="text-sm text-gray-600">team members active</span>
+                  </div>
+                  <div class="flex flex-wrap -m-1">
+                    <.dot_profile_image
+                      user={@channel.project.client}
+                      class="w-8 h-8 rounded-full m-1"
+                    />
+                    <%= for user <- @joiners do %>
+                      <.dot_profile_image user={user} class="w-8 h-8 rounded-full m-1" />
+                    <% end %>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- Message Input -->
+          <div>
+            <.form :let={f} for={@changeset} phx-change="validate" phx-submit="send">
+              <.input type="hidden" field={f[:channel_id]} value={@channel.id} />
+              <.input type="hidden" field={f[:sender_id]} value={@current_user.id} />
+              <div class="relative">
+                <.text_editor
+                  field={f[:body]}
+                  id="message-body"
+                  class="border-0"
+                  with_error={false}
+                />
+                <div class="absolute right-[13px] top-[13px]">
+                  <.button type="submit" class="flex items-center justify-center w-14 h-10 group">
+                    <svg
+                      class="w-5 h-5 rotate-90"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"
+                      >
+                      </path>
+                    </svg>
+                  </.button>
+                </div>
+              </div>
+            </.form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

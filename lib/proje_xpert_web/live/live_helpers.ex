@@ -1,10 +1,13 @@
 defmodule ProjeXpertWeb.LiveHelpers do
+  alias ProjeXpert.Chats
+  alias ProjeXpert.Chats.Channel
   alias ProjeXpert.Tasks.Task
   alias Phoenix.LiveView
   alias ProjeXpert.Repo
   alias ProjeXpert.Tasks
   alias ProjeXpert.Tasks.Project
   alias ProjeXpert.Tasks.Bid
+  alias ProjeXpertWeb.UserPresence, as: Presence
 
   def is_worker?(user), do: user.role == :worker
 
@@ -21,28 +24,21 @@ defmodule ProjeXpertWeb.LiveHelpers do
   end
 
   def get_tasks_by_current_user(%{id: id, role: :worker}, tasks),
-    do: Enum.filter(tasks, &Enum.any?(&1.worker_tasks, fn wt -> wt.worker_id == id end))
+    do: Enum.filter(tasks, &(&1.worker_id == id))
 
   def get_tasks_by_current_user(_, tasks), do: tasks
 
   def get_worker_ids_of_a_project(project) do
     project.tasks
-    |> Enum.flat_map(fn task ->
-      task.worker_tasks
-      |> Enum.filter(fn wt -> wt.worker_id end)
-      |> Enum.map(& &1.worker_id)
-    end)
+    |> Enum.flat_map(& &1.worker_id)
     |> Enum.uniq()
   end
 
   def get_worker_names_of_a_project(project) do
     project.tasks
-    |> Enum.flat_map(fn task ->
-      task.worker_tasks
-      |> Enum.filter(fn wt -> wt.worker_id end)
-      |> Enum.map(&full_name(Repo.preload(&1, :worker).worker))
-    end)
-    |> Enum.uniq()
+    |> Enum.filter(&(!is_nil(&1.worker)))
+    |> Enum.uniq_by(& &1.worker_id)
+    |> Enum.map(&full_name(&1.worker))
   end
 
   def format_datetime(%NaiveDateTime{} = dt), do: stringify_date(dt) <> " " <> stringify_time(dt)
@@ -101,26 +97,26 @@ defmodule ProjeXpertWeb.LiveHelpers do
     end
   end
 
-  def get_color_by_status(status) when status in [:submitted], do: "text-blue-500 bg-blue-100/80"
+  def get_color_by_status(status) when status in [:submitted], do: "text-primary bg-primary/15"
 
   def get_color_by_status(status) when status in [:in_progress, :under_review],
-    do: "text-yellow-500 bg-yellow-100/80"
+    do: "text-warning bg-warning/20"
 
   def get_color_by_status(status) when status in [:completed, :accepted],
-    do: "text-green-500 bg-green-100/80"
+    do: "text-success bg-success/15"
 
   def get_color_by_status(status) when status in [:on_hold, :pending, :rejected, :withdrawn],
-    do: "text-red-500 bg-red-100/80"
+    do: "text-danger bg-danger/15"
 
   def get_tailwind_width_class(project) do
     percentage = get_task_percentage(project)
 
     cond do
-      percentage <= 24 -> "w-1 bg-red-500"
-      percentage >= 25 and percentage <= 50 -> "w-1/4 bg-yellow-500"
-      percentage >= 51 and percentage <= 75 -> "w-1/2 bg-blue-500"
-      percentage >= 76 and percentage <= 99 -> "w-3/4 bg-green-500"
-      true -> "w-full bg-green-500"
+      percentage <= 24 -> "w-1 bg-danger"
+      percentage >= 25 and percentage <= 50 -> "w-1/4 bg-warning"
+      percentage >= 51 and percentage <= 75 -> "w-1/2 bg-primary"
+      percentage >= 76 and percentage <= 99 -> "w-3/4 bg-success"
+      true -> "w-full bg-success"
     end
   end
 
@@ -167,8 +163,8 @@ defmodule ProjeXpertWeb.LiveHelpers do
     "#{entry.uuid}.#{ext}"
   end
 
-  def upload_files(socket) do
-    LiveView.consume_uploaded_entries(socket, :cv, fn %{path: path}, _entry ->
+  def upload_files(socket, key) do
+    LiveView.consume_uploaded_entries(socket, key, fn %{path: path}, _entry ->
       case Cloudex.upload(path) do
         {:ok, %Cloudex.UploadedImage{secure_url: secure_url}} ->
           {:ok, secure_url}
@@ -183,7 +179,7 @@ defmodule ProjeXpertWeb.LiveHelpers do
     total_progress = Enum.reduce(entries, 0, fn entry, acc -> acc + entry.progress end)
     count = length(entries)
 
-    if count > 0, do: total_progress / count * 100, else: 0.00
+    if count > 0, do: total_progress / count, else: 0.00
   end
 
   def get_user_bid(user, bids) do
@@ -192,6 +188,50 @@ defmodule ProjeXpertWeb.LiveHelpers do
 
   def user_already_bidded?(user, bids) do
     Enum.any?(bids, &(&1.worker_id == user.id))
+  end
+
+  def is_user_already_in_project(bid) do
+    case Tasks.get_worker_project_by_worker_id(bid) do
+      nil ->
+        Tasks.create_worker_project(build_worker_project_params(bid))
+
+      _ ->
+        {:ok, "already in project"}
+    end
+  end
+
+  def build_worker_project_params(bid),
+    do: %{"project_id" => bid.task.project.id, "worker_id" => bid.worker_id}
+
+  def get_selected_values(map) when is_map(map) do
+    map
+    |> Enum.filter(fn {_key, value} -> value != "" and value == "true" end)
+    |> Enum.map(fn {key, _value} -> key end)
+  end
+
+  def get_selected_values(nil), do: []
+
+  def is_user_online?(target_user) do
+    Presence.list("user_presence:lobby")
+    |> Enum.any?(fn {_key, %{metas: metas}} ->
+      Enum.any?(metas, fn %{user: %{id: user_id}} -> user_id == target_user.id end)
+    end)
+  end
+
+  def list_channel_online_user(target_users) do
+    Presence.list("user_presence:lobby")
+    |> Enum.flat_map(fn {_key, %{metas: metas}} ->
+      Enum.filter(metas, fn %{user: %{id: user_id}} -> user_id in target_users end)
+    end)
+    |> Enum.map(& &1.user)
+  end
+
+  def exts_for_profile, do: ~w(.jpg .jpeg .png .gif .bmp .tiff .webp)
+  def exts_for_cover_letter, do: ~w(.pdf .doc .docx .odt .rtf .txt)
+
+  def get_project_workers(project) do
+    project.project_workers
+    |> Enum.map(&%{id: &1.worker.id, label: full_name(&1.worker)})
   end
 
   defp get_budget(task, project) do
@@ -206,14 +246,21 @@ defmodule ProjeXpertWeb.LiveHelpers do
     project_budget <= task + total_task_budget
   end
 
+  def get_preload(context, preload_schames) do
+    Repo.preload(context, preload_schames)
+  end
+
   defp get_function_by_resource(Project, :client), do: &Tasks.list_client_projects/2
-  defp get_function_by_resource(Project, :worker), do: &Tasks.list_worker_projects/2
+  defp get_function_by_resource(Project, :worker), do: &Tasks.list_project_workers/2
 
   defp get_function_by_resource(Bid, :client), do: &Tasks.list_client_bids/2
   defp get_function_by_resource(Bid, :worker), do: &Tasks.list_worker_bids/2
 
   defp get_function_by_resource(Task, :client), do: &Tasks.list_tasks_for_client/2
   defp get_function_by_resource(Task, :worker), do: &Tasks.list_tasks_for_worker/2
+
+  defp get_function_by_resource(Channel, :client), do: &Chats.list_channels_for_client/2
+  defp get_function_by_resource(Channel, :worker), do: &Chats.list_channels_for_worker/2
 
   defp get_resources_by_tab(resources, %{"tab" => tab}) when is_binary(tab) do
     Enum.filter(resources, &(&1.status == String.to_atom(tab)))

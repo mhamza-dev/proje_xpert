@@ -18,7 +18,10 @@ module.exports = {
       },
       colors: {
         primary: "#1D4ED8",
-        brand: "#0142D3",
+        secondary: "#0248d7",
+        success: "#21c55e",
+        warning: "#eab30a",
+        danger: "#ef4444",
       },
     },
   },

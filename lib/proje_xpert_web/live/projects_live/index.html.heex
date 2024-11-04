@@ -143,6 +143,9 @@
               <li
                 :if={project.status != :completed}
                 class="flex items-center space-x-2 px-4 py-2 text-[1rem] text-gray-600 hover:bg-gray-100 cursor-pointer group"
+                phx-click="update_project_status"
+                phx-value-id={project.id}
+                phx-value-status="completed"
               >
                 <svg
                   class="w-6 h-6 group-hover:text-green-500"
@@ -282,7 +285,7 @@
     on_cancel={JS.navigate(~p"/projects")}
   >
     <.live_component
-      module={ProjeXpertWeb.ProjectsLive.Component}
+      module={ProjeXpertWeb.ProjectsLive.Components.Project}
       id={@project.id || :new}
       title={@page_title}
       action={@live_action}

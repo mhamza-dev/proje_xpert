@@ -60,6 +60,10 @@ defmodule ProjeXpert.Accounts do
   """
   def get_user!(id), do: Repo.get!(User, id)
 
+  def list_users_by_ids(ids) do
+    from(u in User, where: u.id in ^ids) |> Repo.all()
+  end
+
   ## User registration
 
   @doc """
@@ -219,6 +223,23 @@ defmodule ProjeXpert.Accounts do
       {:ok, %{user: user}} -> {:ok, user}
       {:error, :user, changeset, _} -> {:error, changeset}
     end
+  end
+
+  @doc """
+  Returns an `%Ecto.Changeset{}` for changing the user profile.
+
+  ## Examples
+
+      iex> change_user_password(user)
+      %Ecto.Changeset{data: %User{}}
+
+  """
+  def change_user_profile(user, attrs \\ %{}) do
+    User.profile_changeset(user, attrs)
+  end
+
+  def update_user_profile(user, attrs) do
+    User.profile_changeset(user, attrs) |> Repo.update()
   end
 
   ## Session

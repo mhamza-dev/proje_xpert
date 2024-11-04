@@ -115,10 +115,10 @@ defmodule ProjeXpertWeb.CoreComponents do
     <div
       :if={msg = render_slot(@inner_block) || Phoenix.Flash.get(@flash, @kind)}
       id={@id}
-      phx-click={JS.push("lv:clear-flash", value: %{key: @kind}) |> hide("##{@id}")}
+      phx-click={JS.push("lv:clear-flash", value: %{key: @kind}) |> hide_flash("##{@id}")}
       role="alert"
       class={[
-        "flash fixed top-2 right-2 mr-2 w-80 sm:w-96 z-50 rounded-lg p-3 ring-1",
+        "flash fixed top-2 right-2 mr-2 w-80 sm:w-96 z-50 rounded-lg p-3 ring-1 animate-fade-in-right",
         @kind == :info && "bg-emerald-50 text-emerald-800 ring-emerald-500 fill-cyan-900",
         @kind == :error && "bg-rose-50 text-rose-900 shadow-md ring-rose-500 fill-rose-900"
       ]}
@@ -235,7 +235,7 @@ defmodule ProjeXpertWeb.CoreComponents do
     <button
       type={@type}
       class={[
-        "phx-submit-loading:opacity-75 bg-primary/80 rounded-lg hover:bg-primary py-2 px-3",
+        "phx-submit-loading:opacity-75 bg-primary rounded-lg py-2 px-3",
         "text-sm font-semibold leading-6 text-white active:text-white/80",
         @class
       ]}
@@ -294,6 +294,7 @@ defmodule ProjeXpertWeb.CoreComponents do
   attr(:options, :list, doc: "the options to pass to Phoenix.HTML.Form.options_for_select/2")
   attr(:multiple, :boolean, default: false, doc: "the multiple flag for select inputs")
   attr(:div_class, :string, default: nil)
+  attr(:with_error, :boolean, default: true)
 
   attr(:rest, :global,
     include: ~w(accept autocomplete capture cols disabled form list max maxlength min minlength
@@ -375,6 +376,29 @@ defmodule ProjeXpertWeb.CoreComponents do
         {@rest}
       ><%= Phoenix.HTML.Form.normalize_value("textarea", @value) %></textarea>
       <.error :for={msg <- @errors}><%= msg %></.error>
+    </div>
+    """
+  end
+
+  # All other inputs text, datetime-local, url, password, etc. are handled here...
+  def input(%{type: "hidden"} = assigns) do
+    ~H"""
+    <div class={@div_class}>
+      <.label for={@id}><%= @label %></.label>
+      <input
+        type="hidden"
+        name={@name}
+        id={@id}
+        value={Phoenix.HTML.Form.normalize_value(@type, @value)}
+        class={[
+          "mt-2 block rounded-lg text-zinc-900 sm:text-sm sm:leading-6 focus:border-blue-400 focus:ring-blue-300 focus:outline-none focus:ring focus:ring-opacity-40",
+          @class,
+          @errors == [] && "border-zinc-300 focus:border-zinc-400",
+          @errors != [] && "border-rose-400 focus:border-rose-400"
+        ]}
+        {@rest}
+      />
+      <.error :for={msg <- @errors} :if={@with_error}><%= msg %></.error>
     </div>
     """
   end
@@ -648,12 +672,13 @@ defmodule ProjeXpertWeb.CoreComponents do
   attr(:label, :string, default: nil)
   attr(:class, :string, default: nil)
   attr(:disabled, :boolean, default: false)
+  attr(:with_error, :boolean, default: true)
 
   def text_editor(assigns) do
     ~H"""
     <div class={@class}>
-      <.label for={@id}><%= @label %></.label>
-      <.input field={@field} id={@id} type="hidden" phx-hook="TrixEditor" />
+      <.label :if={@label} for={@id}><%= @label %></.label>
+      <.input field={@field} id={@id} type="hidden" phx-hook="TrixEditor" with_error={@with_error} />
       <div
         id="trix-editor-container"
         phx-hook="disableEditor"
@@ -778,6 +803,213 @@ defmodule ProjeXpertWeb.CoreComponents do
     """
   end
 
+  attr :upload_field, :any, required: true
+  attr :label, :string, required: true
+  attr :class, :string, default: "mb-6"
+
+  def upload_attachments(assigns) do
+    ~H"""
+    <div class={@class}>
+      <.live_file_input class="hidden" upload={@upload_field} />
+      <div class="p-8 rounded-lg shadow-md w-full">
+        <h2 class="text-2xl font-semibold mb-4"><%= @label %></h2>
+        <div class="flex items-center space-x-4 mb-4">
+          <p
+            type="file"
+            id="fileInput"
+            class="flex items-center justify-center w-32 py-2 px-4 rounded-full border-0 text-sm font-semibold cursor-pointer bg-blue-50 text-blue-700 hover:bg-blue-100"
+            phx-drop-target={@upload_field.ref}
+            onclick={"document.getElementById('#{@upload_field.ref}').click()"}
+          >
+            Choose File
+          </p>
+          <p class="text-gray-400">
+            Add <%= @upload_field.accept %> up to <%= @upload_field.max_entries %> (max <%= trunc(
+              @upload_field.max_file_size / 1_000_000
+            ) %> MB)
+          </p>
+        </div>
+        <div :if={!Enum.empty?(@upload_field.entries)}>
+          <div id="totalProgressContainer" class="mb-4">
+            <div class="flex justify-between items-center mb-1">
+              <span class="text-sm font-medium text-gray-700">Total Progress</span>
+              <span class="text-sm font-medium text-gray-700" id="totalProgressText">
+                <%= average_progress_percentage(@upload_field.entries) %>%
+              </span>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-2.5">
+              <div
+                class="bg-green-600 h-2.5 rounded-full"
+                style={"width: #{average_progress_percentage(@upload_field.entries)}%"}
+                id="totalProgressBar"
+              >
+              </div>
+            </div>
+          </div>
+          <ul
+            :for={entry <- @upload_field.entries}
+            :if={entry.client_type in exts_for_cover_letter()}
+            id="fileList"
+            class="space-y-4"
+          >
+            <li class="bg-gray-50 p-4 rounded">
+              <div class="flex justify-between items-center mb-1">
+                <span class="text-sm font-medium text-gray-900">
+                  <svg
+                    class="w-12 h-12 text-blue-600"
+                    aria-hidden="true"
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke="currentColor"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="1.5"
+                      d="M5 17v-5h1.5a1.5 1.5 0 1 1 0 3H5m12 2v-5h2m-2 3h2M5 10V7.914a1 1 0 0 1 .293-.707l3.914-3.914A1 1 0 0 1 9.914 3H18a1 1 0 0 1 1 1v6M5 19v1a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-1M10 3v4a1 1 0 0 1-1 1H5m6 4v5h1.375A1.627 1.627 0 0 0 14 15.375v-1.75A1.627 1.627 0 0 0 12.375 12H11Z"
+                    />
+                  </svg>
+                </span>
+                <div class="flex items-center space-x-3">
+                  <span class="text-xs text-gray-500" id={"progress-#{entry.ref}"}>
+                    <%= entry.progress %>%
+                  </span>
+                  <svg
+                    phx-click="cancel_cv"
+                    phx-value-ref={entry.ref}
+                    class="w-6 h-6 text-danger"
+                    aria-hidden="true"
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke="currentColor"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="1.5"
+                      d="m15 9-6 6m0-6 6 6m6-3a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+                    />
+                  </svg>
+                </div>
+              </div>
+              <div class="w-full bg-gray-200 rounded-full h-2">
+                <div
+                  class="bg-blue-600 h-2 rounded-full"
+                  style={"width: #{entry.progress}%"}
+                  id={"progress-bar-#{entry.ref}"}
+                >
+                </div>
+              </div>
+              <.error :for={error <- upload_errors(@upload_field, entry)}>
+                <%= error %>
+              </.error>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    """
+  end
+
+  attr :options, :list, required: true
+  attr :selected, :list, required: true
+  attr :label, :string, default: "Select options"
+  attr :field, :any, required: true
+
+  def multi_select(assigns) do
+    ~H"""
+    <div class="mt-2" x-data="{ open: false }">
+      <div class="relative">
+        <button
+          type="button"
+          @click="open = !open"
+          class="w-full px-4 py-2 text-left bg-white border border-gray-300 rounded-lg text-zinc-900 sm:text-sm sm:leading-6 focus:border-blue-400 focus:ring-blue-300 focus:outline-none focus:ring focus:ring-opacity-40"
+        >
+          <%= if Enum.empty?(@selected) do %>
+            <%= @label %>
+          <% else %>
+            <%= Enum.count(@selected) %> option(s) selected
+          <% end %>
+          <span class="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
+            <svg
+              class="w-5 h-5 text-gray-400"
+              x-bind:class="{'transform rotate-180': open}"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+              aria-hidden="true"
+            >
+              <path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" />
+            </svg>
+          </span>
+        </button>
+
+        <div
+          x-show="open"
+          @click.away="open = false"
+          class="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg"
+        >
+          <div class="py-1">
+            <%= for option <- @options do %>
+              <label class="flex items-center px-4 py-2 hover:bg-gray-100">
+                <.input
+                  type="checkbox"
+                  name={"#{@field.name}[#{option.id}]"}
+                  checked={Integer.to_string(option.id) in @selected}
+                  label={option.label}
+                />
+              </label>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    </div>
+    """
+  end
+
+  attr :user, :any, required: true
+  attr :class, :string, default: "h-10 w-10 rounded-full"
+
+  def dot_profile_image(assigns) do
+    ~H"""
+    <div class="relative">
+      <.profile_image user={@user} class={@class} />
+      <span class={
+        [
+          "absolute bottom-0 right-[-0.25rem] w-3 h-3 border-2 border-white rounded-full",
+          is_user_online?(@user) && "bg-primary animate-pulse-slow",
+          !is_user_online?(@user) && "bg-gray-300"
+        ]
+        |> Enum.join(" ")
+      }>
+      </span>
+    </div>
+    """
+  end
+
+  attr :user, :any, required: true
+  attr :class, :string, default: "h-10 w-10 rounded-full"
+
+  def profile_image(assigns) do
+    ~H"""
+    <img
+      class={@class}
+      src={
+        if @user.profile_image,
+          do: @user.profile_image,
+          else:
+            "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
+      }
+      alt=""
+    />
+    """
+  end
+
   ## JS Commands
 
   def show(js \\ %JS{}, selector) do
@@ -789,6 +1021,18 @@ defmodule ProjeXpertWeb.CoreComponents do
          "opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95",
          "opacity-100 translate-y-0 sm:scale-100"}
     )
+  end
+
+  def hide_flash(js \\ %JS{}, selector) do
+    JS.hide(js,
+      to: selector,
+      time: 200,
+      transition:
+        {"transition-all transform ease-in duration-200",
+         "opacity-100 translate-y-0 sm:scale-100",
+         "opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"}
+    )
+    |> JS.add_class("animate-fade-out-left", to: selector)
   end
 
   def hide(js \\ %JS{}, selector) do

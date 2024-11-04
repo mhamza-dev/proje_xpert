@@ -12,6 +12,9 @@ defmodule ProjeXpert.Repo.Migrations.CreateUsersAuthTables do
       add :role, :string, null: false
       add :confirmed_at, :utc_datetime
       add :rating, :float, default: 0.00
+      add :profile_image, :text
+      add :location, :string
+      add :bio, :text
 
       timestamps(type: :utc_datetime)
     end

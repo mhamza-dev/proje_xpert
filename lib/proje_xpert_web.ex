@@ -66,6 +66,18 @@ defmodule ProjeXpertWeb do
     end
   end
 
+  def view do
+    quote do
+      use Phoenix.View,
+        root: "lib/proje_xpert_web",
+        namespace: PurrWeb
+
+      use Phoenix.Component
+
+      unquote(html_helpers())
+    end
+  end
+
   def html do
     quote do
       use Phoenix.Component

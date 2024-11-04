@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta name="viewport" content="width=device-width" />
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <title><%= assigns[:title] %></title>
+    <style>
+      @-moz-document url-prefix() {
+        .firefox-url {
+          font-size: 14px !important;
+        }
+      }
+    </style>
+  </head>
+
+  <body style="font-family: Arial, sans-serif; line-height: 1.6; margin: 0; padding: 0; background-color: #f4f4f4;">
+    <table
+      width="100%"
+      cellpadding="0"
+      cellspacing="0"
+      style="min-width: 100%; background-color: #f4f4f4;"
+    >
+      <tr>
+        <td style="padding: 20px 0;">
+          <table
+            width="100%"
+            cellpadding="0"
+            cellspacing="0"
+            style="max-width: 600px; margin: 0 auto; background-color: #f8f8f8; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);"
+          >
+            <tr>
+              <td style="display: flex; background-color: #FFFFFF; padding: 20px; align-items: start; gap: 10px; justify-content: start;">
+                <img
+                  src={"#{System.get_env("PHX_HOST")}/images/logo_3_croped.png"}
+                  alt="ProjeXpert Logo"
+                  style="max-width: 4rem; height: 4rem;"
+                />
+                <span style="color: #0248D7;font-size: 40px;font-weight: bold;">ProjeXpert</span>
+              </td>
+            </tr>
+            <tr>
+              <%= @inner_content %>
+            </tr>
+            <tr>
+              <td style="background-color: #f8f8f8; padding: 20px 30px; border-top: 1px solid #eeeeee;">
+                <p style="color: #999999; font-size: 14px; margin: 0; text-align: center;">
+                  © 2023 ProjeXpert. All rights reserved.
+                </p>
+                <p style="color: #999999; font-size: 14px; margin: 10px 0 0; text-align: center;">
+                  You received this email because you signed up for a ProjeXpert account.
+                </p>
+                <p style="color: #999999; font-size: 14px; margin: 10px 0 0; text-align: center;">
+                  ProjeXpert, Inc. • 123 Main St, Anytown, AN 12345
+                </p>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>

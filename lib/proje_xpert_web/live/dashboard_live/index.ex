@@ -44,13 +44,12 @@ defmodule ProjeXpertWeb.DashboardLive.Index do
     |> Enum.count()
   end
 
-  defp hired_workers(projects),
-    do:
-      projects
-      |> Enum.flat_map(& &1.tasks)
-      |> Enum.flat_map(& &1.worker_tasks)
-      |> Enum.uniq_by(& &1.id)
-      |> Enum.count()
+  defp hired_workers(projects) do
+    projects
+    |> Enum.flat_map(& &1.tasks)
+    |> Enum.uniq_by(& &1.worker_id)
+    |> Enum.count()
+  end
 
   defp hired_workers_this_month(projects) do
     start_of_month = start_of_month()
@@ -58,8 +57,7 @@ defmodule ProjeXpertWeb.DashboardLive.Index do
     projects
     |> Enum.filter(&(DateTime.compare(&1.inserted_at, start_of_month) != :lt))
     |> Enum.flat_map(& &1.tasks)
-    |> Enum.flat_map(& &1.worker_tasks)
-    |> Enum.uniq_by(& &1.id)
+    |> Enum.uniq_by(& &1.worker_id)
     |> Enum.count()
   end
 
