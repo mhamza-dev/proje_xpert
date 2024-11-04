@@ -10,13 +10,13 @@ defmodule ProjeXpert.Tasks.Task do
     :title,
     :description,
     :is_completed?,
-    :find_worker?,
+    :find_freelancer?,
     :attachments,
     :tags,
     :budget,
     :deadline,
     :project_id,
-    :worker_id,
+    :freelancer_id,
     :column_id
   ]
   @default_required [:title, :description, :is_completed?, :budget, :deadline, :project_id]
@@ -25,7 +25,7 @@ defmodule ProjeXpert.Tasks.Task do
   schema "tasks" do
     field :description, :string
     field :title, :string
-    field :find_worker?, :boolean, default: false
+    field :find_freelancer?, :boolean, default: false
     field :deadline, :date
     field :budget, :decimal
     field :attachments, {:array, :string}, default: []
@@ -35,7 +35,7 @@ defmodule ProjeXpert.Tasks.Task do
 
     belongs_to :project, Project, foreign_key: :project_id
     belongs_to :column, Column, foreign_key: :column_id
-    belongs_to :worker, User, foreign_key: :worker_id
+    belongs_to :freelancer, User, foreign_key: :freelancer_id
     has_many :bids, Bid
     has_many :comments, Comment, foreign_key: :task_id
 

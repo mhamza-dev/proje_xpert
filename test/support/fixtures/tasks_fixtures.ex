@@ -99,15 +99,15 @@ defmodule ProjeXpert.TasksFixtures do
   end
 
   @doc """
-  Generate a worker_project.
+  Generate a freelancer_project.
   """
-  def worker_project_fixture(attrs \\ %{}) do
-    {:ok, worker_project} =
+  def freelancer_project_fixture(attrs \\ %{}) do
+    {:ok, freelancer_project} =
       attrs
       |> Enum.into(%{})
-      |> ProjeXpert.Tasks.create_worker_project()
+      |> ProjeXpert.Tasks.create_freelancer_project()
 
-    worker_project
+    freelancer_project
   end
 
   @doc """

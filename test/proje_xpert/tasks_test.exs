@@ -380,59 +380,63 @@ defmodule ProjeXpert.TasksTest do
     end
   end
 
-  describe "project_workers" do
-    alias ProjeXpert.Tasks.ProjectWorker
+  describe "project_freelancers" do
+    alias ProjeXpert.Tasks.Projectfreelancer
 
     import ProjeXpert.TasksFixtures
 
     @invalid_attrs %{}
 
-    test "list_project_workers/0 returns all project_workers" do
-      worker_project = worker_project_fixture()
-      assert Tasks.list_project_workers() == [worker_project]
+    test "list_project_freelancers/0 returns all project_freelancers" do
+      freelancer_project = freelancer_project_fixture()
+      assert Tasks.list_project_freelancers() == [freelancer_project]
     end
 
-    test "get_worker_project!/1 returns the worker_project with given id" do
-      worker_project = worker_project_fixture()
-      assert Tasks.get_worker_project!(worker_project.id) == worker_project
+    test "get_freelancer_project!/1 returns the freelancer_project with given id" do
+      freelancer_project = freelancer_project_fixture()
+      assert Tasks.get_freelancer_project!(freelancer_project.id) == freelancer_project
     end
 
-    test "create_worker_project/1 with valid data creates a worker_project" do
+    test "create_freelancer_project/1 with valid data creates a freelancer_project" do
       valid_attrs = %{}
 
-      assert {:ok, %ProjectWorker{} = worker_project} = Tasks.create_worker_project(valid_attrs)
+      assert {:ok, %Projectfreelancer{} = freelancer_project} =
+               Tasks.create_freelancer_project(valid_attrs)
     end
 
-    test "create_worker_project/1 with invalid data returns error changeset" do
-      assert {:error, %Ecto.Changeset{}} = Tasks.create_worker_project(@invalid_attrs)
+    test "create_freelancer_project/1 with invalid data returns error changeset" do
+      assert {:error, %Ecto.Changeset{}} = Tasks.create_freelancer_project(@invalid_attrs)
     end
 
-    test "update_worker_project/2 with valid data updates the worker_project" do
-      worker_project = worker_project_fixture()
+    test "update_freelancer_project/2 with valid data updates the freelancer_project" do
+      freelancer_project = freelancer_project_fixture()
       update_attrs = %{}
 
-      assert {:ok, %ProjectWorker{} = worker_project} =
-               Tasks.update_worker_project(worker_project, update_attrs)
+      assert {:ok, %Projectfreelancer{} = freelancer_project} =
+               Tasks.update_freelancer_project(freelancer_project, update_attrs)
     end
 
-    test "update_worker_project/2 with invalid data returns error changeset" do
-      worker_project = worker_project_fixture()
+    test "update_freelancer_project/2 with invalid data returns error changeset" do
+      freelancer_project = freelancer_project_fixture()
 
       assert {:error, %Ecto.Changeset{}} =
-               Tasks.update_worker_project(worker_project, @invalid_attrs)
+               Tasks.update_freelancer_project(freelancer_project, @invalid_attrs)
 
-      assert worker_project == Tasks.get_worker_project!(worker_project.id)
+      assert freelancer_project == Tasks.get_freelancer_project!(freelancer_project.id)
     end
 
-    test "delete_worker_project/1 deletes the worker_project" do
-      worker_project = worker_project_fixture()
-      assert {:ok, %ProjectWorker{}} = Tasks.delete_worker_project(worker_project)
-      assert_raise Ecto.NoResultsError, fn -> Tasks.get_worker_project!(worker_project.id) end
+    test "delete_freelancer_project/1 deletes the freelancer_project" do
+      freelancer_project = freelancer_project_fixture()
+      assert {:ok, %Projectfreelancer{}} = Tasks.delete_freelancer_project(freelancer_project)
+
+      assert_raise Ecto.NoResultsError, fn ->
+        Tasks.get_freelancer_project!(freelancer_project.id)
+      end
     end
 
-    test "change_worker_project/1 returns a worker_project changeset" do
-      worker_project = worker_project_fixture()
-      assert %Ecto.Changeset{} = Tasks.change_worker_project(worker_project)
+    test "change_freelancer_project/1 returns a freelancer_project changeset" do
+      freelancer_project = freelancer_project_fixture()
+      assert %Ecto.Changeset{} = Tasks.change_freelancer_project(freelancer_project)
     end
   end
 

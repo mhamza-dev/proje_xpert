@@ -56,7 +56,7 @@ defmodule ProjeXpertWeb.Router do
       scope "/register" do
         live "/admins", UserRegistrationLive, :admin
         live "/client", UserRegistrationLive, :client
-        live "/worker", UserRegistrationLive, :worker
+        live "/freelancer", UserRegistrationLive, :freelancer
       end
 
       live "/log_in", UserLoginLive, :new

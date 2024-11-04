@@ -1,22 +1,27 @@
 <!-- component -->
-<section class="container px-4 mx-auto">
+<div>
   <div class="flex items-center justify-between mb-4">
     <.live_component id="bread_crumb" module={ProjeXpertWeb.BreadCrumb} path={@current_path} />
     <.link :if={is_client?(@current_user)} patch={~p"/projects/new"}>
-      <button class="flex items-center justify-center w-1/2 px-5 py-2 text-sm tracking-wide text-white transition-colors duration-200 bg-primary rounded-lg shrink-0 sm:w-auto gap-x-2 hover:bg-blue-600">
+      <.button class="w-full px-5 py-2 text-sm tracking-wide space-x-2">
         <.icon name="hero-plus-circle" class="w-4 h-4" />
         <span>Add Project</span>
-      </button>
+      </.button>
     </.link>
   </div>
 
-  <div class="mt-6 md:flex md:items-center md:justify-between">
+  <div class="my-6 md:flex md:items-center md:justify-between">
     <div class="flex space-x-2 mb-4 sm:mb-0">
+      <% dbg(@current_tab) %>
       <.link navigate={~p"/projects"}>
-        <button class={[
-          "px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-primary/90 hover:text-white transition-colors",
-          @current_tab == nil && "bg-primary text-white"
-        ]}>
+        <button class={
+          [
+            "px-4 py-2 text-sm font-medium rounded-md hover:bg-blue-600 hover:text-white transition-colors",
+            @current_tab == nil && "bg-blue-600 text-white",
+            @current_tab != nil && "text-gray-700 bg-gray-100"
+          ]
+          |> combine_classes()
+        }>
           View all
         </button>
       </.link>
@@ -24,10 +29,14 @@
         :for={status <- Project.all_statuses()}
         navigate={~p"/projects?tab=#{Atom.to_string(status)}"}
       >
-        <button class={[
-          "px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-primary/90 hover:text-white transition-colors",
-          @current_tab == Atom.to_string(status) && "bg-primary text-white"
-        ]}>
+        <button class={
+          [
+            "px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-blue-600 hover:text-white transition-colors",
+            @current_tab == Atom.to_string(status) && "bg-blue-600 text-white",
+            @current_tab != Atom.to_string(status) && "text-gray-700 bg-gray-100"
+          ]
+          |> combine_classes()
+        }>
           <%= camel_case_string(status) %>
         </button>
       </.link>
@@ -82,38 +91,46 @@
             <%= length(get_tasks_by_current_user(@current_user, project.tasks)) %>
           </p>
         </td>
-        <td class="p-3 text-sm">
+        <td :if={is_freelancer?(@current_user)} class="p-3 text-sm">
+          <p class="text-gray-500 ml-6">
+            <%= full_name(project.client) %>
+          </p>
+        </td>
+        <td :if={is_client?(@current_user)} class="p-3 text-sm">
           <div class="flex items-center">
-            <% bids = get_worker_names_of_a_project(project) %>
+            <% bids = get_freelancers_of_a_project(project) %>
             <div :if={!Enum.empty?(bids)}>
-              <.tooltip :if={Enum.count(bids) > 2} data={Enum.join(bids, ", ")}>
+              <.tooltip
+                :if={Enum.count(bids) > 2}
+                data={bids |> Enum.map(&full_name(&1)) |> Enum.join(", ")}
+              >
                 <:inner_button>
                   <% [hd | tl] = Enum.chunk_every(bids, 2) %>
                   <div class="flex items-center">
-                    <img
-                      :for={_item <- hd}
-                      class="object-cover w-6 h-6 -mx-1 border-2 border-white rounded-full shrink-0"
-                      src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=256&q=80"
-                      alt=""
-                    />
+                    <%= for user <- hd do %>
+                      <.profile_image
+                        user={user}
+                        class="object-cover w-6 h-6 -mx-1 border-2 border-white rounded-full shrink-0"
+                      />
+                    <% end %>
                     <p class="flex items-center justify-center w-6 h-6 -mx-1 text-xs text-blue-600 bg-blue-100 border-2 border-white rounded-full">
                       +<%= length(List.flatten(tl)) %>
                     </p>
                   </div>
                 </:inner_button>
               </.tooltip>
-              <.tooltip :if={Enum.count(bids) <= 2} data={Enum.join(bids, ", ")}>
+              <.tooltip
+                :if={Enum.count(bids) <= 2}
+                data={bids |> Enum.map(&full_name(&1)) |> Enum.join(", ")}
+              >
                 <:inner_button>
                   <div class="flex items-center">
-                    <img
-                      :for={_item <- bids}
-                      class={[
-                        "object-cover w-6 h-6 border-2 border-white rounded-full shrink-0",
-                        length(bids) > 1 && "-mx-1"
-                      ]}
-                      src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=256&q=80"
-                      alt=""
-                    />
+                    <%= for user <- bids do %>
+                      <.profile_image
+                        user={user}
+                        class="object-cover w-6 h-6 -mx-1 border-2 border-white rounded-full shrink-0"
+                      />
+                    <% end %>
                   </div>
                 </:inner_button>
               </.tooltip>
@@ -172,7 +189,7 @@
                   class="flex items-center space-x-2 text-[1rem] text-gray-600 cursor-pointer"
                 >
                   <svg
-                    class="w-6 h-6 group-hover:text-primary/50"
+                    class="w-6 h-6 group-hover:text-blue-600/50"
                     aria-hidden="true"
                     xmlns="http://www.w3.org/2000/svg"
                     width="24"
@@ -188,7 +205,7 @@
                       d="m14.304 4.844 2.852 2.852M7 7H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-4.5m2.409-9.91a2.017 2.017 0 0 1 0 2.853l-6.844 6.844L8 14l.713-3.565 6.844-6.844a2.015 2.015 0 0 1 2.852 0Z"
                     />
                   </svg>
-                  <span class="group-hover:text-primary/50">Edit</span>
+                  <span class="group-hover:text-blue-600/50">Edit</span>
                 </.link>
               </li>
               <li
@@ -293,4 +310,4 @@
       current_user={@current_user}
     />
   </.modal>
-</section>
+</div>
