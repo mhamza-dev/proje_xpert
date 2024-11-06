@@ -12,7 +12,6 @@
 
   <div class="my-6 md:flex md:items-center md:justify-between">
     <div class="flex space-x-2 mb-4 sm:mb-0">
-      <% dbg(@current_tab) %>
       <.link navigate={~p"/projects"}>
         <button class={
           [
@@ -31,7 +30,7 @@
       >
         <button class={
           [
-            "px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-blue-600 hover:text-white transition-colors",
+            "px-4 py-2 text-sm font-medium rounded-md hover:bg-blue-600 hover:text-white transition-colors",
             @current_tab == Atom.to_string(status) && "bg-blue-600 text-white",
             @current_tab != Atom.to_string(status) && "text-gray-700 bg-gray-100"
           ]
@@ -73,7 +72,11 @@
   <.live_component
     id="project-listing"
     module={ProjeXpertWeb.TableComponent}
-    headers={["Name", "Status", "No. of Tasks", "Users", "Progress"]}
+    headers={
+      if is_freelancer?(@current_user),
+        do: ["Name", "Status", "No. of Tasks", "Client", "Progress"],
+        else: ["Name", "Status", "No. of Tasks", "Users", "Progress"]
+    }
     has_actions?={is_client?(@current_user)}
   >
     <:table_cells>
@@ -91,10 +94,12 @@
             <%= length(get_tasks_by_current_user(@current_user, project.tasks)) %>
           </p>
         </td>
-        <td :if={is_freelancer?(@current_user)} class="p-3 text-sm">
-          <p class="text-gray-500 ml-6">
-            <%= full_name(project.client) %>
-          </p>
+        <td
+          :if={is_freelancer?(@current_user)}
+          class="p-3 text-sm flex space-x-2 items-center text-gray-500"
+        >
+          <.dot_profile_image user={project.client} class="w-6 h-6 rounded-full" />
+          <span><%= full_name(project.client) %></span>
         </td>
         <td :if={is_client?(@current_user)} class="p-3 text-sm">
           <div class="flex items-center">

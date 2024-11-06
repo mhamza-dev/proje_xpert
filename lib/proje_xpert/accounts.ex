@@ -6,7 +6,7 @@ defmodule ProjeXpert.Accounts do
   import Ecto.Query, warn: false
   alias ProjeXpert.Repo
 
-  alias ProjeXpert.Accounts.{User, UserToken, UserNotifier}
+  alias ProjeXpert.Accounts.{NotificationPreference, User, UserToken, UserNotifier}
 
   ## Database getters
 
@@ -258,7 +258,7 @@ defmodule ProjeXpert.Accounts do
   """
   def get_user_by_session_token(token) do
     {:ok, query} = UserToken.verify_session_token_query(token)
-    Repo.one(query)
+    Repo.one(query) |> Repo.preload([:notification_preference, :notifications])
   end
 
   @doc """
@@ -376,5 +376,233 @@ defmodule ProjeXpert.Accounts do
       {:ok, %{user: user}} -> {:ok, user}
       {:error, :user, changeset, _} -> {:error, changeset}
     end
+  end
+
+  @doc """
+  Returns the list of notification_preferences.
+
+  ## Examples
+
+      iex> list_notification_preferences()
+      [%NotificationPreference{}, ...]
+
+  """
+  def list_notification_preferences do
+    Repo.all(NotificationPreference)
+  end
+
+  @doc """
+  Gets a single notification_preference.
+
+  Raises `Ecto.NoResultsError` if the Notification preference does not exist.
+
+  ## Examples
+
+      iex> get_notification_preference!(123)
+      %NotificationPreference{}
+
+      iex> get_notification_preference!(456)
+      ** (Ecto.NoResultsError)
+
+  """
+  def get_notification_preference!(id), do: Repo.get!(NotificationPreference, id)
+
+  @doc """
+  Creates a notification_preference.
+
+  ## Examples
+
+      iex> create_notification_preference(%{field: value})
+      {:ok, %NotificationPreference{}}
+
+      iex> create_notification_preference(%{field: bad_value})
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def create_notification_preference(attrs \\ %{}) do
+    %NotificationPreference{}
+    |> NotificationPreference.changeset(attrs)
+    |> Repo.insert()
+  end
+
+  @doc """
+  Updates a notification_preference.
+
+  ## Examples
+
+      iex> update_notification_preference(notification_preference, %{field: new_value})
+      {:ok, %NotificationPreference{}}
+
+      iex> update_notification_preference(notification_preference, %{field: bad_value})
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def update_notification_preference(%NotificationPreference{} = notification_preference, attrs) do
+    notification_preference
+    |> NotificationPreference.changeset(attrs)
+    |> Repo.update()
+  end
+
+  @doc """
+  Deletes a notification_preference.
+
+  ## Examples
+
+      iex> delete_notification_preference(notification_preference)
+      {:ok, %NotificationPreference{}}
+
+      iex> delete_notification_preference(notification_preference)
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def delete_notification_preference(%NotificationPreference{} = notification_preference) do
+    Repo.delete(notification_preference)
+  end
+
+  @doc """
+  Returns an `%Ecto.Changeset{}` for tracking notification_preference changes.
+
+  ## Examples
+
+      iex> change_notification_preference(notification_preference)
+      %Ecto.Changeset{data: %NotificationPreference{}}
+
+  """
+  def change_notification_preference(
+        %NotificationPreference{} = notification_preference,
+        attrs \\ %{}
+      ) do
+    NotificationPreference.changeset(notification_preference, attrs)
+  end
+
+  alias ProjeXpert.Accounts.Notification
+
+  @doc """
+  Returns the list of notifications.
+
+  ## Examples
+
+      iex> list_notifications()
+      [%Notification{}, ...]
+
+  """
+  def list_notifications do
+    Repo.all(Notification)
+  end
+
+  @doc """
+  Gets a single notification.
+
+  Raises `Ecto.NoResultsError` if the Notification does not exist.
+
+  ## Examples
+
+      iex> get_notification!(123)
+      %Notification{}
+
+      iex> get_notification!(456)
+      ** (Ecto.NoResultsError)
+
+  """
+  def get_notification!(id), do: Repo.get!(Notification, id)
+
+  @doc """
+  Creates a notification.
+
+  ## Examples
+
+      iex> create_notification(%{field: value})
+      {:ok, %Notification{}}
+
+      iex> create_notification(%{field: bad_value})
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def create_notification(attrs \\ %{}) do
+    %Notification{}
+    |> Notification.changeset(attrs)
+    |> Repo.insert()
+  end
+
+  @doc """
+  Updates a notification.
+
+  ## Examples
+
+      iex> update_notification(notification, %{field: new_value})
+      {:ok, %Notification{}}
+
+      iex> update_notification(notification, %{field: bad_value})
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def update_notification(%Notification{} = notification, attrs) do
+    notification
+    |> Notification.changeset(attrs)
+    |> Repo.update()
+  end
+
+  @doc """
+  Deletes a notification.
+
+  ## Examples
+
+      iex> delete_notification(notification)
+      {:ok, %Notification{}}
+
+      iex> delete_notification(notification)
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def delete_notification(%Notification{} = notification) do
+    Repo.delete(notification)
+  end
+
+  @doc """
+  Returns an `%Ecto.Changeset{}` for tracking notification changes.
+
+  ## Examples
+
+      iex> change_notification(notification)
+      %Ecto.Changeset{data: %Notification{}}
+
+  """
+  def change_notification(%Notification{} = notification, attrs \\ %{}) do
+    Notification.changeset(notification, attrs)
+  end
+
+  def unread_notifications(user_id) do
+    from(
+      n in Notification,
+      where: n.user_id == ^user_id and n.is_read? == ^false,
+      order_by: [desc: n.inserted_at]
+    )
+    |> Repo.aggregate(:count)
+  end
+
+  def total_notifications(user_id) do
+    from(
+      n in Notification,
+      where: n.user_id == ^user_id and n.is_read? == ^false,
+      order_by: [desc: n.inserted_at]
+    )
+    |> Repo.aggregate(:count)
+  end
+
+  def list_notifications_by_user(user_id, notifications_limit \\ nil) do
+    notifications =
+      from(
+        n in Notification,
+        where: n.user_id == ^user_id,
+        order_by: [desc: n.inserted_at]
+      )
+      |> preload(:user)
+
+    notifications =
+      if is_nil(notifications_limit),
+        do: notifications,
+        else: limit(notifications, ^notifications_limit)
+
+    Repo.all(notifications)
   end
 end

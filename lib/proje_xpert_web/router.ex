@@ -79,7 +79,8 @@ defmodule ProjeXpertWeb.Router do
       on_mount: [
         {ProjeXpertWeb.UserAuth, :ensure_authenticated},
         {ProjeXpertWeb.Path, :put_path_in_socket},
-        ProjeXpertWeb.Nav
+        ProjeXpertWeb.Nav,
+        ProjeXpertWeb.NotificationMount
       ] do
       scope "/bids", BidsLive do
         live "/", Index, :index

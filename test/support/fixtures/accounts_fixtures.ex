@@ -28,4 +28,35 @@ defmodule ProjeXpert.AccountsFixtures do
     [_, token | _] = String.split(captured_email.text_body, "[TOKEN]")
     token
   end
+
+  @doc """
+  Generate a notification_preference.
+  """
+  def notification_preference_fixture(attrs \\ %{}) do
+    {:ok, notification_preference} =
+      attrs
+      |> Enum.into(%{
+        email_notifications: true,
+        push_notifications: true,
+        sms_notifications: true
+      })
+      |> ProjeXpert.Accounts.create_notification_preference()
+
+    notification_preference
+  end
+
+  @doc """
+  Generate a notification.
+  """
+  def notification_fixture(attrs \\ %{}) do
+    {:ok, notification} =
+      attrs
+      |> Enum.into(%{
+        message: "some message",
+        type: "some type"
+      })
+      |> ProjeXpert.Accounts.create_notification()
+
+    notification
+  end
 end
