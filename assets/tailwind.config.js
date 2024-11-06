@@ -14,7 +14,7 @@ module.exports = {
   theme: {
     extend: {
       fontFamily: {
-        nunito: ["Nunito", "sans-serif"],
+        sans: ["Nunito", "sans-serif"],
       },
       colors: {
         primary: "#1D4ED8",

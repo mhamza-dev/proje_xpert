@@ -1,10 +1,10 @@
 defmodule ProjeXpertWeb.ProjectsLive.Show do
   use ProjeXpertWeb, :live_view
 
+  alias ProjeXpert.Accounts
   alias ProjeXpert.Chats.Channel
   alias ProjeXpert.Tasks
   alias ProjeXpert.Tasks.{Column, Task}
-  alias ProjeXpert.Repo
   alias ProjeXpertWeb.ProjectsLive.Components
 
   def mount(%{"id" => id}, _session, socket) do
@@ -80,6 +80,34 @@ defmodule ProjeXpertWeb.ProjectsLive.Show do
     )
   end
 
+  def handle_event("ask_for_payment", %{"id" => task_id}, socket) do
+    with %Task{} = task <- Tasks.get_task!(task_id),
+         {:ok, _} <- Tasks.update_task(task, %{"ask_for_payment" => true}),
+         {:ok, notification} <- ask_payment_notification(task, socket.assigns.project) do
+      Phoenix.PubSub.broadcast!(
+        ProjeXpert.PubSub,
+        "project:#{socket.assigns.project.id}",
+        {:column_deleted, socket.assigns.project.id}
+      )
+
+      send(self(), {:notification, socket.assigns.project.client_id, notification})
+
+      {:noreply,
+       socket
+       |> put_flash(
+         :info,
+         "Sent notification to #{full_name(socket.assigns.project.client)} for the task \"#{task.title}\" "
+       )
+       |> push_patch(to: ~p"/projects/#{socket.assigns.project.id}/show")}
+    else
+      _ ->
+        {:noreply,
+         socket
+         |> put_flash(:error, "Something went wrong while asking for the payment")
+         |> push_patch(to: ~p"/projects/#{socket.assigns.project.id}/show")}
+    end
+  end
+
   def handle_event("delete_column", %{"id" => column_id}, socket) do
     with %Column{} = column <- Tasks.get_column!(column_id),
          {:ok, _} <- Tasks.delete_column(column) do
@@ -135,17 +163,20 @@ defmodule ProjeXpertWeb.ProjectsLive.Show do
   def handle_info({:drag_drop, params}, socket) do
     with %Task{} = task <- Tasks.get_task!(params["draggedId"]),
          {:ok, task} <- Tasks.update_task(task, %{"column_id" => params["dropzoneId"]}),
-         task <- Repo.preload(task, :column) do
+         task <- get_preload(task, :column) do
+      if task.column.name == "Completed" do
+        Tasks.update_task(task, %{"is_completed?" => true})
+      else
+        Tasks.update_task(task, %{"is_completed?" => false})
+      end
+
       Phoenix.PubSub.broadcast!(
         ProjeXpert.PubSub,
         "project:#{socket.assigns.project.id}",
         {:task_moved, socket.assigns.project.id}
       )
 
-      {:noreply,
-       socket
-       |> put_flash(:info, "Project moved to \"#{task.column.name}\" column successfully")
-       |> push_patch(to: ~p"/projects/#{socket.assigns.project.id}/show")}
+      {:noreply, push_patch(socket, to: ~p"/projects/#{socket.assigns.project.id}/show")}
     else
       _ ->
         {:noreply,
@@ -186,5 +217,16 @@ defmodule ProjeXpertWeb.ProjectsLive.Show do
        :error,
        "You can't perform this action as this project has been #{camel_case_string(project.status)}"
      )}
+  end
+
+  defp ask_payment_notification(task, project) do
+    Accounts.create_notification(%{
+      "type" => "push",
+      "user_id" => project.client_id,
+      "link" => "/projects/#{project.id}/tasks/#{task.id}/show",
+      "message" => """
+        <p><strong>#{full_name(task.freelancer)}</strong> asked to release payment for the task #{task.title} associated with the project #{project.title} </p>
+      """
+    })
   end
 end

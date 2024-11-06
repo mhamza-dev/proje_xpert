@@ -8,8 +8,8 @@ defmodule ProjeXpertWeb.UserLoginLive do
         Welcome to ProjeXpert
       </.header>
       <.form for={@form} id="login_form" action={~p"/log_in"} phx-update="ignore" class="space-y-4">
-        <.input field={@form[:email]} type="email" label="Email" required />
-        <.input field={@form[:password]} type="password" label="Password" required />
+        <.input class="w-full" field={@form[:email]} type="email" label="Email" required />
+        <.input class="w-full" field={@form[:password]} type="password" label="Password" required />
         <.button type="submit" class="w-full">
           Sign In
         </.button>

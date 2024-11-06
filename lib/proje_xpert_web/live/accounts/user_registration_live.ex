@@ -21,13 +21,19 @@ defmodule ProjeXpertWeb.UserRegistrationLive do
       >
         <.input field={f[:role]} type="hidden" value={@live_action} />
         <div class="grid grid-cols-2 gap-3">
-          <.input field={f[:first_name]} type="text" label="First Name" required />
-          <.input field={f[:last_name]} type="text" label="Last Name" required />
+          <.input field={f[:first_name]} type="text" class="w-full" label="First Name" required />
+          <.input field={f[:last_name]} type="text" class="w-full" label="Last Name" required />
         </div>
-        <.input field={f[:email]} type="email" label="Email" required />
+        <.input field={f[:email]} type="email" class="w-full" label="Email" required />
         <div class="grid grid-cols-2 gap-3">
-          <.input field={f[:password]} type="password" label="Password" required />
-          <.input field={f[:password_confirmation]} type="password" label="Confirm Password" required />
+          <.input field={f[:password]} type="password" class="w-full" label="Password" required />
+          <.input
+            field={f[:password_confirmation]}
+            type="password"
+            class="w-full"
+            label="Confirm Password"
+            required
+          />
         </div>
         <div>
           <.button type="submit" class="w-full">

@@ -2,6 +2,7 @@ defmodule ProjeXpertWeb.SettingsLive.Index do
   use ProjeXpertWeb, :live_view
 
   alias ProjeXpert.Accounts
+  alias ProjeXpert.Accounts.NotificationPreference
 
   def mount(%{"token" => token}, _session, socket) do
     socket =
@@ -22,6 +23,11 @@ defmodule ProjeXpertWeb.SettingsLive.Index do
     password_changeset = Accounts.change_user_password(user)
     profile_changeset = Accounts.change_user_profile(user)
 
+    notification_preference = get_notification_preference(user)
+
+    np_changeset =
+      Accounts.change_notification_preference(notification_preference)
+
     socket =
       socket
       |> assign(
@@ -32,7 +38,9 @@ defmodule ProjeXpertWeb.SettingsLive.Index do
         email_form: to_form(email_changeset),
         password_form: to_form(password_changeset),
         trigger_submit: false,
-        profile_changeset: profile_changeset
+        profile_changeset: profile_changeset,
+        notification_preference: notification_preference,
+        np_changeset: np_changeset
       )
       |> allow_upload(:profile,
         max_entries: 1,
@@ -134,4 +142,43 @@ defmodule ProjeXpertWeb.SettingsLive.Index do
         {:noreply, assign(socket, profile_changeset: changeset)}
     end
   end
+
+  def handle_event("validate_np", %{"np" => params}, socket) do
+    changeset =
+      socket.assigns.notification_preference
+      |> Accounts.change_notification_preference(params)
+      |> Map.put(:action, :validate)
+
+    {:noreply, assign(socket, np_changeset: changeset)}
+  end
+
+  def handle_event("update_np", %{"np" => params}, socket) do
+    case upsert_np(socket.assigns.current_user, create_np_params(params)) do
+      {:ok, _user} ->
+        {:noreply,
+         socket
+         |> put_flash(:info, "Notification Preferences has been updated Successfully")
+         |> push_navigate(to: ~p"/settings")}
+
+      {:error, changeset} ->
+        {:noreply, assign(socket, np_changeset: changeset)}
+    end
+  end
+
+  defp get_notification_preference(%{id: id, notification_preference: nil}),
+    do: %NotificationPreference{user_id: id}
+
+  defp get_notification_preference(%{notification_preference: np}), do: np
+
+  defp upsert_np(current_user, params) do
+    if current_user.notification_preference do
+      Accounts.update_notification_preference(current_user.notification_preference, params)
+    else
+      Accounts.create_notification_preference(params)
+    end
+  end
+
+  defp create_np_params(params), do: default_params() |> Map.merge(params)
+
+  defp default_params, do: %{"email" => false, "sms" => false, "push" => false}
 end

@@ -3,7 +3,7 @@
     <.link navigate="/">
       <div class="flex justify-center items-center space-x-2">
         <img src={~p"/images/logo_3_croped.png"} alt="ProjeXpert Logo" class="h-12 w-12" />
-        <span class="text-left text-2xl text-blue-600 font-nunito font-bold">ProjeXpert</span>
+        <span class="text-left text-2xl text-blue-600 font-bold">ProjeXpert</span>
       </div>
     </.link>
     <div :if={!@current_user} class="flex items-center space-x-2">
@@ -25,25 +25,14 @@
       </.link>
     </div>
     <div :if={@current_user} class="flex items-center space-x-4">
-      <div>
-        <svg
-          class="w-9 h-9 text-gray-800"
-          aria-hidden="true"
-          xmlns="http://www.w3.org/2000/svg"
-          width="24"
-          height="24"
-          fill="none"
-          viewBox="0 0 24 24"
-        >
-          <path
-            stroke="currentColor"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="1.5"
-            d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
-          />
-        </svg>
-      </div>
+      <.live_component
+        module={ProjeXpertWeb.NotificationBell}
+        current_user={@current_user}
+        notification_count={@notification_count}
+        drawer_notifications={@drawer_notifications}
+        all_notifications={@all_notifications}
+        id={"notification_bell_for_#{@current_user.id}"}
+      />
       <div>
         <svg
           class="w-9 h-9 text-gray-800"

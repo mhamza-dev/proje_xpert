@@ -33,6 +33,10 @@ defmodule ProjeXpert.Accounts.User do
     field :bio, :string
 
     # Associations
+    has_one :notification_preference, ProjeXpert.Accounts.NotificationPreference,
+      foreign_key: :user_id
+
+    has_many :notifications, ProjeXpert.Accounts.Notification, foreign_key: :user_id
     has_many :bids, ProjeXpert.Tasks.Bid, foreign_key: :freelancer_id
     has_many :projects_as_client, ProjeXpert.Tasks.Project, foreign_key: :client_id
 

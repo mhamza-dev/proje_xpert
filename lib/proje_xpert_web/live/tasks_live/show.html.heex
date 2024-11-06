@@ -11,7 +11,13 @@
     <!-- Main content -->
     <div class="lg:w-2/3 max-h-[750px] overflow-y-scroll">
       <div class="p-8 bg-white rounded-xl shadow-md overflow-hidden mb-8">
-        <p class="text-indigo-500 mb-6 flex items-center">
+        <div class="prose max-w-none">
+          <h3 class="text-xl font-semibold text-gray-800 mb-4">Task Description</h3>
+          <div class="text-gray-600 mb-6">
+            <%= raw(@task.description) %>
+          </div>
+        </div>
+        <div class="text-blue-500 flex items-center justify-end">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             class="h-5 w-5 mr-2"
@@ -24,14 +30,7 @@
               clip-rule="evenodd"
             />
           </svg>
-          Posted <%= relative_time(@task.inserted_at) %>
-        </p>
-
-        <div class="prose max-w-none">
-          <h3 class="text-xl font-semibold text-gray-800 mb-4">Task Description</h3>
-          <p class="text-gray-600 mb-6">
-            <%= raw(@task.description) %>
-          </p>
+          <span>Posted <%= relative_time(@task.inserted_at) %></span>
         </div>
       </div>
 
@@ -40,7 +39,15 @@
           :if={user_already_bidded?(@current_user, @task.bids)}
           class="bg-white shadow rounded-lg p-6 mb-6"
         >
-          <h3 class="text-xl font-semibold text-gray-800 mb-4">Proposal Already Submitted</h3>
+          <div class="flex justify-between items-center mb-4">
+            <h3 class="text-xl font-semibold text-gray-800">Proposal Already Submitted</h3>
+            <.link
+              class="text-md font-semibold text-gray-500 hover:text-blue-500 hover:underline"
+              navigate={~p"/projects/#{@task.project_id}/show"}
+            >
+              Go to project
+            </.link>
+          </div>
           <% user_bid = get_user_bid(@current_user, @task.bids) %>
           <div class="space-y-4">
             <div>
@@ -154,7 +161,7 @@
           <ul class="space-y-4">
             <li class="flex justify-between items-center">
               <span class="text-gray-600">Location:</span>
-              <span class="font-semibold">United States</span>
+              <span class="font-semibold"><%= @task.project.client.location %></span>
             </li>
             <li class="flex justify-between items-center">
               <span class="text-gray-600">Member Since:</span>
@@ -163,11 +170,62 @@
               </span>
             </li>
             <li class="flex justify-between items-center">
-              <span class="text-gray-600">Avg. Hourly Rate:</span>
+              <span class="text-gray-600">Avg. Task Rate:</span>
               <span class="font-semibold">
                 <%= Number.Currency.number_to_currency(
-                  client_average_budget(@task.project.client)
+                  client_average_task_budget(@task.project.client)
                 ) %>
+              </span>
+            </li>
+            <li class="flex justify-between items-center">
+              <span class="text-gray-600">Rating:</span>
+              <span class="font-semibold">
+                <!-- ratings_live.html.leex -->
+                <div class="flex items-center">
+                  <%= for star <- 1..5 do %>
+                    <div class="flex items-center">
+                      <%= if star <= floor(@task.project.client.rating) do %>
+                        <!-- Full Star -->
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          class="h-6 w-6 text-yellow-500"
+                          fill="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path d="M12 .587l3.668 7.431 8.332 1.207-6.001 5.848 1.417 8.267L12 18.896l-7.416 3.895 1.417-8.267-6.001-5.848 8.332-1.207z" />
+                        </svg>
+                      <% else %>
+                        <%= if star <= @task.project.client.rating do %>
+                          <!-- Half Star -->
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            class="h-6 w-6 text-yellow-500"
+                            fill="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path d="M12 .587l3.668 7.431 8.332 1.207-6.001 5.848 1.417 8.267L12 18.896l-7.416 3.895 1.417-8.267-6.001-5.848 8.332-1.207z" />
+                            <path fill="none" d="M0 0h24v24H0z" />
+                            <path
+                              d="M12 2l3.668 7.431 8.332 1.207-6.001 5.848 1.417 8.267L12 18.896l-7.416 3.895 1.417-8.267-6.001-5.848 8.332-1.207z"
+                              fill="currentColor"
+                              opacity="0.5"
+                            />
+                          </svg>
+                        <% else %>
+                          <!-- Empty Star -->
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            class="h-6 w-6 text-gray-300"
+                            fill="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path d="M12 .587l3.668 7.431 8.332 1.207-6.001 5.848 1.417 8.267L12 18.896l-7.416 3.895 1.417-8.267-6.001-5.848 8.332-1.207z" />
+                          </svg>
+                        <% end %>
+                      <% end %>
+                    </div>
+                  <% end %>
+                </div>
               </span>
             </li>
             <li class="flex justify-between items-center">

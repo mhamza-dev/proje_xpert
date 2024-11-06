@@ -281,7 +281,7 @@ defmodule ProjeXpertWeb.CoreComponents do
   attr(:type, :string,
     default: "text",
     values: ~w(checkbox color date datetime-local email file month number password
-               range search select tel text textarea time url week hidden)
+               range search select tel text textarea time url week hidden switch)
   )
 
   attr(:field, Phoenix.HTML.FormField,
@@ -338,6 +338,38 @@ defmodule ProjeXpertWeb.CoreComponents do
         />
         <label class="block text-md font-medium text-gray-700"><%= @label %></label>
       </div>
+      <.error :for={msg <- @errors}><%= msg %></.error>
+    </div>
+    """
+  end
+
+  def input(%{type: "switch"} = assigns) do
+    assigns =
+      assign_new(assigns, :checked, fn ->
+        Phoenix.HTML.Form.normalize_value("checkbox", assigns[:value])
+      end)
+
+    ~H"""
+    <div class={["flex items-center justify-between", @div_class]}>
+      <span class="text-sm font-medium text-gray-700"><%= @label %></span>
+      <label class="switch flex items-center gap-x-4">
+        <input
+          type="checkbox"
+          id={@id}
+          name={@name}
+          value="true"
+          checked={@checked}
+          class={[
+            "sr-only peer",
+            @class,
+            @errors == [] && "focus:border-blue-500 focus:ring-blue-500",
+            @errors != [] && "focus:border-rose-500 focus:ring-rose-500"
+          ]}
+          {@rest}
+        />
+        <span class="slider bg-gray-200 peer-focus:ring-2 peer-focus:ring-blue-400 peer-checked:bg-blue-500">
+        </span>
+      </label>
       <.error :for={msg <- @errors}><%= msg %></.error>
     </div>
     """
@@ -606,7 +638,7 @@ defmodule ProjeXpertWeb.CoreComponents do
     <div>
       <.link
         navigate={@navigate}
-        class="flex items-center space-x-2 text-xl font-bold font-nunito text-blue-600 hover:text-blue-600/50"
+        class="flex items-center space-x-2 text-xl font-bold text-blue-600 hover:text-blue-600/50"
       >
         <.icon name="hero-arrow-left-micro" class="h-4 w-4 font-bold" />
         <%= render_slot(@inner_block) %>
@@ -782,7 +814,7 @@ defmodule ProjeXpertWeb.CoreComponents do
           [
             @with_dots && "text-gray-500 transition-colors duration-200 rounded-lg hover:bg-gray-100",
             !@with_dots &&
-              "w-full px-4 py-2 bg-white border border-gray-300 rounded-lg text-zinc-900 sm:text-sm sm:leading-6 focus:border-blue-400 focus:ring-blue-300 focus:outline-none focus:ring focus:ring-opacity-40"
+              "w-full px-4 py-2 bg-blue-600 hover:bg-blue-500 shadow-lg rounded-lg text-zinc-900 sm:text-sm sm:leading-6 focus:border-blue-400 focus:ring-blue-300 focus:outline-none focus:ring focus:ring-opacity-40"
           ]
           |> Enum.join(" ")
         }
@@ -805,13 +837,13 @@ defmodule ProjeXpertWeb.CoreComponents do
           />
         </svg>
         <div>
-          <span :if={!@with_dots} class="mr-3"><%= @label %></span>
+          <span :if={!@with_dots} class="mr-3 text-white"><%= @label %></span>
           <span
             :if={!@with_dots}
             class="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none"
           >
             <svg
-              class="w-5 h-5 text-gray-400"
+              class="w-5 h-5 text-white"
               x-bind:class="{'transform rotate-180': open}"
               viewBox="0 0 20 20"
               fill="currentColor"

@@ -295,10 +295,6 @@ defmodule ProjeXpert.Tasks do
     Task.changeset(task, attrs)
   end
 
-  def change_task_comment(%Task{} = task, attrs \\ %{}) do
-    Task.task_comment_changeset(task, attrs)
-  end
-
   @doc """
   Returns the list of bids.
 

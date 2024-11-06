@@ -13,8 +13,8 @@
 }
 
 .chart {
-  width: 500px !important;
-  height: 200px !important;
+  width: 300px !important;
+  height: 300px !important;
 }
 
 .switch {
@@ -107,8 +107,8 @@ trix-editor {
   }
 
   trix-toolbar .trix-button {
-    width: 2.5rem;
-    height: 2.5rem;
+    width: 2rem;
+    height: 2rem;
     border: 1px solid #e5e7eb;
     background-color: #ffffff;
     border-radius: 0.5rem;
