@@ -295,7 +295,10 @@
                 </div>
               </.form>
             </li>
-            <li :for={comment <- Enum.sort_by(@task.comments, & &1.inserted_at, :desc)} class="mb-2">
+            <li
+              :for={comment <- Enum.sort_by(@task.comments, & &1.inserted_at, :desc)}
+              class="mb-2"
+            >
               <div class="flex items-start space-x-4">
                 <.dot_profile_image user={comment.user} />
                 <div class="flex-1 min-w-0">

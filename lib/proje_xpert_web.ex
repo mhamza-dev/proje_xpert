@@ -55,6 +55,8 @@ defmodule ProjeXpertWeb do
         layout: {ProjeXpertWeb.Layouts, :app}
 
       unquote(html_helpers())
+      unquote(NotificationListener.listener())
+      unquote(NotificationListener.goto_notif_event())
     end
   end
 
@@ -63,6 +65,8 @@ defmodule ProjeXpertWeb do
       use Phoenix.LiveComponent
 
       unquote(html_helpers())
+      unquote(NotificationListener.listener())
+      unquote(NotificationListener.goto_notif_event())
     end
   end
 

@@ -147,7 +147,7 @@ defmodule ProjeXpertWeb.LiveHelpers do
     if is_nil(current_tab), do: Map.new(), else: %{"tab" => current_tab}
   end
 
-  def client_average_budget(client) do
+  def client_average_task_budget(client) do
     client = client |> Repo.preload(projects_as_client: [:tasks])
 
     all_task_budget =

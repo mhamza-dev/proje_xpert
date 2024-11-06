@@ -505,4 +505,147 @@ defmodule ProjeXpert.AccountsTest do
       refute inspect(%User{password: "123456"}) =~ "password: \"123456\""
     end
   end
+
+  describe "notification_preferences" do
+    alias ProjeXpert.Accounts.NotificationPreference
+
+    import ProjeXpert.AccountsFixtures
+
+    @invalid_attrs %{email_notifications: nil, sms_notifications: nil, push_notifications: nil}
+
+    test "list_notification_preferences/0 returns all notification_preferences" do
+      notification_preference = notification_preference_fixture()
+      assert Accounts.list_notification_preferences() == [notification_preference]
+    end
+
+    test "get_notification_preference!/1 returns the notification_preference with given id" do
+      notification_preference = notification_preference_fixture()
+
+      assert Accounts.get_notification_preference!(notification_preference.id) ==
+               notification_preference
+    end
+
+    test "create_notification_preference/1 with valid data creates a notification_preference" do
+      valid_attrs = %{
+        email_notifications: true,
+        sms_notifications: true,
+        push_notifications: true
+      }
+
+      assert {:ok, %NotificationPreference{} = notification_preference} =
+               Accounts.create_notification_preference(valid_attrs)
+
+      assert notification_preference.email_notifications == true
+      assert notification_preference.sms_notifications == true
+      assert notification_preference.push_notifications == true
+    end
+
+    test "create_notification_preference/1 with invalid data returns error changeset" do
+      assert {:error, %Ecto.Changeset{}} = Accounts.create_notification_preference(@invalid_attrs)
+    end
+
+    test "update_notification_preference/2 with valid data updates the notification_preference" do
+      notification_preference = notification_preference_fixture()
+
+      update_attrs = %{
+        email_notifications: false,
+        sms_notifications: false,
+        push_notifications: false
+      }
+
+      assert {:ok, %NotificationPreference{} = notification_preference} =
+               Accounts.update_notification_preference(notification_preference, update_attrs)
+
+      assert notification_preference.email_notifications == false
+      assert notification_preference.sms_notifications == false
+      assert notification_preference.push_notifications == false
+    end
+
+    test "update_notification_preference/2 with invalid data returns error changeset" do
+      notification_preference = notification_preference_fixture()
+
+      assert {:error, %Ecto.Changeset{}} =
+               Accounts.update_notification_preference(notification_preference, @invalid_attrs)
+
+      assert notification_preference ==
+               Accounts.get_notification_preference!(notification_preference.id)
+    end
+
+    test "delete_notification_preference/1 deletes the notification_preference" do
+      notification_preference = notification_preference_fixture()
+
+      assert {:ok, %NotificationPreference{}} =
+               Accounts.delete_notification_preference(notification_preference)
+
+      assert_raise Ecto.NoResultsError, fn ->
+        Accounts.get_notification_preference!(notification_preference.id)
+      end
+    end
+
+    test "change_notification_preference/1 returns a notification_preference changeset" do
+      notification_preference = notification_preference_fixture()
+      assert %Ecto.Changeset{} = Accounts.change_notification_preference(notification_preference)
+    end
+  end
+
+  describe "notifications" do
+    alias ProjeXpert.Accounts.Notification
+
+    import ProjeXpert.AccountsFixtures
+
+    @invalid_attrs %{message: nil, type: nil}
+
+    test "list_notifications/0 returns all notifications" do
+      notification = notification_fixture()
+      assert Accounts.list_notifications() == [notification]
+    end
+
+    test "get_notification!/1 returns the notification with given id" do
+      notification = notification_fixture()
+      assert Accounts.get_notification!(notification.id) == notification
+    end
+
+    test "create_notification/1 with valid data creates a notification" do
+      valid_attrs = %{message: "some message", type: "some type"}
+
+      assert {:ok, %Notification{} = notification} = Accounts.create_notification(valid_attrs)
+      assert notification.message == "some message"
+      assert notification.type == "some type"
+    end
+
+    test "create_notification/1 with invalid data returns error changeset" do
+      assert {:error, %Ecto.Changeset{}} = Accounts.create_notification(@invalid_attrs)
+    end
+
+    test "update_notification/2 with valid data updates the notification" do
+      notification = notification_fixture()
+      update_attrs = %{message: "some updated message", type: "some updated type"}
+
+      assert {:ok, %Notification{} = notification} =
+               Accounts.update_notification(notification, update_attrs)
+
+      assert notification.message == "some updated message"
+      assert notification.type == "some updated type"
+    end
+
+    test "update_notification/2 with invalid data returns error changeset" do
+      notification = notification_fixture()
+
+      assert {:error, %Ecto.Changeset{}} =
+               Accounts.update_notification(notification, @invalid_attrs)
+
+      assert notification == Accounts.get_notification!(notification.id)
+    end
+
+    test "delete_notification/1 deletes the notification" do
+      notification = notification_fixture()
+      assert {:ok, %Notification{}} = Accounts.delete_notification(notification)
+      assert_raise Ecto.NoResultsError, fn -> Accounts.get_notification!(notification.id) end
+    end
+
+    test "change_notification/1 returns a notification changeset" do
+      notification = notification_fixture()
+      assert %Ecto.Changeset{} = Accounts.change_notification(notification)
+    end
+  end
 end

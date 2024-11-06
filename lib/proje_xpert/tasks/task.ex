@@ -15,6 +15,7 @@ defmodule ProjeXpert.Tasks.Task do
     :tags,
     :budget,
     :deadline,
+    :ask_for_payment,
     :project_id,
     :freelancer_id,
     :column_id
@@ -32,6 +33,7 @@ defmodule ProjeXpert.Tasks.Task do
     field :is_completed?, :boolean
     field :tags, {:array, :string}, default: []
     field :experience_required, Ecto.Enum, values: @experiences
+    field :ask_for_payment, :boolean, default: false
 
     belongs_to :project, Project, foreign_key: :project_id
     belongs_to :column, Column, foreign_key: :column_id
@@ -47,13 +49,6 @@ defmodule ProjeXpert.Tasks.Task do
     task
     |> cast(attrs, @default_cast)
     |> validate_required(@default_required)
-  end
-
-  def task_comment_changeset(task, attrs) do
-    task
-    |> cast(attrs, @default_cast)
-    |> validate_required(@default_required)
-    |> cast_assoc(:comments, with: &Comment.changeset/2)
   end
 
   def all_experiences, do: @experiences
