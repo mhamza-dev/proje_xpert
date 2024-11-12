@@ -648,4 +648,82 @@ defmodule ProjeXpert.AccountsTest do
       assert %Ecto.Changeset{} = Accounts.change_notification(notification)
     end
   end
+
+  describe "payment_methods" do
+    alias ProjeXpert.Accounts.PaymentMethod
+
+    import ProjeXpert.AccountsFixtures
+
+    @invalid_attrs %{last_four_digits: nil, card_holder_name: nil, expiry: nil, cvv: nil}
+
+    test "list_payment_methods/0 returns all payment_methods" do
+      payment_method = payment_method_fixture()
+      assert Accounts.list_payment_methods() == [payment_method]
+    end
+
+    test "get_payment_method!/1 returns the payment_method with given id" do
+      payment_method = payment_method_fixture()
+      assert Accounts.get_payment_method!(payment_method.id) == payment_method
+    end
+
+    test "create_payment_method/1 with valid data creates a payment_method" do
+      valid_attrs = %{
+        last_four_digits: "some last_four_digits",
+        card_holder_name: "some card_holder_name",
+        expiry: "some expiry",
+        cvv: 42
+      }
+
+      assert {:ok, %PaymentMethod{} = payment_method} =
+               Accounts.create_payment_method(valid_attrs)
+
+      assert payment_method.last_four_digits == "some last_four_digits"
+      assert payment_method.card_holder_name == "some card_holder_name"
+      assert payment_method.expiry == "some expiry"
+      assert payment_method.cvv == 42
+    end
+
+    test "create_payment_method/1 with invalid data returns error changeset" do
+      assert {:error, %Ecto.Changeset{}} = Accounts.create_payment_method(@invalid_attrs)
+    end
+
+    test "update_payment_method/2 with valid data updates the payment_method" do
+      payment_method = payment_method_fixture()
+
+      update_attrs = %{
+        last_four_digits: "some updated last_four_digits",
+        card_holder_name: "some updated card_holder_name",
+        expiry: "some updated expiry",
+        cvv: 43
+      }
+
+      assert {:ok, %PaymentMethod{} = payment_method} =
+               Accounts.update_payment_method(payment_method, update_attrs)
+
+      assert payment_method.last_four_digits == "some updated last_four_digits"
+      assert payment_method.card_holder_name == "some updated card_holder_name"
+      assert payment_method.expiry == "some updated expiry"
+      assert payment_method.cvv == 43
+    end
+
+    test "update_payment_method/2 with invalid data returns error changeset" do
+      payment_method = payment_method_fixture()
+
+      assert {:error, %Ecto.Changeset{}} =
+               Accounts.update_payment_method(payment_method, @invalid_attrs)
+
+      assert payment_method == Accounts.get_payment_method!(payment_method.id)
+    end
+
+    test "delete_payment_method/1 deletes the payment_method" do
+      payment_method = payment_method_fixture()
+      assert {:ok, %PaymentMethod{}} = Accounts.delete_payment_method(payment_method)
+      assert_raise Ecto.NoResultsError, fn -> Accounts.get_payment_method!(payment_method.id) end
+    end
+
+    test "change_payment_method/1 returns a payment_method changeset" do
+      payment_method = payment_method_fixture()
+      assert %Ecto.Changeset{} = Accounts.change_payment_method(payment_method)
+    end
+  end
 end

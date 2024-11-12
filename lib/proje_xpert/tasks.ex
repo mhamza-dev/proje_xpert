@@ -434,6 +434,18 @@ defmodule ProjeXpert.Tasks do
     Repo.all(Payment)
   end
 
+  def list_payments_for_freelancer(freelancer_id, _params) do
+    from(p in Payment, where: p.receiver_id == ^freelancer_id)
+    |> preload([:receiver, :payer, :task])
+    |> Repo.all()
+  end
+
+  def list_payments_for_client(client_id, _params) do
+    from(p in Payment, where: p.payer_id == ^client_id)
+    |> preload([:receiver, :payer, :task])
+    |> Repo.all()
+  end
+
   @doc """
   Gets a single payment.
 
@@ -466,6 +478,17 @@ defmodule ProjeXpert.Tasks do
     %Payment{}
     |> Payment.changeset(attrs)
     |> Repo.insert()
+  end
+
+  def create_payment_with_stripe(attrs) do
+    with {:ok, _} <- Stripe.Charge.create(attrs) |> dbg(),
+         {:ok, payment} <- create_payment(attrs) do
+      {:ok, payment}
+    else
+      {:error, %Stripe.Error{message: msg}} -> {:error, "Stripe Error: #{msg}"}
+      {:error, changeset} -> {:error, changeset}
+      _ -> {:error, "Unknown error occurred"}
+    end
   end
 
   @doc """

@@ -1,5 +1,5 @@
 defmodule ProjeXpert.Accounts.User do
-  use Ecto.Schema
+  use ProjeXpert.Schema
   import Ecto.Changeset
 
   @roles [
@@ -31,12 +31,14 @@ defmodule ProjeXpert.Accounts.User do
     field :profile_image, :string
     field :location, :string
     field :bio, :string
+    field :stripe_customer_id, :string
 
     # Associations
     has_one :notification_preference, ProjeXpert.Accounts.NotificationPreference,
       foreign_key: :user_id
 
     has_many :notifications, ProjeXpert.Accounts.Notification, foreign_key: :user_id
+    has_many :payment_methods, ProjeXpert.Accounts.PaymentMethod, foreign_key: :user_id
     has_many :bids, ProjeXpert.Tasks.Bid, foreign_key: :freelancer_id
     has_many :projects_as_client, ProjeXpert.Tasks.Project, foreign_key: :client_id
 
@@ -101,6 +103,11 @@ defmodule ProjeXpert.Accounts.User do
     user
     |> registration_changeset(attrs)
     |> confirm_changeset()
+  end
+
+  def changeset(user, attrs) do
+    user
+    |> cast(attrs, @register_cast ++ [:stripe_customer_id])
   end
 
   @doc """

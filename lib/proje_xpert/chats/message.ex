@@ -1,5 +1,5 @@
 defmodule ProjeXpert.Chats.Message do
-  use Ecto.Schema
+  use ProjeXpert.Schema
   import Ecto.Changeset
 
   schema "messages" do

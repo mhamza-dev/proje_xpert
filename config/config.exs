@@ -11,6 +11,10 @@ config :proje_xpert,
   ecto_repos: [ProjeXpert.Repo],
   generators: [timestamp_type: :utc_datetime]
 
+config :proje_xpert, ProjeXpert.Repo,
+  migration_primary_key: [name: :id, type: :binary_id],
+  migration_foreign_key: [column: :id, type: :binary_id]
+
 # Configures the endpoint
 config :proje_xpert, ProjeXpertWeb.Endpoint,
   url: [host: "localhost"],
@@ -31,7 +35,9 @@ config :proje_xpert, ProjeXpertWeb.Endpoint,
 # at the `config/runtime.exs`.
 
 # configure stripe
-config :stripity_stripe, api_key: System.get_env("STRIPE_PRIVATE_KEY")
+config :stripity_stripe,
+  # api_key: System.get_env("STRIPE_PRIVATE_KEY")
+  api_key: System.get_env("STRIPE_SECRET_KEY")
 
 # Configure esbuild (the version is required)
 config :esbuild,

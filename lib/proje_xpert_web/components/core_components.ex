@@ -63,13 +63,16 @@ defmodule ProjeXpertWeb.CoreComponents do
         tabindex="0"
       >
         <div class="flex min-h-full items-center justify-center">
-          <div class={["p-4 sm:p-6 lg:py-8", @max_width]}>
+          <div class="p-4 sm:p-6 lg:py-8">
             <.focus_wrap
               id={"#{@id}-container"}
               phx-window-keydown={JS.exec("data-cancel", to: "##{@id}")}
               phx-key="escape"
               phx-click-away={JS.exec("data-cancel", to: "##{@id}")}
-              class="shadow-zinc-700/10 ring-zinc-700/10 relative hidden rounded-2xl bg-white p-14 shadow-lg ring-1 transition"
+              class={[
+                "shadow-zinc-700/10 ring-zinc-700/10 relative hidden rounded-2xl bg-white p-10 shadow-lg ring-1 transition",
+                @max_width
+              ]}
             >
               <div class="absolute top-6 right-5">
                 <button
@@ -683,7 +686,7 @@ defmodule ProjeXpertWeb.CoreComponents do
       <button
         @mouseover="isOpen = true"
         @mouseleave="isOpen = false"
-        class="text-gray-800 hover:bg-gray-200 font-bold p-2 rounded transition-colors duration-300"
+        class="text-gray-800 hover:bg-gray-200 font-bold rounded transition-colors duration-300"
       >
         <%= render_slot(@inner_button) %>
       </button>
@@ -697,9 +700,9 @@ defmodule ProjeXpertWeb.CoreComponents do
         x-transition:leave-start="opacity-100 transform scale-100"
         x-transition:leave-end="opacity-0 transform scale-95"
         class="popover absolute bg-gray-700 border shadow-md px-4 py-2 rounded-lg w-[200px] break-word z-[60]"
-        style="bottom: 100%; transform: translateY(-10px);"
+        style="bottom: 80%; transform: translateY(-10px);"
       >
-        <p class="text-white"><%= @data %></p>
+        <div class="text-white line-clamp-2"><%= @data %></div>
       </div>
     </div>
     """

@@ -22,7 +22,7 @@ defmodule ProjeXpertWeb.ProjectsLive.Components.Task do
        add_new_comment: false,
        add_new_reply: false,
        selected_comment: nil,
-       new_comments: [],
+       comments: task.comments,
        new_replies: []
      )}
   end
@@ -104,7 +104,7 @@ defmodule ProjeXpertWeb.ProjectsLive.Components.Task do
 
         {:noreply,
          socket
-         |> assign(add_new_comment: false, new_comments: socket.assigns.new_comments ++ [comment])
+         |> assign(add_new_comment: false, comments: socket.assigns.comments ++ [comment])
          |> put_flash(:info, "Comment created successfully")}
 
       {:error, cc} ->
@@ -149,8 +149,12 @@ defmodule ProjeXpertWeb.ProjectsLive.Components.Task do
      socket
      |> assign(
        add_new_reply: !socket.assigns.add_new_reply,
-       selected_comment: elem(Integer.parse(id), 0)
+       selected_comment: id
      )}
+  end
+
+  def handle_event("release_payment", %{"id" => id}, socket) do
+    {:noreply, redirect(socket, to: ~p"/payments/new?task=#{id}")}
   end
 
   defp create_task(task_params, socket) do

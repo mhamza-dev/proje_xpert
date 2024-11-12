@@ -96,6 +96,13 @@ defmodule ProjeXpertWeb.Router do
 
       live "/dashboard", DashboardLive.Index, :index
 
+      scope "/payments", PaymentsLive do
+        live "/", Index, :index
+        live "/new", Index, :new
+        live "/:id/edit", Index, :edit
+        # live "/:id/show", Show, :show
+      end
+
       scope "/projects", ProjectsLive do
         live "/", Index, :index
         live "/new", Index, :new
@@ -120,6 +127,7 @@ defmodule ProjeXpertWeb.Router do
       scope "/settings", SettingsLive do
         live "/", Index, :edit
         live "/email/:token/confirm", Index, :confirm_email
+        live "/new_pm", Index, :new_new_pmpaymenty
       end
     end
   end

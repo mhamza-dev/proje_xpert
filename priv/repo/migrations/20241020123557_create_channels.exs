@@ -4,7 +4,7 @@ defmodule ProjeXpert.Repo.Migrations.CreateChannels do
   def change do
     create table(:channels) do
       add :name, :string
-      add :joiners, {:array, :integer}
+      add :joiners, {:array, :string}
       add :created_by_id, references(:users, on_delete: :nothing)
       add :project_id, references(:projects, on_delete: :nothing)
 

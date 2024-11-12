@@ -80,8 +80,8 @@
     has_actions?={is_client?(@current_user)}
   >
     <:table_cells>
-      <tr :for={project <- @projects} class="border-b-[1px]">
-        <td class="p-3 text-sm font-medium">
+      <tr :for={project <- @projects} class="border-b-[1px] hover:bg-gray-100">
+        <td class="p-3 text-sm">
           <.link navigate={~p"/projects/#{project.id}/show"}>
             <h2 class="font-medium text-gray-800 "><%= project.title %></h2>
           </.link>
@@ -98,7 +98,7 @@
           :if={is_freelancer?(@current_user)}
           class="p-3 text-sm flex space-x-2 items-center text-gray-500"
         >
-          <.dot_profile_image user={project.client} class="w-6 h-6 rounded-full" />
+          <.dot_profile_image user={project.client} class="w-8 h-8 rounded-full" />
           <span><%= full_name(project.client) %></span>
         </td>
         <td :if={is_client?(@current_user)} class="p-3 text-sm">
@@ -113,10 +113,7 @@
                   <% [hd | tl] = Enum.chunk_every(bids, 2) %>
                   <div class="flex items-center">
                     <%= for user <- hd do %>
-                      <.profile_image
-                        user={user}
-                        class="object-cover w-6 h-6 -mx-1 border-2 border-white rounded-full shrink-0"
-                      />
+                      <.profile_image user={user} class="w-8 h-8 rounded-full" />
                     <% end %>
                     <p class="flex items-center justify-center w-6 h-6 -mx-1 text-xs text-blue-600 bg-blue-100 border-2 border-white rounded-full">
                       +<%= length(List.flatten(tl)) %>
@@ -131,10 +128,7 @@
                 <:inner_button>
                   <div class="flex items-center">
                     <%= for user <- bids do %>
-                      <.profile_image
-                        user={user}
-                        class="object-cover w-6 h-6 -mx-1 border-2 border-white rounded-full shrink-0"
-                      />
+                      <.profile_image user={user} class="w-8 h-8 rounded-full" />
                     <% end %>
                   </div>
                 </:inner_button>

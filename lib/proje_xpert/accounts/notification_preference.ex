@@ -1,5 +1,5 @@
 defmodule ProjeXpert.Accounts.NotificationPreference do
-  use Ecto.Schema
+  use ProjeXpert.Schema
   import Ecto.Changeset
   alias ProjeXpert.Accounts.User
 

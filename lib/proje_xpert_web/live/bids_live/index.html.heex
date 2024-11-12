@@ -69,11 +69,11 @@
     has_actions?={true}
   >
     <:table_cells>
-      <tr :for={bid <- @bids} class="border-b-[1px]">
-        <td class="px-6 py-4 whitespace-nowrap">
+      <tr :for={bid <- @bids} class="border-b-[1px] hover:bg-gray-100">
+        <td class="p-3 text-sm">
           <.link navigate={~p"/bids/#{bid.id}/show"}>
             <div class="flex items-center space-x-4">
-              <.dot_profile_image user={bid.freelancer} />
+              <.dot_profile_image user={bid.freelancer} class="w-8 h-8 rounded-full" />
               <h2 class="font-medium text-gray-800 "><%= full_name(bid.freelancer) %></h2>
             </div>
           </.link>
