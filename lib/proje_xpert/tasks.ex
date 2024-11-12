@@ -481,7 +481,7 @@ defmodule ProjeXpert.Tasks do
   end
 
   def create_payment_with_stripe(attrs) do
-    with {:ok, _} <- Stripe.Charge.create(attrs) |> dbg(),
+    with {:ok, _} <- Stripe.Charge.create(attrs),
          {:ok, payment} <- create_payment(attrs) do
       {:ok, payment}
     else

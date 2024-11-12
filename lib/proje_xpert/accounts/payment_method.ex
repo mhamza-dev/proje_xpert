@@ -126,7 +126,7 @@ defmodule ProjeXpert.Accounts.PaymentMethod do
   end
 
   defp validate_card_number(changeset) do
-    case get_change(changeset, :last_four_digits) |> dbg() do
+    case get_change(changeset, :last_four_digits) do
       nil ->
         changeset
 
@@ -153,8 +153,6 @@ defmodule ProjeXpert.Accounts.PaymentMethod do
   end
 
   defp check_date(exp_date, current_date) do
-    dbg(current_date)
-    dbg(exp_date)
 
     if Date.compare(exp_date, current_date) == :gt do
       {:ok, "date"}
