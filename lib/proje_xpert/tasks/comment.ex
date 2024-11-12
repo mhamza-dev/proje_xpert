@@ -1,5 +1,5 @@
 defmodule ProjeXpert.Tasks.Comment do
-  use Ecto.Schema
+  use ProjeXpert.Schema
   import Ecto.Changeset
 
   schema "comments" do

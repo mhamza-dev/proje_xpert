@@ -1,0 +1,113 @@
+<div class="bg-white rounded-lg w-full max-w-2xl">
+  <% default_pm = get_default_pm_of_user(@current_user) %>
+  <!-- Modal Header with close button -->
+  <div class="flex justify-between items-center px-6 py-2 border-b">
+    <h2 class="text-2xl font-semibold">Task Details</h2>
+  </div>
+  <!-- Modal Body -->
+  <div class="p-6 space-y-4">
+    <div>
+      <h3 class="text-lg font-semibold text-gray-800"><%= @task.title %></h3>
+      <div class="text-gray-600 max-h-[calc(100vh-70vh)] overflow-y-scroll">
+        <%= raw(@task.description) %>
+      </div>
+    </div>
+    <!-- Error Message and Add Payment Method Button -->
+    <div
+      :if={Enum.empty?(@current_user.payment_methods)}
+      class="bg-red-50 border-l-4 border-red-400 p-4 rounded space-y-4"
+    >
+      <div class="flex items-center">
+        <svg
+          class="h-6 w-6 text-red-400 mr-2"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+          />
+        </svg>
+        <p class="text-sm text-red-700">No payment method attached</p>
+      </div>
+      <!-- Add Payment Method Button -->
+      <div class="flex justify-end">
+        <.link navigate={~p"/settings/?tab=payment&modal=new_pm"}>
+          <div class="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2">
+            Add Payment Method
+          </div>
+        </.link>
+      </div>
+    </div>
+    <div class="mt-8 space-y-4">
+      <div :if={!is_nil(default_pm)} class="bg-gray-50 rounded-xl p-4">
+        <div class="flex justify-between items-center mb-4">
+          <h4 class="font-medium text-gray-900">Payment Method</h4>
+          <span class="text-sm text-gray-500">Default</span>
+        </div>
+        <div class="flex items-center gap-3">
+          <div class="flex-shrink-0">
+            <svg
+              class="w-8 h-8 text-blue-600"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"
+              />
+            </svg>
+          </div>
+          <div>
+            <p class="font-medium text-gray-900">
+              <%= camel_case_string(default_pm.brand) %> ending in <%= default_pm.last_four_digits %>
+            </p>
+            <p class="text-sm text-gray-500">Expires <%= default_pm.expiry %></p>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex justify-between items-center py-4 border-t border-gray-200">
+        <div class="text-gray-900">
+          <span class="font-medium">Payable</span>
+        </div>
+        <div class="text-2xl font-semibold text-blue-600">
+          <%= Number.Currency.number_to_currency(@task.budget) %>
+        </div>
+      </div>
+      <.form
+        :let={f}
+        :if={!Enum.empty?(@current_user.payment_methods)}
+        for={@changeset}
+        phx-submit="release_payment"
+        phx-target={@myself}
+      >
+        <.input type="hidden" field={f[:amount]} value={@task.budget} />
+        <.input type="hidden" field={f[:task_id]} value={@task.id} />
+        <.input type="hidden" field={f[:receiver_id]} value={@task.freelancer.id} />
+        <.input type="hidden" field={f[:payer_id]} value={@current_user.id} />
+        <.input type="hidden" field={f[:payment_method_id]} value={default_pm.id} />
+        <.input
+          type="text"
+          field={f[:description]}
+          class="w-full my-2"
+          label="Reason"
+          placeholder={"Pay for the Task #{@task.title}"}
+          required
+        />
+        <.button
+          type="submit"
+          class="w-full bg-blue-600 text-white py-3 px-4 rounded-lg font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
+        >
+          Release Payment
+        </.button>
+      </.form>
+    </div>
+  </div>
+</div>

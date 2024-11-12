@@ -214,7 +214,10 @@
     <div :if={@current_tab == "payment"}>
       <h2 class="text-2xl font-semibold text-blue-600 mb-6">Payment Methods</h2>
       <div class="space-y-4">
-        <div class="flex items-center justify-between p-4 rounded-lg border border-gray-200">
+        <div
+          :if={Enum.empty?(@current_user.payment_methods)}
+          class="flex items-center justify-between p-4 rounded-lg border border-gray-200"
+        >
           <div class="flex items-center space-x-3">
             <svg
               class="w-8 h-8 text-blue-600"
@@ -229,15 +232,51 @@
               <p class="text-sm text-gray-500">Expires 12/2024</p>
             </div>
           </div>
-          <button class="text-indigo-600 hover:text-blue-600 transition-colors">Edit</button>
+          <button class="text-blue-600 hover:text-blue-600 transition-colors">Edit</button>
         </div>
-        <button class="w-full bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 transition-colors">
-          Add New Payment Method
-        </button>
+        <div
+          :for={payment_method <- @current_user.payment_methods}
+          :if={!Enum.empty?(@current_user.payment_methods)}
+          class="flex items-center justify-between p-4 rounded-lg border border-gray-200"
+        >
+          <div class="flex items-center space-x-3">
+            <svg
+              class="w-8 h-8 text-blue-600"
+              fill="currentColor"
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path d="M22 4H2c-1.11 0-2 .89-2 2v12c0 1.11.89 2 2 2h20c1.11 0 2-.89 2-2V6c0-1.11-.89-2-2-2zm0 14H2V8h20v10zm-7-8H9v2h6v-2z" />
+            </svg>
+            <div>
+              <p class="font-medium">
+                <%= camel_case_string(payment_method.brand) %> ending in <%= payment_method.last_four_digits %>
+              </p>
+              <p class="text-sm text-gray-500">Expires <%= payment_method.expiry %></p>
+            </div>
+          </div>
+          <.link navigate={~p"/settings/?tab=payment&modal=delete_pm&pm_id=#{payment_method.id}"}>
+            <div class="text-red-600 hover:text-red-500 transition-colors">Delete</div>
+          </.link>
+        </div>
+        <.link navigate={~p"/settings/?tab=payment&modal=new_pm"}>
+          <div class="mt-4 w-full bg-blue-500 text-white text-center py-2 px-4 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 transition-colors">
+            Add New Payment Method
+          </div>
+        </.link>
       </div>
     </div>
     <div :if={@current_tab == "notifications"}>
-      <h2 class="text-2xl font-semibold text-blue-600 mb-6">In-App Notifications</h2>
+      <div class="flex justify-between items-center">
+        <h2 class="text-2xl font-semibold text-blue-600 mb-6">In-App Notifications</h2>
+        <.button
+          phx-click="mark_all_as_read"
+          type="button"
+          class="text-sm tracking-wide space-x-2"
+        >
+          <span>Mark all as read</span>
+        </.button>
+      </div>
       <div class="bg-white shadow-md rounded-lg overflow-hidden">
         <ul class="divide-y divide-gray-200">
           <li
@@ -271,3 +310,37 @@
     </div>
   </div>
 </div>
+
+<.modal
+  :if={@live_action == :new_pm}
+  show={@live_action == :new_pm}
+  id="project_modal"
+  max_width="w-[50rem]"
+  on_cancel={JS.navigate(~p"/settings?tab=payment")}
+>
+  <.live_component
+    module={PaymentMethodModal}
+    id={@payment_method.id || :new}
+    title={@page_title}
+    action={@live_action}
+    payment_method={@payment_method}
+    current_user={@current_user}
+  />
+</.modal>
+
+<.modal
+  :if={@live_action == :delete_pm}
+  show={@live_action == :delete_pm}
+  id="project_modal"
+  max_width="w-[50rem]"
+  on_cancel={JS.navigate(~p"/settings?tab=payment")}
+>
+  <.live_component
+    module={PaymentDelete}
+    id={@payment_method.id || :new}
+    title={@page_title}
+    action={@live_action}
+    payment_method={@payment_method}
+    current_user={@current_user}
+  />
+</.modal>

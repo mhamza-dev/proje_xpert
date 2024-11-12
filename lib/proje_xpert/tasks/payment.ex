@@ -1,16 +1,35 @@
 defmodule ProjeXpert.Tasks.Payment do
-  use Ecto.Schema
+  use ProjeXpert.Schema
   import Ecto.Changeset
 
   @statuses [:pending, :completed, :failed, :refunded, :cancelled]
-  @default_cast [:amount, :status, :payment_method]
-  @default_required [:amount, :status, :payment_method]
+  @default_cast [
+    :amount,
+    :status,
+    :description,
+    :task_id,
+    :receiver_id,
+    :payer_id,
+    :payment_method_id
+  ]
+  @default_required [
+    :amount,
+    :status,
+    :description,
+    :task_id,
+    :receiver_id,
+    :payer_id,
+    :payment_method_id
+  ]
   schema "payments" do
-    field :status, Ecto.Enum, values: @statuses
+    field :status, Ecto.Enum, values: @statuses, default: :pending
     field :amount, :decimal
-    field :payment_method, :string
+    field :description, :string
 
     belongs_to :task, ProjeXpert.Tasks.Task, foreign_key: :task_id
+    belongs_to :receiver, ProjeXpert.Accounts.User, foreign_key: :receiver_id
+    belongs_to :payer, ProjeXpert.Accounts.User, foreign_key: :payer_id
+    belongs_to :payment_method, ProjeXpert.Accounts.PaymentMethod, foreign_key: :payment_method_id
 
     timestamps(type: :utc_datetime)
   end

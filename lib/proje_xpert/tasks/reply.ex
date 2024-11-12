@@ -1,5 +1,5 @@
 defmodule ProjeXpert.Tasks.Reply do
-  use Ecto.Schema
+  use ProjeXpert.Schema
   import Ecto.Changeset
 
   schema "replies" do

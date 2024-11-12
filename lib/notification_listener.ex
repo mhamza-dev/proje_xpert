@@ -5,8 +5,7 @@ defmodule NotificationListener do
   def listener do
     quote do
       def handle_info({:notification, user_id, notification}, socket) do
-        if socket.assigns.current_user.notification_preference.push and
-             socket.assigns.current_user.id == user_id do
+        if socket.assigns.current_user.notification_preference.push do
           {:noreply,
            socket
            |> assign(
@@ -49,6 +48,20 @@ defmodule NotificationListener do
           _ ->
             {:noreply, socket}
         end
+      end
+    end
+  end
+
+  def mark_all_as_read_event do
+    quote do
+      def handle_event("mark_all_as_read", _, socket) do
+        socket.assigns.current_user.id
+        |> Accounts.list_notifications_by_user()
+        |> Enum.each(fn n -> Accounts.update_notification(n, %{"is_read?" => true}) end)
+
+        send(self(), {:notification, socket.assigns.current_user.id, "notifications"})
+
+        {:noreply, socket}
       end
     end
   end

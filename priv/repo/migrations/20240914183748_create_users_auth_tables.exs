@@ -15,6 +15,7 @@ defmodule ProjeXpert.Repo.Migrations.CreateUsersAuthTables do
       add :profile_image, :text
       add :location, :string
       add :bio, :text
+      add :stripe_customer_id, :string
 
       timestamps(type: :utc_datetime)
     end

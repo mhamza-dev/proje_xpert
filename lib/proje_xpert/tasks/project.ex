@@ -1,5 +1,5 @@
 defmodule ProjeXpert.Tasks.Project do
-  use Ecto.Schema
+  use ProjeXpert.Schema
   import Ecto.Changeset
 
   @statuses [:pending, :in_progress, :completed, :on_hold]

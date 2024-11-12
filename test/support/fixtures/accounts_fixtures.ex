@@ -59,4 +59,21 @@ defmodule ProjeXpert.AccountsFixtures do
 
     notification
   end
+
+  @doc """
+  Generate a payment_method.
+  """
+  def payment_method_fixture(attrs \\ %{}) do
+    {:ok, payment_method} =
+      attrs
+      |> Enum.into(%{
+        card_holder_name: "some card_holder_name",
+        cvv: 42,
+        expiry: "some expiry",
+        last_four_digits: "some last_four_digits"
+      })
+      |> ProjeXpert.Accounts.create_payment_method()
+
+    payment_method
+  end
 end

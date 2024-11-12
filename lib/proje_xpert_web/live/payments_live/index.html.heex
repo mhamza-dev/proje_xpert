@@ -42,29 +42,36 @@
   <.live_component
     id="project-listing"
     module={ProjeXpertWeb.TableComponent}
-    headers={["Name", "Owner", "Project", "No. of Users"]}
-    has_actions?={is_client?(@current_user)}
+    headers={
+      if is_freelancer?(@current_user),
+        do: ["Description", "Payer", "Task Title", "Status", "Transaction Time"],
+        else: ["Description", "Receiver", "Task Title", "Status", "Transaction Time"]
+    }
+    has_actions?={false}
   >
     <:table_cells>
-      <tr :for={channel <- @channels} class="border-b-[1px] hover:bg-gray-100">
+      <tr :for={payment <- @payments} class="border-b-[1px] hover:bg-gray-100">
         <td class="p-3 text-sm font-medium">
-          <.link navigate={~p"/channels/#{channel.id}/show"}>
-            <h2 class="font-medium text-gray-800 "><%= channel.name %></h2>
-          </.link>
+          <%!-- <.link navigate={~p"/payments/#{payment.id}/show"}> --%>
+          <h2 class="font-medium text-gray-800 "><%= payment.description %></h2>
+          <%!-- </.link> --%>
         </td>
-        <td class="p-3 text-sm font-medium">
-          <%= full_name(channel.created_by) %>
+        <td :if={is_client?(@current_user)} class="p-3 text-sm font-medium">
+          <%= full_name(payment.receiver) %>
+        </td>
+        <td :if={is_freelancer?(@current_user)} class="p-3 text-sm font-medium">
+          <%= full_name(payment.payer) %>
         </td>
         <td class="p-3 text-sm">
           <p class="text-gray-500">
-            <%= channel.project.title %>
+            <%= payment.task.title %>
           </p>
         </td>
-
         <td class="p-3 text-sm">
-          <p class="text-gray-500 ml-6">
-            <%= length(channel.joiners) %>
-          </p>
+          <.status_pill status={payment.status} />
+        </td>
+        <td class="p-3 text-sm">
+          <%= format_datetime(payment.inserted_at) %>
         </td>
       </tr>
     </:table_cells>
@@ -125,19 +132,20 @@
       </a>
     </div>
   </div>
+
   <.modal
-    :if={@live_action in [:new, :edit]}
-    show={@live_action in [:new, :edit]}
+    :if={@live_action in [:new]}
+    show={@live_action in [:new]}
     id="project_modal"
     max_width="max-w-5xl"
-    on_cancel={JS.navigate(~p"/projects")}
+    on_cancel={JS.navigate(~p"/payments")}
   >
     <.live_component
-      module={ProjeXpertWeb.ProjectsLive.Components.Project}
-      id={@project.id || :new}
+      module={ProjeXpertWeb.PaymentsLive.Components.Payment}
+      id={@task.id || :new}
       title={@page_title}
       action={@live_action}
-      project={@project}
+      task={@task}
       current_user={@current_user}
     />
   </.modal>

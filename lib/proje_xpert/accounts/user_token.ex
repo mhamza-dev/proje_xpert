@@ -1,5 +1,5 @@
 defmodule ProjeXpert.Accounts.UserToken do
-  use Ecto.Schema
+  use ProjeXpert.Schema
   import Ecto.Query
   alias ProjeXpert.Accounts.UserToken
 

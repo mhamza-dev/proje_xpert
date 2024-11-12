@@ -4,9 +4,10 @@ defmodule ProjeXpert.Accounts do
   """
 
   import Ecto.Query, warn: false
+  alias ProjeXpertWeb.LiveHelpers
   alias ProjeXpert.Repo
 
-  alias ProjeXpert.Accounts.{NotificationPreference, User, UserToken, UserNotifier}
+  alias ProjeXpert.Accounts.{NotificationPreference, PaymentMethod, User, UserToken, UserNotifier}
 
   ## Database getters
 
@@ -156,6 +157,12 @@ defmodule ProjeXpert.Accounts do
     end
   end
 
+  def update_user(user, attrs) do
+    user
+    |> User.changeset(attrs)
+    |> Repo.update()
+  end
+
   defp user_email_multi(user, email, context) do
     changeset =
       user
@@ -258,7 +265,7 @@ defmodule ProjeXpert.Accounts do
   """
   def get_user_by_session_token(token) do
     {:ok, query} = UserToken.verify_session_token_query(token)
-    Repo.one(query) |> Repo.preload([:notification_preference, :notifications])
+    Repo.one(query) |> Repo.preload([:notification_preference, :notifications, :payment_methods])
   end
 
   @doc """
@@ -604,5 +611,146 @@ defmodule ProjeXpert.Accounts do
         else: limit(notifications, ^notifications_limit)
 
     Repo.all(notifications)
+  end
+
+  @doc """
+  Returns the list of payment_methods.
+
+  ## Examples
+
+      iex> list_payment_methods()
+      [%PaymentMethod{}, ...]
+
+  """
+  def list_payment_methods do
+    Repo.all(PaymentMethod)
+  end
+
+  @doc """
+  Gets a single payment_method.
+
+  Raises `Ecto.NoResultsError` if the Payment method does not exist.
+
+  ## Examples
+
+      iex> get_payment_method!(123)
+      %PaymentMethod{}
+
+      iex> get_payment_method!(456)
+      ** (Ecto.NoResultsError)
+
+  """
+  def get_payment_method!(id), do: Repo.get!(PaymentMethod, id)
+
+  @doc """
+  Creates a payment_method.
+
+  ## Examples
+
+      iex> create_payment_method(%{field: value})
+      {:ok, %PaymentMethod{}}
+
+      iex> create_payment_method(%{field: bad_value})
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def create_payment_method(attrs \\ %{}) do
+    %PaymentMethod{}
+    |> PaymentMethod.create_changeset(attrs)
+    |> Repo.insert()
+  end
+
+  @doc """
+  Updates a payment_method.
+
+  ## Examples
+
+      iex> update_payment_method(payment_method, %{field: new_value})
+      {:ok, %PaymentMethod{}}
+
+      iex> update_payment_method(payment_method, %{field: bad_value})
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def update_payment_method(%PaymentMethod{} = payment_method, attrs) do
+    payment_method
+    |> PaymentMethod.create_changeset(attrs)
+    |> Repo.update()
+  end
+
+  @doc """
+  Deletes a payment_method.
+
+  ## Examples
+
+      iex> delete_payment_method(payment_method)
+      {:ok, %PaymentMethod{}}
+
+      iex> delete_payment_method(payment_method)
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def delete_payment_method(%PaymentMethod{} = payment_method) do
+    Repo.delete(payment_method)
+  end
+
+  @doc """
+  Returns an `%Ecto.Changeset{}` for tracking payment_method changes.
+
+  ## Examples
+
+      iex> change_payment_method(payment_method)
+      %Ecto.Changeset{data: %PaymentMethod{}}
+
+  """
+  def change_payment_method(%PaymentMethod{} = payment_method, attrs \\ %{}) do
+    PaymentMethod.validate_changeset(payment_method, attrs)
+  end
+
+  def create_payment_method_with_stripe(attrs \\ %{}) do
+    with %User{} = user <- get_user!(attrs["user_id"]),
+         {:ok, %{id: id}} <- create_stripe_customer_if_not_exist(user),
+         {:ok, _user} <- update_user(user, %{"stripe_customer_id" => id}),
+         {:ok, spm} <- Stripe.PaymentMethod.create(spm_params(attrs)),
+         {:ok, _spm} <- Stripe.PaymentMethod.attach(spm, %{"customer" => id}),
+         {:ok, payment_method} <- create_payment_method(pm_params(attrs, spm)) do
+      {:ok, payment_method}
+    else
+      {:error, %Stripe.Error{message: msg}} -> {:error, "Stripe Error: #{msg}"}
+      {:error, changeset} -> {:error, changeset}
+      _ -> {:error, "Unknown error occurred"}
+    end
+  end
+
+  defp create_stripe_customer_if_not_exist(%{stripe_customer_id: nil} = user) do
+    Stripe.Customer.create(%{
+      email: user.email,
+      name: LiveHelpers.full_name(user)
+    })
+  end
+
+  defp create_stripe_customer_if_not_exist(%{stripe_customer_id: id}), do: {:ok, %{id: id}}
+
+  defp pm_params(attrs, spm) do
+    Map.merge(attrs, %{
+      "brand" => spm.card.brand,
+      "card_id" => spm.id,
+      "default" => true,
+      "last_four_digits" => spm.card.last4
+    })
+  end
+
+  defp spm_params(attrs) do
+    [month, year] = String.split(attrs["expiry"], "/")
+
+    %{
+      type: "card",
+      card: %{
+        number: attrs["last_four_digits"],
+        exp_month: month,
+        exp_year: year,
+        cvc: attrs["cvv"]
+      }
+    }
   end
 end

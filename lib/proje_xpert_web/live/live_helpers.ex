@@ -7,6 +7,7 @@ defmodule ProjeXpertWeb.LiveHelpers do
   alias ProjeXpert.Tasks
   alias ProjeXpert.Tasks.Project
   alias ProjeXpert.Tasks.Bid
+  alias ProjeXpert.Tasks.Payment
   alias ProjeXpertWeb.UserPresence, as: Presence
 
   def is_freelancer?(user), do: user.role == :freelancer
@@ -99,14 +100,18 @@ defmodule ProjeXpertWeb.LiveHelpers do
 
   def get_color_by_status(status) when status in [:submitted], do: "text-blue-600 bg-blue-600/15"
 
-  def get_color_by_status(status) when status in [:in_progress, :under_review],
+  def get_color_by_status(status) when status in [:pending, :in_progress, :under_review],
     do: "text-yellow-500 bg-yellow-100"
 
   def get_color_by_status(status) when status in [:completed, :accepted],
     do: "text-green-500 bg-green-100"
 
-  def get_color_by_status(status) when status in [:on_hold, :pending, :rejected, :withdrawn],
-    do: "text-red-500 bg-red-100"
+  def get_color_by_status(status)
+      when status in [:failed, :cancelled, :on_hold, :pending, :rejected, :withdrawn],
+      do: "text-red-500 bg-red-100"
+
+  def get_color_by_status(status) when status in [:refunded],
+    do: "text-gray-500 bg-gray-100"
 
   def get_tailwind_width_class(project) do
     percentage = get_task_percentage(project)
@@ -256,6 +261,31 @@ defmodule ProjeXpertWeb.LiveHelpers do
     Repo.preload(context, preload_schames)
   end
 
+  def generate_random_float(min, max), do: Float.round(min + :rand.uniform() * (max - min), 2)
+
+  def is_integer?(value) when is_binary(value) do
+    case Integer.parse(value) do
+      {int_value, ""} when is_integer(int_value) ->
+        true
+
+      _ ->
+        false
+    end
+  end
+
+  def is_uuid?(value) do
+    case Ecto.UUID.cast(value) do
+      {:ok, _uuid} -> true
+      _ -> false
+    end
+  end
+
+  def get_default_pm_of_user(user) do
+    user.payment_methods
+    |> Enum.sort_by(& &1.inserted_at, :desc)
+    |> Enum.find(& &1.default)
+  end
+
   defp get_function_by_resource(Project, :client), do: &Tasks.list_client_projects/2
   defp get_function_by_resource(Project, :freelancer), do: &Tasks.list_project_freelancers/2
 
@@ -264,6 +294,9 @@ defmodule ProjeXpertWeb.LiveHelpers do
 
   defp get_function_by_resource(Task, :client), do: &Tasks.list_tasks_for_client/2
   defp get_function_by_resource(Task, :freelancer), do: &Tasks.list_tasks_for_freelancer/2
+
+  defp get_function_by_resource(Payment, :client), do: &Tasks.list_payments_for_client/2
+  defp get_function_by_resource(Payment, :freelancer), do: &Tasks.list_payments_for_freelancer/2
 
   defp get_function_by_resource(Channel, :client), do: &Chats.list_channels_for_client/2
   defp get_function_by_resource(Channel, :freelancer), do: &Chats.list_channels_for_freelancer/2
