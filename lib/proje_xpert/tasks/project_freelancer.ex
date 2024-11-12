@@ -1,5 +1,5 @@
 defmodule ProjeXpert.Tasks.Projectfreelancer do
-  use Ecto.Schema
+  use ProjeXpert.Schema
   import Ecto.Changeset
 
   schema "project_freelancers" do

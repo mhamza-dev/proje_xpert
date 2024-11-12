@@ -1,5 +1,5 @@
 defmodule ProjeXpert.Tasks.Column do
-  use Ecto.Schema
+  use ProjeXpert.Schema
   import Ecto.Changeset
 
   @default_cast [:name, :project_id]

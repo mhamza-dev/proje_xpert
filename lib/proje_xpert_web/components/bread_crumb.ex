@@ -25,7 +25,7 @@ defmodule ProjeXpertWeb.BreadCrumb do
           </li>
         </.link>
         <%= for {label, link} <- @breadcrumbs do %>
-          <li :if={!is_integer?(label)} class="flex items-center">
+          <li :if={!is_uuid?(label)} class="flex items-center">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               class="h-5 w-5 text-gray-400"
@@ -98,16 +98,6 @@ defmodule ProjeXpertWeb.BreadCrumb do
   end
 
   defp get_segments(current_path), do: String.split(current_path, "/", trim: true)
-
-  defp is_integer?(value) when is_binary(value) do
-    case Integer.parse(value) do
-      {int_value, ""} when is_integer(int_value) ->
-        true
-
-      _ ->
-        false
-    end
-  end
 
   defp get_active_breadcrumb(label, breadcrumbs) do
     String.downcase(label) ==

@@ -133,14 +133,4 @@ defmodule ProjeXpertWeb.NotificationBell do
         {:noreply, socket}
     end
   end
-
-  def handle_event("mark_all_as_read", _, socket) do
-    socket.assigns.current_user.id
-    |> Accounts.list_notifications_by_user()
-    |> Enum.each(fn n -> Accounts.update_notification(n, %{"is_read?" => true}) end)
-
-    send(self(), {:notification, socket.assigns.current_user.id, "notifications"})
-
-    {:noreply, socket}
-  end
 end

@@ -56,6 +56,7 @@ defmodule ProjeXpertWeb do
 
       unquote(html_helpers())
       unquote(NotificationListener.listener())
+      unquote(NotificationListener.mark_all_as_read_event())
       unquote(NotificationListener.goto_notif_event())
     end
   end
@@ -66,6 +67,7 @@ defmodule ProjeXpertWeb do
 
       unquote(html_helpers())
       unquote(NotificationListener.listener())
+      unquote(NotificationListener.mark_all_as_read_event())
       unquote(NotificationListener.goto_notif_event())
     end
   end

@@ -14,7 +14,7 @@ defmodule ProjeXpertWeb.TableComponent do
           <div class="max-h-[550px]">
             <table class="min-w-full">
               <thead class="bg-gray-50 sticky top-0 z-50 shadow-md">
-                <tr>
+                <tr class="bg-gray-200 text-gray-600 uppercase text-sm leading-normal">
                   <th
                     :for={header <- @headers}
                     scope="col"

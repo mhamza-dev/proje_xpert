@@ -2,7 +2,9 @@ defmodule ProjeXpertWeb.SettingsLive.Index do
   use ProjeXpertWeb, :live_view
 
   alias ProjeXpert.Accounts
-  alias ProjeXpert.Accounts.NotificationPreference
+  alias ProjeXpert.Accounts.{NotificationPreference, PaymentMethod}
+  alias ProjeXpertWeb.SettingsLive.Components.PaymentDelete
+  alias ProjeXpertWeb.SettingsLive.Components.PaymentMethod, as: PaymentMethodModal
 
   def mount(%{"token" => token}, _session, socket) do
     socket =
@@ -17,7 +19,7 @@ defmodule ProjeXpertWeb.SettingsLive.Index do
     {:ok, push_navigate(socket, to: ~p"/settings")}
   end
 
-  def mount(params, _session, socket) do
+  def mount(_params, _session, socket) do
     user = socket.assigns.current_user
     email_changeset = Accounts.change_user_email(user)
     password_changeset = Accounts.change_user_password(user)
@@ -31,7 +33,6 @@ defmodule ProjeXpertWeb.SettingsLive.Index do
     socket =
       socket
       |> assign(
-        current_tab: Map.get(params, "tab"),
         current_password: nil,
         email_form_current_password: nil,
         current_email: user.email,
@@ -49,6 +50,35 @@ defmodule ProjeXpertWeb.SettingsLive.Index do
       )
 
     {:ok, socket}
+  end
+
+  def handle_params(params, _url, socket) do
+    {:noreply, apply_action(socket, socket.assigns.live_action, params)}
+  end
+
+  defp apply_action(socket, _live_action, %{"pm_id" => id, "modal" => "delete_pm"} = params) do
+    socket
+    |> assign(
+      page_title: "Edit Payment Method",
+      payment_method: Accounts.get_payment_method!(id),
+      current_tab: Map.get(params, "tab"),
+      live_action: :delete_pm
+    )
+  end
+
+  defp apply_action(socket, _live_action, %{"modal" => "new_pm"} = params) do
+    socket
+    |> assign(
+      page_title: "New Payment Method",
+      payment_method: %PaymentMethod{},
+      current_tab: Map.get(params, "tab"),
+      live_action: :new_pm
+    )
+  end
+
+  defp apply_action(socket, _live_action, params) do
+    socket
+    |> assign(current_tab: Map.get(params, "tab"))
   end
 
   def handle_event("validate_email", params, socket) do

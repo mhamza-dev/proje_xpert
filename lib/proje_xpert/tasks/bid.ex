@@ -1,5 +1,5 @@
 defmodule ProjeXpert.Tasks.Bid do
-  use Ecto.Schema
+  use ProjeXpert.Schema
   import Ecto.Changeset
 
   @statuses [:submitted, :under_review, :accepted, :rejected, :withdrawn]
