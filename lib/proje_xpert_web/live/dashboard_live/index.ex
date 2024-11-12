@@ -36,7 +36,7 @@ defmodule ProjeXpertWeb.DashboardLive.Index do
   end
 
   defp recent_projects(projects) do
-    start_of_month = DateTime.utc_now() |> DateTime.shift([day: -1], Calendar.get_time_zone_database())
+    start_of_month = DateTime.utc_now() |> DateTime.add(-1, :day)
 
     projects
     |> Enum.filter(&(DateTime.compare(&1.inserted_at, start_of_month) != :lt))
