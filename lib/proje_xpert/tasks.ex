@@ -1024,7 +1024,11 @@ defmodule ProjeXpert.Tasks do
   def get_sprint!(id),
     do:
       Repo.get!(Sprint, id)
-      |> Repo.preload([:project, columns: [tasks: [:freelancer, bids: :freelancer]]])
+      |> Repo.preload([
+        :project,
+        tasks: [:freelancer, bids: :freelancer],
+        columns: [tasks: [:freelancer, bids: :freelancer]]
+      ])
 
   def get_sprint(id) do
     from(s in Sprint,

@@ -1428,7 +1428,7 @@ created_projects = fn ->
             col_date = random_date_with_initail_state.(sprint.inserted_at)
 
             Repo.insert!(%Column{
-              name: name,
+              name: "#{name} - #{sprint.id}",
               sprint_id: sprint.id,
               inserted_at: col_date,
               updated_at: col_date

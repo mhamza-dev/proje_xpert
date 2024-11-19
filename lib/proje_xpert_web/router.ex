@@ -109,10 +109,12 @@ defmodule ProjeXpertWeb.Router do
         live "/:id/edit", Index, :edit
         live "/:id/show", Show, :show
         live "/:id/new_column", Show, :new_column
-        live "/:id/new_task", Show, :projects_new_task
-        live "/:id/tasks/:task_id/edit", Show, :projects_edit_task
-        live "/:id/tasks/:task_id/show", Show, :projects_show_task
+        live "/:id/new_task", Show, :new_task
+        live "/:id/new_sprint", Show, :new_sprint
+        live "/:id/tasks/:task_id/edit", Show, :edit_task
+        live "/:id/tasks/:task_id/show", Show, :show_task
         live "/:id/column/:column_id/edit", Show, :edit_column
+        live "/:id/sprints/:sprint_id/edit", Show, :edit_sprint
         live "/show/:id/edit", Show, :edit
         live "/:id/channels/new", Show, :new_channel
       end
@@ -127,7 +129,7 @@ defmodule ProjeXpertWeb.Router do
       scope "/settings", SettingsLive do
         live "/", Index, :edit
         live "/email/:token/confirm", Index, :confirm_email
-        live "/new_pm", Index, :new_new_pmpaymenty
+        live "/new_pm", Index, :new_pm
       end
     end
   end

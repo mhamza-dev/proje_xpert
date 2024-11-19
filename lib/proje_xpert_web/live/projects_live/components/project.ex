@@ -2,7 +2,7 @@ defmodule ProjeXpertWeb.ProjectsLive.Components.Project do
   use ProjeXpertWeb, :live_component
 
   alias ProjeXpert.Tasks
-  alias ProjeXpert.Tasks.{Column, Project}
+  alias ProjeXpert.Tasks.{Column, Project, Sprint}
 
   def update(%{project: project} = assigns, socket) do
     changeset = Tasks.change_project(project, %{})
@@ -35,7 +35,7 @@ defmodule ProjeXpertWeb.ProjectsLive.Components.Project do
 
   defp create_project(project_params, socket) do
     with {:ok, project} <- Tasks.create_project(project_params),
-         :ok <- create_columns(project) do
+         :ok <- create_sprints(project) do
       {:noreply,
        socket
        |> put_flash(:info, "Project created successfully")
@@ -65,10 +65,20 @@ defmodule ProjeXpertWeb.ProjectsLive.Components.Project do
     end
   end
 
-  defp create_columns(project) do
+  defp create_sprints(project) do
+    Enum.each(
+      Sprint.get_default_sprints(),
+      fn sprint ->
+        Tasks.create_sprint(%{title: sprint, project_id: project.id})
+        create_columns(project, sprint)
+      end
+    )
+  end
+
+  defp create_columns(project, sprint) do
     Enum.each(
       Column.get_default_columns(),
-      &Tasks.create_column(%{name: &1, project_id: project.id})
+      &Tasks.create_column(%{name: &1, project_id: project.id, sprint_id: sprint.id})
     )
   end
 end

@@ -48,8 +48,35 @@
         ticket_dropdown="right-[6.5rem] w-48"
       >
         <ul>
+          <li class="p-2 text-lg text-gray-600 hover:bg-gray-100 cursor-pointer group">
+            <.link
+              patch={~p"/projects/show/#{@project.id}/edit?kanban_board=#{@kanban_board}"}
+              class="flex w-auto p-1 text-sm tracking-wide space-x-2"
+            >
+              <svg
+                class="w-5 h-5 group-hover:text-blue-500"
+                aria-hidden="true"
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="1.5"
+                  d="m14.304 4.844 2.852 2.852M7 7H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-4.5m2.409-9.91a2.017 2.017 0 0 1 0 2.853l-6.844 6.844L8 14l.713-3.565 6.844-6.844a2.015 2.015 0 0 1 2.852 0Z"
+                />
+              </svg>
+              <span class="group-hover:text-blue-500">Edit Project</span>
+            </.link>
+          </li>
           <li
-            :if={@kanban_board}
+            :if={@kanban_board and @selected_sprint.status != :completed}
+            phx-click="complete_sprint"
+            phx-value-id={@selected_sprint.id}
             class="p-2 text-lg text-gray-600 hover:bg-gray-100 cursor-pointer group"
           >
             <div class="flex w-auto p-1 text-sm tracking-wide space-x-2">
@@ -73,19 +100,22 @@
               <span class="group-hover:text-green-500">Complete Sprint</span>
             </div>
           </li>
-          <li class="p-2 text-lg text-gray-600 hover:bg-gray-100 cursor-pointer group">
+          <li
+            :if={@kanban_board and @selected_sprint.status != :completed}
+            class="p-2 text-lg text-gray-600 hover:bg-gray-100 cursor-pointer group"
+          >
             <.link
-              patch={~p"/projects/show/#{@project.id}/edit"}
+              patch={
+                ~p"/projects/#{@project.id}/sprints/#{@selected_sprint.id}/edit?kanban_board=#{@kanban_board}"
+              }
               class="flex w-auto p-1 text-sm tracking-wide space-x-2"
             >
               <svg
                 class="w-5 h-5 group-hover:text-blue-500"
-                aria-hidden="true"
                 xmlns="http://www.w3.org/2000/svg"
-                width="24"
-                height="24"
                 fill="none"
                 viewBox="0 0 24 24"
+                stroke="currentColor"
               >
                 <path
                   stroke="currentColor"
@@ -95,13 +125,36 @@
                   d="m14.304 4.844 2.852 2.852M7 7H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-4.5m2.409-9.91a2.017 2.017 0 0 1 0 2.853l-6.844 6.844L8 14l.713-3.565 6.844-6.844a2.015 2.015 0 0 1 2.852 0Z"
                 />
               </svg>
-              <span class="group-hover:text-blue-500">Edit Project</span>
+              <span class="group-hover:text-blue-500">Edit Selected Sprint</span>
             </.link>
           </li>
           <li class="p-2 text-lg text-gray-600 hover:bg-gray-100 cursor-pointer group">
             <.link
               :if={@project.status != :completed}
-              patch={~p"/projects/#{@project.id}/new_column"}
+              patch={~p"/projects/#{@project.id}/new_sprint?kanban_board=#{@kanban_board}"}
+              class="flex w-auto p-1 text-sm tracking-wide space-x-2"
+            >
+              <svg
+                class="w-5 h-5 group-hover:text-blue-500"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="1.5"
+                  d="M12 4v16m8-8H4"
+                />
+              </svg>
+              <span class="group-hover:text-blue-500">New Sprint</span>
+            </.link>
+          </li>
+          <li class="p-2 text-lg text-gray-600 hover:bg-gray-100 cursor-pointer group">
+            <.link
+              :if={@project.status != :completed}
+              patch={~p"/projects/#{@project.id}/new_column?kanban_board=#{@kanban_board}"}
               class="flex w-auto p-1 text-sm tracking-wide space-x-2"
             >
               <svg
@@ -124,7 +177,7 @@
           <li class="p-2 text-lg text-gray-600 hover:bg-gray-100 cursor-pointer group">
             <.link
               :if={@project.status != :completed}
-              patch={~p"/projects/#{@project.id}/new_task"}
+              patch={~p"/projects/#{@project.id}/new_task?kanban_board=#{@kanban_board}"}
               class="flex w-auto p-1 text-sm tracking-wide space-x-2"
             >
               <svg
@@ -311,7 +364,9 @@
               >
                 <ul>
                   <.link
-                    patch={~p"/projects/#{@project.id}/column/#{column.id}/edit"}
+                    patch={
+                      ~p"/projects/#{@project.id}/column/#{column.id}/edit?kanban_board=#{@kanban_board}"
+                    }
                     class="flex items-center space-x-2 px-4 py-2 text-[1rem] text-gray-600 hover:bg-gray-100 cursor-pointer group"
                   >
                     <svg
@@ -375,7 +430,9 @@
                     <div class="p-6">
                       <div class="flex items-center justify-between mb-2">
                         <.link
-                          patch={~p"/projects/#{@project.id}/tasks/#{task.id}/show"}
+                          patch={
+                            ~p"/projects/#{@project.id}/tasks/#{task.id}/show?kanban_board=#{@kanban_board}"
+                          }
                           class="hover:text-blue-600/50"
                         >
                           <p class="block font-sans text-base antialiased font-medium leading-relaxed text-blue-gray-900">
@@ -419,7 +476,9 @@
                         >
                           <ul>
                             <.link
-                              patch={~p"/projects/#{@project.id}/tasks/#{task.id}/edit"}
+                              patch={
+                                ~p"/projects/#{@project.id}/tasks/#{task.id}/edit?kanban_board=#{@kanban_board}"
+                              }
                               class="flex items-center space-x-2 px-4 py-2 text-[1rem] text-gray-600 hover:bg-gray-100 cursor-pointer group"
                             >
                               <svg
@@ -490,7 +549,7 @@
     show={@live_action in [:new_column, :edit_column]}
     id="project_modal"
     max_width="max-w-5xl"
-    on_cancel={JS.navigate(~p"/projects/#{@project.id}/show")}
+    on_cancel={JS.navigate(~p"/projects/#{@project.id}/show?kanban_board=#{@kanban_board}")}
   >
     <.live_component
       module={Components.Column}
@@ -499,15 +558,33 @@
       action={@live_action}
       project={@project}
       column={@column}
+      sprint={@selected_sprint}
       current_user={@current_user}
     />
   </.modal>
   <.modal
-    :if={@live_action in [:projects_new_task, :projects_edit_task, :projects_show_task]}
-    show={@live_action in [:projects_new_task, :projects_edit_task, :projects_show_task]}
+    :if={@live_action in [:new_sprint, :edit_sprint]}
+    show={@live_action in [:new_sprint, :edit_sprint]}
     id="task_modal"
     max_width="max-w-7xl"
-    on_cancel={JS.navigate(~p"/projects/#{@project.id}/show")}
+    on_cancel={JS.navigate(~p"/projects/#{@project.id}/show?kanban_board=#{@kanban_board}")}
+  >
+    <.live_component
+      module={Components.Sprint}
+      id={@sprint.id || :new}
+      title={@page_title}
+      action={@live_action}
+      sprint={@sprint}
+      project={@project}
+      current_user={@current_user}
+    />
+  </.modal>
+  <.modal
+    :if={@live_action in [:new_task, :edit_task, :show_task]}
+    show={@live_action in [:new_task, :edit_task, :show_task]}
+    id="task_modal"
+    max_width="max-w-7xl"
+    on_cancel={JS.navigate(~p"/projects/#{@project.id}/show?kanban_board=#{@kanban_board}")}
   >
     <.live_component
       module={Components.Task}
@@ -515,7 +592,7 @@
       title={@page_title}
       action={@live_action}
       project={@project}
-      selected_sprint={@selected_sprint}
+      sprint={@selected_sprint}
       columns={@columns}
       task={@task}
       current_user={@current_user}
@@ -526,7 +603,7 @@
     show={@live_action == :edit}
     id="project_modal"
     max_width="max-w-5xl"
-    on_cancel={JS.navigate(~p"/projects/#{@project.id}/show")}
+    on_cancel={JS.navigate(~p"/projects/#{@project.id}/show?kanban_board=#{@kanban_board}")}
   >
     <.live_component
       module={Components.Project}
@@ -542,7 +619,7 @@
     show={@live_action == :new_channel}
     id="channel_modal"
     max_width="max-w-3xl"
-    on_cancel={JS.navigate(~p"/projects/#{@project.id}/show")}
+    on_cancel={JS.navigate(~p"/projects/#{@project.id}/show?kanban_board=#{@kanban_board}")}
   >
     <.live_component
       module={Components.Channel}
