@@ -9,9 +9,9 @@ defmodule ProjeXpertWeb.TableComponent do
   def render(assigns) do
     ~H"""
     <div class="flex flex-col">
-      <div class="overflow-x-auto border border-gray-200 rounded-lg min-h-[calc(100vh-33vh)]">
+      <div class="overflow-x-auto border border-gray-200 rounded-lg min-h-[calc(100vh-30vh)]">
         <div class="inline-block min-w-full align-middle">
-          <div class="max-h-[550px]">
+          <div class="max-h-[calc(100vh-52vh)]">
             <table class="min-w-full">
               <thead class="bg-gray-50 sticky top-0 z-50 shadow-md">
                 <tr class="bg-gray-200 text-gray-600 uppercase text-sm leading-normal">

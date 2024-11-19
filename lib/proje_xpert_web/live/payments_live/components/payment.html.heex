@@ -93,6 +93,7 @@
         <.input type="hidden" field={f[:receiver_id]} value={@task.freelancer.id} />
         <.input type="hidden" field={f[:payer_id]} value={@current_user.id} />
         <.input type="hidden" field={f[:payment_method_id]} value={default_pm.id} />
+        <.input type="hidden" field={f[:card_id]} value={default_pm.card_id} />
         <.input
           type="text"
           field={f[:description]}

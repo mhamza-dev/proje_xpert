@@ -60,7 +60,7 @@ defmodule ProjeXpertWeb.TasksLive.Show do
   def create_bid(bid_params, %{assigns: assigns} = socket) do
     case Tasks.create_bid(bid_params) do
       {:ok, bid} ->
-        Phoenix.PubSub.broadcast!(ProjeXpert.PubSub, "bids", {:bid_created})
+        Phoenix.PubSub.broadcast!(ProjeXpert.PubSub, "bids", {:update_bid_list})
 
         {:noreply,
          socket

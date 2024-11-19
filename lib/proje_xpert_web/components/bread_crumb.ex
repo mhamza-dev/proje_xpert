@@ -39,7 +39,7 @@ defmodule ProjeXpertWeb.BreadCrumb do
               navigate={link}
               class={
                 [
-                  "text-base hover:text-blue-600 transition-colors duration-200",
+                  "text-lg hover:text-blue-600 transition-colors duration-200",
                   get_active_breadcrumb(label, @breadcrumbs) && "text-blue-600 font-semibold"
                 ]
                 |> Enum.join(" ")

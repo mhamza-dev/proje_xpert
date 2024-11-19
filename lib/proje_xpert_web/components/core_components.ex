@@ -230,17 +230,35 @@ defmodule ProjeXpertWeb.CoreComponents do
   attr(:type, :string, default: nil)
   attr(:class, :string, default: nil)
   attr(:rest, :global, include: ~w(disabled form name value))
+  attr(:style, :string, default: "primary")
 
   slot(:inner_block, required: true)
 
-  def button(assigns) do
+  def button(%{style: "primary"} = assigns) do
     ~H"""
     <button
       type={@type}
       class={[
         "phx-submit-loading:opacity-75 bg-blue-600 rounded-lg py-2 px-4",
         "flex items-center justify-center border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500",
-        @class
+        @class,
+        if(!is_nil(Map.get(@rest, :disabled)), do: "cursor-not-allowed opacity-50", else: "")
+      ]}
+      {@rest}
+    >
+      <%= render_slot(@inner_block) %>
+    </button>
+    """
+  end
+
+  def button(%{style: "secondary"} = assigns) do
+    ~H"""
+    <button
+      type={@type}
+      class={[
+        "w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50",
+        @class,
+        if(!is_nil(Map.get(@rest, :disabled)), do: "cursor-not-allowed opacity-50", else: "")
       ]}
       {@rest}
     >
@@ -737,10 +755,10 @@ defmodule ProjeXpertWeb.CoreComponents do
   def status_pill(assigns) do
     ~H"""
     <div class={[
-      "inline px-3 py-1 text-sm font-normal rounded-md gap-x-2",
+      "w-28 text-center px-3 py-1 text-sm font-normal rounded-md gap-x-2",
       get_color_by_status(@status)
     ]}>
-      <%= camel_case_string(@status) %>
+      <p><%= camel_case_string(@status) %></p>
     </div>
     """
   end
@@ -1067,14 +1085,83 @@ defmodule ProjeXpertWeb.CoreComponents do
     ~H"""
     <img
       class={@class}
-      src={
-        if @user.profile_image,
-          do: @user.profile_image,
-          else:
-            "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
-      }
+      src={if(@user.profile_image, do: @user.profile_image, else: gravatar(@user))}
       alt=""
     />
+    """
+  end
+
+  def topnav(assigns) do
+    ~H"""
+    <header class="px-6 sm:px-8 lg:px-10 my-2">
+      <div class="flex items-center justify-end">
+        <div :if={@assigns.current_user} class="flex items-center space-x-4">
+          <.live_component
+            module={ProjeXpertWeb.NotificationBell}
+            current_user={@assigns.current_user}
+            notification_count={@assigns.notification_count}
+            drawer_notifications={@assigns.drawer_notifications}
+            all_notifications={@assigns.all_notifications}
+            id={"notification_bell_for_#{@assigns.current_user.id}"}
+          />
+          <div>
+            <svg
+              class="w-9 h-9 text-gray-800"
+              aria-hidden="true"
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke="currentColor"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="1.5"
+                d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"
+              />
+            </svg>
+          </div>
+          <div x-data="{ open: false }">
+            <button
+              @click="open = !open"
+              @click.outside="open = false"
+              type="button"
+              class="relative flex space-x-2"
+            >
+              <.dot_profile_image user={@assigns.current_user} />
+              <div class="flex flex-col text-left">
+                <p class="text-gray-600 text-md font-medium">
+                  <%= full_name(@assigns.current_user) %>
+                </p>
+                <p class="text-gray-400 text-sm font-medium">
+                  <%= camel_case_string(@assigns.current_user.role) %>
+                </p>
+              </div>
+            </button>
+            <div
+              x-show="open"
+              class="absolute right-10 z-[60] mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
+            >
+              <li class="block px-4 py-2 text-lg text-gray-600 hover:bg-gray-100 cursor-pointer">
+                <.icon name="hero-user-circle" class="w-6 h-6" /> Your Profile
+              </li>
+              <li class="block px-4 py-2 text-lg text-gray-600 hover:bg-gray-100 cursor-pointer">
+                <.icon name="hero-cog-8-tooth" class="w-6 h-6" /> Settings
+              </li>
+              <.link
+                href="/log_out"
+                method="delete"
+                class="block px-4 py-2 text-lg text-gray-600 hover:bg-gray-100"
+              >
+                <.icon name="hero-arrow-left-end-on-rectangle" class="w-6 h-6" /> Sign out
+              </.link>
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
     """
   end
 

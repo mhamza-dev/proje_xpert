@@ -211,9 +211,9 @@
             <div class="flex space-x-3">
               <button
                 type="button"
-                class="text-gray-900 rounded-lg hover:bg-gray-100 py-2 px-3"
                 phx-click="add_new_comment"
                 phx-target={@myself}
+                style="secondary"
               >
                 Cancel
               </button>
@@ -314,7 +314,7 @@
                   <div class="flex space-x-3">
                     <button
                       type="button"
-                      class="text-gray-900 rounded-lg hover:bg-gray-100 py-2 px-3"
+                      style="secondary"
                       phx-click="add_new_reply"
                       phx-value-id="0"
                       phx-target={@myself}

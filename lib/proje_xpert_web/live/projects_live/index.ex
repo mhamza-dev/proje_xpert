@@ -40,8 +40,7 @@ defmodule ProjeXpertWeb.ProjectsLive.Index do
       get_resources_by_role(
         Project,
         assigns.current_user,
-        fetch_tab_param(assigns.current_tab),
-        search
+        Map.merge(fetch_tab_param(assigns.current_tab), search)
       )
 
     {:noreply, socket |> assign(:projects, projects)}

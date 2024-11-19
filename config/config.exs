@@ -35,9 +35,9 @@ config :proje_xpert, ProjeXpertWeb.Endpoint,
 # at the `config/runtime.exs`.
 
 # configure stripe
-config :stripity_stripe,
-  # api_key: System.get_env("STRIPE_PRIVATE_KEY")
-  api_key: System.get_env("STRIPE_SECRET_KEY")
+# config :stripity_stripe,
+#   # api_key: System.get_env("STRIPE_PRIVATE_KEY")
+#   api_key: System.get_env("STRIPE_SECRET_KEY")
 
 # Configure esbuild (the version is required)
 config :esbuild,

@@ -131,9 +131,8 @@ defmodule ProjeXpertWeb.LiveHelpers do
       else: 0
   end
 
-  def get_resources_by_role(resource, %{id: id, role: role}, params \\ %{}, search_term \\ %{}) do
-    apply(get_function_by_resource(resource, role), [id, search_term])
-    |> get_resources_by_tab(params)
+  def get_resources_by_role(resource, %{id: id, role: role}, params \\ %{}) do
+    apply(get_function_by_resource(resource, role), [id, params])
   end
 
   def check_project_budget_for_task(task, project) when is_binary(task) do
@@ -286,6 +285,15 @@ defmodule ProjeXpertWeb.LiveHelpers do
     |> Enum.find(& &1.default)
   end
 
+  def gravatar(user) do
+    "https://ui-avatars.com/api/?name=#{get_initials(user)}&background=random&color=fff&rounded=true&bold=true"
+  end
+
+  defp get_initials(%{first_name: fname, last_name: lname}),
+    do: String.at(fname, 0) <> String.at(lname, 0)
+
+  defp get_initials(%{email: email}), do: String.at(email, 0)
+
   defp get_function_by_resource(Project, :client), do: &Tasks.list_client_projects/2
   defp get_function_by_resource(Project, :freelancer), do: &Tasks.list_project_freelancers/2
 
@@ -300,14 +308,4 @@ defmodule ProjeXpertWeb.LiveHelpers do
 
   defp get_function_by_resource(Channel, :client), do: &Chats.list_channels_for_client/2
   defp get_function_by_resource(Channel, :freelancer), do: &Chats.list_channels_for_freelancer/2
-
-  defp get_resources_by_tab(resources, %{"tab" => tab}) when is_binary(tab) do
-    Enum.filter(resources, &(&1.status == String.to_atom(tab)))
-  end
-
-  defp get_resources_by_tab(resources, %{"tab" => tab}) when is_atom(tab) do
-    Enum.filter(resources, &(&1.status == tab))
-  end
-
-  defp get_resources_by_tab(resources, _), do: resources
 end

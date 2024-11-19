@@ -37,14 +37,16 @@ clients = [
     last_name: "Doe",
     email: "alice@example.com",
     location: "New York, NY",
-    bio: "<p>Dynamic entrepreneur with a passion for tech.</p>"
+    bio: "<p>Dynamic entrepreneur with a passion for tech.</p>",
+    username: "alice-doe"
   },
   %{
     first_name: "Jessica",
     last_name: "Rodriguez",
     email: "jessica.r@example.com",
     location: "Los Angeles, CA",
-    bio: "<p>Creative designer with an eye for detail.</p>"
+    bio: "<p>Creative designer with an eye for detail.</p>",
+    username: "jessica-r"
   }
 ]
 
@@ -54,28 +56,32 @@ freelancers = [
     last_name: "Smith",
     email: "bob.smith@example.com",
     location: "Chicago, IL",
-    bio: "<p>Skilled developer with 5 years of experience.</p>"
+    bio: "<p>Skilled developer with 5 years of experience.</p>",
+    username: "bob-smith"
   },
   %{
     first_name: "Charlie",
     last_name: "Johnson",
     email: "charlie.j@example.com",
     location: "Houston, TX",
-    bio: "<p>Full-stack engineer who loves coding.</p>"
+    bio: "<p>Full-stack engineer who loves coding.</p>",
+    username: "charlie-j"
   },
   %{
     first_name: "Ian",
     last_name: "Martinez",
     email: "ian.martinez@example.com",
     location: "San Jose, CA",
-    bio: "<p>Software engineer with a focus on efficiency.</p>"
+    bio: "<p>Software engineer with a focus on efficiency.</p>",
+    username: "ian-martinez"
   },
   %{
     first_name: "Tina",
     last_name: "Clark",
     email: "tina.clark@example.com",
     location: "Boston, MA",
-    bio: "<p>Business analyst with a keen analytical mind.</p>"
+    bio: "<p>Business analyst with a keen analytical mind.</p>",
+    username: "tina-clark"
   }
 ]
 
@@ -1089,20 +1095,42 @@ tags_lists = [
   ["monitoring", "retry-mechanisms", "API-integration", "real-time"]
 ]
 
+random_date = fn ->
+  start_date = ~U[2024-01-01 00:00:00Z]
+  end_date = DateTime.utc_now()
+  random_seconds = :rand.uniform(DateTime.diff(end_date, start_date, :second))
+  DateTime.add(start_date, random_seconds, :second)
+end
+
+random_date_with_initail_state = fn starting_date ->
+  end_date = DateTime.utc_now()
+  random_seconds = :rand.uniform(DateTime.diff(end_date, starting_date, :second))
+  DateTime.add(starting_date, random_seconds, :second)
+end
+
 create_users = fn users, role ->
   Enum.map(users, fn user ->
-    params = %{
-      first_name: user.first_name,
-      last_name: user.last_name,
-      email: user.email,
-      password: "Pa$$w0rd!",
-      role: role,
-      rating: Float.round(:rand.uniform() * 5, 2),
-      location: user.location,
-      bio: user.bio
-    }
+    date = random_date.()
 
-    user = %User{} |> User.seed_changeset(params) |> Repo.insert!()
+    user =
+      Repo.insert!(%User{
+        first_name: user.first_name,
+        last_name: user.last_name,
+        email: user.email,
+        hashed_password: Bcrypt.hash_pwd_salt("Pa$$w0rd!"),
+        role: role,
+        rating: Float.round(:rand.uniform() * 5, 2),
+        location: user.location,
+        bio: user.bio,
+        gender: if(user.first_name in ["Jessica", "Tina"], do: :female, else: :male),
+        terms: true,
+        birthdate: Date.utc_today(),
+        username: user.username,
+        confirmed_at: date,
+        inserted_at: date,
+        updated_at: date
+      })
+
     np_params = Map.put(Enum.random(notification_preferences), :user_id, user.id)
     %NotificationPreference{} |> NotificationPreference.changeset(np_params) |> Repo.insert!()
     user |> get_preload([:notification_preference])
@@ -1116,6 +1144,8 @@ created_freelancers = create_users.(freelancers, :freelancer)
 
 send_payment_notif_to_client = fn client, freelancer, task, project ->
   if client.notification_preference.push do
+    notif_date = random_date_with_initail_state.(task.updated_at)
+
     Repo.insert!(%Notification{
       type: :push,
       user_id: project.client_id,
@@ -1123,7 +1153,9 @@ send_payment_notif_to_client = fn client, freelancer, task, project ->
       message: """
         <p><strong>#{full_name(freelancer)}</strong> asked to release payment for the task #{task.title} associated with the project #{project.title} </p>
       """,
-      is_read?: Enum.random([true, false])
+      is_read?: Enum.random([true, false]),
+      inserted_at: notif_date,
+      updated_at: notif_date
     })
   end
 end
@@ -1153,6 +1185,8 @@ end
 
 send_notif_to_freelancer = fn client, freelancer, task, project ->
   if client.notification_preference.push do
+    notif_date = random_date_with_initail_state.(task.updated_at)
+
     Repo.insert!(%Notification{
       user_id: freelancer.id,
       message: """
@@ -1160,13 +1194,17 @@ send_notif_to_freelancer = fn client, freelancer, task, project ->
       """,
       type: :push,
       link: "tasks/#{task.id}/show",
-      is_read?: Enum.random([true, false])
+      is_read?: Enum.random([true, false]),
+      inserted_at: notif_date,
+      updated_at: notif_date
     })
   end
 end
 
 send_notif_to_client = fn bid, client, freelancer, task, project ->
   if client.notification_preference.push do
+    notif_date = random_date_with_initail_state.(bid.inserted_at)
+
     Repo.insert!(%Notification{
       user_id: client.id,
       message: """
@@ -1174,7 +1212,9 @@ send_notif_to_client = fn bid, client, freelancer, task, project ->
       """,
       type: :push,
       link: "bids/#{bid.id}/show",
-      is_read?: Enum.random([true, false])
+      is_read?: Enum.random([true, false]),
+      inserted_at: notif_date,
+      updated_at: notif_date
     })
   end
 end
@@ -1194,21 +1234,29 @@ accept_bids = fn task, client, project, freelancer, columns ->
 
     # Add comments and replies
     Enum.each(1..3, fn _ ->
+      comment_date = random_date_with_initail_state.(task.updated_at)
+
       comment =
         Repo.insert!(%Comment{
           message: "This is a comment on task: #{task.title}.",
           task_id: task.id,
-          user_id: client.id
+          user_id: client.id,
+          inserted_at: comment_date,
+          updated_at: comment_date
         })
 
       Enum.each(1..3, fn index ->
         user = if rem(index, 2) == 0, do: client, else: Accounts.get_user!(bid.freelancer_id)
 
+        reply_date = random_date_with_initail_state.(comment.inserted_at)
+
         Repo.insert!(%Reply{
           message:
             "This is a reply to comment: #{comment.id} by #{user.first_name} #{user.last_name}.",
           comment_id: comment.id,
-          user_id: user.id
+          user_id: user.id,
+          inserted_at: reply_date,
+          updated_at: reply_date
         })
       end)
     end)
@@ -1222,17 +1270,23 @@ create_channels = fn project, client ->
     |> get_project_freelancers()
     |> Enum.map(& &1.id)
 
+  channel_date = random_date_with_initail_state.(project.inserted_at)
+
   channel =
     Repo.insert!(%Channel{
       name: "Channel for #{project.title}",
       joiners: joiners,
       project_id: project.id,
-      created_by_id: client.id
+      created_by_id: client.id,
+      inserted_at: channel_date,
+      updated_at: channel_date
     })
 
   senders = joiners ++ [client.id]
 
   for _ <- 1..Enum.random(3..10) do
+    message_date = random_date_with_initail_state.(channel.inserted_at)
+
     Repo.insert!(%Message{
       body: """
         <p><strong>New message for #{project.title}:</strong></p>
@@ -1241,7 +1295,9 @@ create_channels = fn project, client ->
         </p>
       """,
       sender_id: Enum.random(senders),
-      channel_id: channel.id
+      channel_id: channel.id,
+      inserted_at: message_date,
+      updated_at: message_date
     })
   end
 end
@@ -1254,6 +1310,8 @@ create_bids = fn task, project, client, columns ->
       end)
 
     if task.find_freelancer? do
+      bid_date = random_date_with_initail_state.(task.inserted_at)
+
       applied_bid =
         Repo.insert!(%Bid{
           amount: generate_random_float(100, 1000),
@@ -1280,7 +1338,9 @@ create_bids = fn task, project, client, columns ->
           """,
           task_id: task.id,
           freelancer_id: freelancer.id,
-          attached_files: attached_files
+          attached_files: attached_files,
+          inserted_at: bid_date,
+          updated_at: bid_date
         })
 
       send_notif_to_client.(applied_bid, client, freelancer, task, project)
@@ -1303,6 +1363,8 @@ create_tasks = fn project, columns, client ->
         "https://asset.cloudinary.com/dmkkivjv3/cb13850a32552725cc83943f00496892"
       end)
 
+    task_date = random_date_with_initail_state.(project.inserted_at)
+
     generated_task =
       Repo.insert!(%Task{
         title: task.title,
@@ -1315,7 +1377,9 @@ create_tasks = fn project, columns, client ->
         project_id: project.id,
         attachments: attachments,
         tags: Enum.at(tags_lists, index),
-        experience_required: Enum.random([:beginner, :intermediate, :expert])
+        experience_required: Enum.random([:beginner, :intermediate, :expert]),
+        inserted_at: task_date,
+        updated_at: task_date
       })
 
     create_bids.(generated_task, project, client, columns)
@@ -1326,6 +1390,7 @@ created_projects = fn ->
   for proj <- projects_list do
     client = Enum.random(created_clients)
     project_status = Project.all_statuses() |> Enum.reject(&(&1 == :completed)) |> Enum.random()
+    proj_date = random_date_with_initail_state.(client.inserted_at)
 
     project =
       Repo.insert!(%Project{
@@ -1333,16 +1398,24 @@ created_projects = fn ->
         description: proj.description,
         status: project_status,
         budget: generate_random_float(10000, 100_000),
-        client_id: client.id
+        client_id: client.id,
+        inserted_at: proj_date,
+        updated_at: proj_date
       })
 
     columns =
       Enum.map(
         Column.get_default_columns(),
-        &Repo.insert!(%Column{
-          name: &1,
-          project_id: project.id
-        })
+        fn name ->
+          col_date = random_date_with_initail_state.(project.inserted_at)
+
+          Repo.insert!(%Column{
+            name: name,
+            project_id: project.id,
+            inserted_at: col_date,
+            updated_at: col_date
+          })
+        end
       )
 
     create_tasks.(project, columns, client)

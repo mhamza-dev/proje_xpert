@@ -1,6 +1,7 @@
 defmodule ProjeXpertWeb.BidsLive.Index do
   use ProjeXpertWeb, :live_view
 
+  alias ProjeXpert.Accounts
   alias ProjeXpert.Tasks
   alias ProjeXpert.Tasks.{Bid, Project, Task}
 
@@ -10,7 +11,7 @@ defmodule ProjeXpertWeb.BidsLive.Index do
     {:ok,
      socket
      |> assign(current_tab: Map.get(params, "tab"))
-     |> assign(:bids, get_resources_by_role(Bid, assigns.current_user, params, %{}))}
+     |> assign(:bids, get_resources_by_role(Bid, assigns.current_user, params))}
   end
 
   def handle_params(params, _url, socket) do
@@ -44,8 +45,7 @@ defmodule ProjeXpertWeb.BidsLive.Index do
       get_resources_by_role(
         Bid,
         assigns.current_user,
-        fetch_tab_param(assigns.current_tab),
-        search
+        Map.merge(fetch_tab_param(assigns.current_tab), search)
       )
 
     {:noreply, socket |> assign(:bids, bids)}
@@ -55,16 +55,14 @@ defmodule ProjeXpertWeb.BidsLive.Index do
     with %Bid{} = bid <- Tasks.get_bid!(id),
          {:ok, bid} <- Tasks.update_bid(bid, %{"status" => "accepted"}),
          %Task{} = task <- Tasks.get_task!(bid.task_id),
-         {:ok, _} <-
-           Tasks.create_freelancer_project(%{
-             "task_id" => task.project_id,
-             "freelancer_id" => bid.freelancer_id
-           }),
-         {:ok, _} <-
-           Tasks.update_task(task, %{"freelancer_id" => bid.freelancer_id}) do
+         {:ok, _} <- is_user_already_in_project(bid),
+         {:ok, _} <- Tasks.update_task(task, %{"freelancer_id" => bid.freelancer_id}),
+         {:ok, notification} <- bid_accept_notification(task, bid) do
+      send(self(), {:notification, bid.freelancer_id, notification})
+      send(self(), {:update_bid_list})
+
       {:noreply,
-       put_flash(socket, :info, "Bid has been update to #{camel_case_string("accepted")}")
-       |> redirect(to: get_parent_url_by_params(socket.assigns.current_tab))}
+       put_flash(socket, :info, "Bid has been update to #{camel_case_string("accepted")}")}
     else
       _ ->
         {:noreply,
@@ -72,17 +70,15 @@ defmodule ProjeXpertWeb.BidsLive.Index do
            socket,
            :error,
            "Something went wrong while update to #{camel_case_string("accepted")}"
-         )
-         |> redirect(to: get_parent_url_by_params(socket.assigns.current_tab))}
+         )}
     end
   end
 
   def handle_event("set_status", %{"id" => id, "status" => status}, socket) do
     with %Bid{} = bid <- Tasks.get_bid!(id),
          {:ok, _bid} <- Tasks.update_bid(bid, %{"status" => status}) do
-      {:noreply,
-       put_flash(socket, :info, "Bid has been update to #{camel_case_string(status)}")
-       |> redirect(to: get_parent_url_by_params(socket.assigns.current_tab))}
+      send(self(), {:update_bid_list})
+      {:noreply, put_flash(socket, :info, "Bid has been update to #{camel_case_string(status)}")}
     else
       _ ->
         {:noreply,
@@ -90,29 +86,30 @@ defmodule ProjeXpertWeb.BidsLive.Index do
            socket,
            :error,
            "Something went wrong while update to #{camel_case_string(status)}"
-         )
-         |> redirect(to: get_parent_url_by_params(socket.assigns.current_tab))}
+         )}
     end
   end
 
-  def handle_info({:bid_created}, %{assigns: assigns} = socket) do
+  def handle_info({:update_bid_list}, %{assigns: assigns} = socket) do
     {:noreply,
      assign(socket,
        bids:
          get_resources_by_role(
            Bid,
            assigns.current_user,
-           fetch_tab_param(assigns.current_tab),
-           %{}
+           fetch_tab_param(assigns.current_tab)
          )
      )}
   end
 
-  defp get_parent_url_by_params(current_tab) do
-    if is_nil(current_tab) do
-      ~p"/bids"
-    else
-      ~p"/bids?tab=#{current_tab}"
-    end
+  defp bid_accept_notification(task, bid) do
+    Accounts.create_notification(%{
+      "type" => "push",
+      "user_id" => bid.freelancer_id,
+      "link" => "/bids/#{bid.id}/show",
+      "message" => """
+        <p><strong>#{full_name(task.project.client)}</strong> has been accepted your bid against the task #{task.title}. and added you in the project #{task.project.title} </p>
+      """
+    })
   end
 end
