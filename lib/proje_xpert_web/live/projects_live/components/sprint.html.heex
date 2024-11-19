@@ -14,15 +14,14 @@
       <div class="flex flex-col mb-5">
         <div class="form-control">
           <.input
-            label="Column Name"
+            label="Sprint Title"
             type="text"
-            field={f[:name]}
-            placeholder="e.g: Backlog"
+            field={f[:title]}
+            placeholder="e.g: Sprint 1"
             class="w-[350px]"
           />
         </div>
         <.input type="hidden" field={f[:project_id]} value={@project.id} />
-        <.input type="hidden" field={f[:sprint_id]} value={@sprint.id} />
 
         <div class="mt-4 flex justify-end">
           <button
@@ -35,7 +34,7 @@
             ]}
           >
             <span class="mr-2 uppercase">
-              <%= if @action == :new_column, do: "Create", else: "Update" %>
+              <%= if @action == :new_sprint, do: "Create", else: "Update" %>
             </span>
             <.icon name="hero-arrow-right-circle" class="w-8 h-8" />
           </button>

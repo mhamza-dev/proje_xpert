@@ -4,12 +4,12 @@ defmodule ProjeXpertWeb.ProjectsLive.Show do
   alias ProjeXpert.Accounts
   alias ProjeXpert.Chats.Channel
   alias ProjeXpert.Tasks
-  alias ProjeXpert.Tasks.{Column, Task}
+  alias ProjeXpert.Tasks.{Column, Sprint, Task}
   alias ProjeXpertWeb.ProjectsLive.Components
 
   def mount(%{"id" => id}, _session, socket) do
     if connected?(socket), do: Phoenix.PubSub.subscribe(ProjeXpert.PubSub, "project:#{id}")
-    {:ok, assign(socket, kanban_board: false)}
+    {:ok, socket}
   end
 
   def handle_params(%{"id" => id} = params, _url, socket) do
@@ -26,66 +26,102 @@ defmodule ProjeXpertWeb.ProjectsLive.Show do
        project: project,
        columns: Enum.map(Tasks.sprint_columns(selected_sprint.id), &{&1.name, &1.id}),
        sprint_options: get_sprints(project),
-       selected_sprint: selected_sprint
+       selected_sprint: selected_sprint,
+       kanban_board: Map.get(params, "kanban_board", "false") == "true"
      )
      |> apply_action(socket.assigns.live_action, params)}
   end
 
-  defp apply_action(socket, :show, _params) do
-    socket
-    |> assign(page_title: "Project Detail")
-  end
-
-  defp apply_action(socket, :edit, _params) do
-    socket
-    |> assign(page_title: "Edit Project")
-  end
-
-  defp apply_action(socket, :new_column, _params) do
-    socket
-    |> assign(page_title: "New Column", column: %Column{})
-  end
-
-  defp apply_action(socket, :edit_column, %{"column_id" => column_id}) do
+  defp apply_action(socket, :show, params) do
     socket
     |> assign(
-      page_title: "Edit Column",
-      column: Tasks.get_column!(column_id)
+      page_title: "Project Detail",
+      kanban_board: Map.get(params, "kanban_board", "false") == "true"
     )
   end
 
-  defp apply_action(socket, :projects_new_task, _) do
+  defp apply_action(socket, :edit, params) do
+    socket
+    |> assign(
+      page_title: "Edit Project",
+      kanban_board: Map.get(params, "kanban_board", "false") == "true"
+    )
+  end
+
+  defp apply_action(socket, :new_column, params) do
+    socket
+    |> assign(
+      page_title: "New Column",
+      column: %Column{},
+      kanban_board: Map.get(params, "kanban_board", "false") == "true"
+    )
+  end
+
+  defp apply_action(socket, :edit_column, %{"column_id" => column_id} = params) do
+    socket
+    |> assign(
+      page_title: "Edit Column",
+      column: Tasks.get_column!(column_id),
+      kanban_board: Map.get(params, "kanban_board", "false") == "true"
+    )
+  end
+
+  defp apply_action(socket, :new_sprint, params) do
+    socket
+    |> assign(
+      page_title: "New sprint",
+      sprint: %Sprint{},
+      column: %Column{},
+      kanban_board: Map.get(params, "kanban_board", "false") == "true"
+    )
+  end
+
+  defp apply_action(socket, :edit_sprint, %{"sprint_id" => id} = params) do
+    socket
+    |> assign(
+      page_title: "Edit Sprint",
+      sprint: Tasks.get_sprint!(id),
+      column: %Column{},
+      kanban_board: Map.get(params, "kanban_board", "false") == "true"
+    )
+  end
+
+  defp apply_action(socket, :new_task, params) do
     socket
     |> assign(
       page_title: "New Task",
       task: %Task{},
-      column: %Column{}
+      column: %Column{},
+      kanban_board: Map.get(params, "kanban_board", "false") == "true"
     )
   end
 
-  defp apply_action(socket, :projects_edit_task, %{"task_id" => task_id}) do
+  defp apply_action(socket, :edit_task, %{"task_id" => task_id} = params) do
     socket
     |> assign(
       page_title: "Edit Task",
       task: Tasks.get_task!(task_id),
-      column: %Column{}
+      column: %Column{},
+      kanban_board: Map.get(params, "kanban_board", "false") == "true"
     )
   end
 
-  defp apply_action(socket, :projects_show_task, %{"task_id" => task_id}) do
+  defp apply_action(socket, :show_task, %{"task_id" => task_id} = params) do
     socket
     |> assign(
       page_title: "Task Details",
       task: Tasks.get_task!(task_id),
-      column: %Column{}
+      column: %Column{},
+      kanban_board: Map.get(params, "kanban_board", "false") == "true"
     )
   end
 
-  defp apply_action(socket, :new_channel, _params) do
+  defp apply_action(socket, :new_channel, params) do
     socket
     |> assign(
       page_title: "New Channel",
-      channel: %Channel{}
+      channel: %Channel{},
+      kanban_board: Map.get(params, "kanban_board", "false") == "true"
     )
   end
 
@@ -101,6 +137,34 @@ defmodule ProjeXpertWeb.ProjectsLive.Show do
        selected_sprint: selected_sprint,
        columns: Enum.map(Tasks.sprint_columns(selected_sprint.id), &{&1.name, &1.id})
      )}
+  end
+
+  def handle_event("complete_sprint", %{"id" => id}, socket) do
+    with %Sprint{} = sprint <- Tasks.get_sprint!(id),
+         {:ok, _} <- Tasks.update_sprint(sprint, %{"status" => :completed}),
+         :ok <- sprint_complete_notification(sprint, socket.assigns.project) do
+      Phoenix.PubSub.broadcast!(
+        ProjeXpert.PubSub,
+        "project:#{socket.assigns.project.id}",
+        {:column_deleted, socket.assigns.project.id}
+      )
+
+      send(self(), {:notification, socket.assigns.project.client_id, "notification"})
+
+      {:noreply,
+       socket
+       |> put_flash(
+         :info,
+         "\"#{sprint.title}\" has been completed successfully"
+       )
+       |> push_patch(to: ~p"/projects/#{socket.assigns.project.id}/show?kanban_board=true")}
+    else
+      _ ->
+        {:noreply,
+         socket
+         |> put_flash(:error, "Something went wrong while completing sprint")
+         |> push_patch(to: ~p"/projects/#{socket.assigns.project.id}/show?kanban_board=true")}
+    end
   end
 
   def handle_event("ask_for_payment", %{"id" => task_id}, socket) do
@@ -233,6 +297,10 @@ defmodule ProjeXpertWeb.ProjectsLive.Show do
     {:noreply, assign(socket, project: Tasks.get_project!(project_id))}
   end
 
+  def handle_info({:sprint, project_id}, socket) do
+    {:noreply, assign(socket, project: Tasks.get_project!(project_id))}
+  end
+
   def handle_info({:return_to_home, project}, socket) do
     {:noreply,
      push_patch(socket, to: ~p"/projects/#{project.id}/show")
@@ -253,7 +321,19 @@ defmodule ProjeXpertWeb.ProjectsLive.Show do
     })
   end
 
-  defp get_sprints(project) do
-    project.sprints |> Enum.sort_by(& &1.title, :asc) |> Enum.map(&{&1.title, &1.id})
+  defp sprint_complete_notification(sprint, project) do
+    Enum.each(sprint.tasks, fn task ->
+      if !is_nil(task.freelancer_id) do
+        Accounts.create_notification(%{
+          "type" => "push",
+          "user_id" => task.freelancer_id,
+          "link" => "/projects/#{project.id}/show?kanban_board=true",
+          "message" => """
+            <p>Dear <strong>#{full_name(task.freelancer)}</strong>,</p>
+            <p>The sprint <strong>#{sprint.title}</strong> for the project <strong>#{project.title}</strong> has been successfully completed. Please check the sprint details for any pending tasks or updates.</p>
+          """
+        })
+      end
+    end)
   end
 end

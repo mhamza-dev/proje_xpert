@@ -314,7 +314,8 @@ defmodule ProjeXpertWeb.CoreComponents do
   attr(:prompt, :string, default: nil, doc: "the prompt for select inputs")
   attr(:options, :list, doc: "the options to pass to Phoenix.HTML.Form.options_for_select/2")
   attr(:multiple, :boolean, default: false, doc: "the multiple flag for select inputs")
-  attr(:div_class, :string, default: nil)
+  attr(:div_class, :string, default: "")
+  attr(:label_class, :string, default: "")
   attr(:with_error, :boolean, default: true)
 
   attr(:rest, :global,
@@ -357,7 +358,7 @@ defmodule ProjeXpertWeb.CoreComponents do
           ]}
           {@rest}
         />
-        <label class="block text-md font-medium text-gray-700"><%= @label %></label>
+        <label class={["block text-md font-medium text-gray-700", @label_class]}><%= @label %></label>
       </div>
       <.error :for={msg <- @errors}><%= msg %></.error>
     </div>

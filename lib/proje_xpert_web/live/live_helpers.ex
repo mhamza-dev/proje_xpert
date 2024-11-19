@@ -289,6 +289,10 @@ defmodule ProjeXpertWeb.LiveHelpers do
     "https://ui-avatars.com/api/?name=#{get_initials(user)}&background=random&color=fff&rounded=true&bold=true"
   end
 
+  def get_sprints(project) do
+    project.sprints |> Enum.sort_by(& &1.title, :asc) |> Enum.map(&{&1.title, &1.id})
+  end
+
   defp get_initials(%{first_name: fname, last_name: lname}),
     do: String.at(fname, 0) <> String.at(lname, 0)
 

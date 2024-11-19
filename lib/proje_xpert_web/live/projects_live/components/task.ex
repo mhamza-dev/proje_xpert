@@ -5,8 +5,11 @@ defmodule ProjeXpertWeb.ProjectsLive.Components.Task do
   alias ProjeXpert.Tasks
   alias ProjeXpert.Tasks.{Comment, Reply}
 
-  def update(%{task: task, project: project, action: :projects_show_task} = assigns, socket) do
-    changeset = Tasks.change_task(task, %{project_id: project.id})
+  def update(
+        %{task: task, project: project, sprint: sprint, action: :show_task} = assigns,
+        socket
+      ) do
+    changeset = Tasks.change_task(task, %{project_id: project.id, sprint_id: sprint.id})
     cc = Tasks.change_comment(%Comment{}, %{task_id: task.id})
     rc = Tasks.change_reply(%Reply{}, %{task_id: task.id})
 
@@ -27,29 +30,26 @@ defmodule ProjeXpertWeb.ProjectsLive.Components.Task do
      )}
   end
 
-  def update(%{task: task, project: project, action: action} = assigns, socket) do
-    changeset = Tasks.change_task(task, %{project_id: project.id})
+  def update(%{task: task, project: project, sprint: sprint, action: action} = assigns, socket) do
+    changeset = Tasks.change_task(task, %{project_id: project.id, sprint_id: sprint.id})
 
-    if action != :projects_show_task and project.status == :completed do
+    if action != :show_task and project.status == :completed do
       send(self(), {:return_to_home, project})
     end
 
     {:ok, socket |> assign(assigns) |> assign(changeset: changeset)}
   end
 
-  def update(
-        %{task: task, projects: projects, selected_sprint: selected_sprint} = assigns,
-        socket
-      ) do
+  def update(%{task: task, projects: projects, sprint: sprint} = assigns, socket) do
     project = List.first(projects)
-    columns = Tasks.sprint_columns(selected_sprint.id)
+    columns = Tasks.sprint_columns(sprint.id)
     column = List.first(columns)
 
     changeset =
       Tasks.change_task(task, %{
         project_id: project.id,
         column_id: column.id,
-        sprint_id: selected_sprint.id
+        sprint_id: sprint.id
       })
 
     {:ok,
@@ -80,15 +80,20 @@ defmodule ProjeXpertWeb.ProjectsLive.Components.Task do
         changeset
       end
 
-    {:noreply, socket |> assign(changeset: changeset)}
+    {:noreply,
+     socket
+     |> assign(
+       changeset: changeset,
+       columns: Enum.map(Tasks.sprint_columns(task_params["sprint_id"]), &{&1.name, &1.id})
+     )}
   end
 
-  def handle_event("save", %{"task" => task_params}, socket) do
-    case socket.assigns.action do
-      action when action in [:projects_new_task, :bids_new_task] ->
+  def handle_event("save", %{"task" => task_params}, %{assigns: %{action: action}} = socket) do
+    case action do
+      :new_task ->
         create_task(task_params, socket)
 
-      :projects_edit_task ->
+      :edit_task ->
         update_task(task_params, socket)
     end
   end

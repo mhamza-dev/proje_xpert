@@ -5,7 +5,7 @@
     </div>
     <.form
       :let={f}
-      :if={@action != :projects_show_task}
+      :if={@action != :show_task}
       for={@changeset}
       id="project-form"
       phx-target={@myself}
@@ -26,13 +26,30 @@
 
         <div class="form-control flex justify-between space-x-2">
           <.input
-            :if={@action in [:bids_new_task, :new, :projects_new_task, :projects_edit_task]}
+            :if={@action in [:new_task, :edit_task]}
+            label="Sprint"
+            type="select"
+            class="w-[350px]"
+            field={f[:sprint_id]}
+            options={get_sprints(@project)}
+          />
+          <.input
+            :if={@action in [:new_task, :edit_task]}
             label="Column"
             type="select"
             class="w-[350px]"
             field={f[:column_id]}
             options={@columns}
           />
+        </div>
+
+        <.input
+          :if={@action in [:new_task, :edit_task]}
+          type="hidden"
+          field={f[:project_id]}
+          value={@project.id}
+        />
+        <div class="form-control flex items-end">
           <.input
             label="Budget"
             type="text"
@@ -40,31 +57,14 @@
             placeholder="e.g: 1000"
             class="w-[350px]"
           />
+          <div class="flex flex-col space-y-2 items-start">
+            <.input label="List to find freelancer?" type="checkbox" field={f[:find_freelancer?]} />
+
+            <.input label="Mark as completed" type="checkbox" field={f[:is_completed?]} />
+          </div>
         </div>
         <div class="form-control">
           <.text_editor label="Description" field={f[:description]} id="task-description" />
-        </div>
-        <div :if={is_client?(@current_user)} class="form-control flex flex-col space-y-2">
-          <.input label="List to find freelancer?" type="checkbox" field={f[:find_freelancer?]} />
-
-          <.input label="Mark as completed" type="checkbox" field={f[:is_completed?]} />
-        </div>
-
-        <div class="form-control">
-          <.input
-            :if={@action in [:projects_new_task, :projects_edit_task]}
-            type="hidden"
-            field={f[:project_id]}
-            value={@project.id}
-          />
-          <.input
-            :if={@action in [:bids_new_task, :new]}
-            label="Project"
-            type="select"
-            class="w-[350px]"
-            field={f[:project_id]}
-            options={@projects}
-          />
         </div>
 
         <div class="mt-4 flex justify-end">
@@ -78,7 +78,7 @@
             ]}
           >
             <span class="mr-2 uppercase">
-              <%= if @action in [:projects_new_task, :bids_new_task, :new],
+              <%= if @action in [:new_task, :new],
                 do: "Create",
                 else: "Update" %>
             </span>
@@ -88,7 +88,7 @@
       </div>
     </.form>
   </div>
-  <div :if={@action == :projects_show_task} class="overflow-hidden">
+  <div :if={@action == :show_task} class="overflow-hidden">
     <div class="grid grid-cols-12 gap-6">
       <!-- Task Details -->
       <div class="col-span-5 py-3 px-4">

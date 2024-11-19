@@ -11,6 +11,7 @@ defmodule ProjeXpert.Tasks.Sprint do
     field :status, Ecto.Enum, values: [:pending, :in_progress, :completed], default: :pending
 
     has_many :columns, ProjeXpert.Tasks.Column, foreign_key: :sprint_id
+    has_many :tasks, ProjeXpert.Tasks.Task, foreign_key: :sprint_id
     belongs_to :project, ProjeXpert.Tasks.Project, foreign_key: :project_id
 
     timestamps(type: :utc_datetime)
@@ -19,8 +20,8 @@ defmodule ProjeXpert.Tasks.Sprint do
   @doc false
   def changeset(sprint, attrs) do
     sprint
-    |> cast(attrs, [:title, :start_date, :end_date, :project_id])
-    |> validate_required([:title, :start_date, :end_date, :project_id])
+    |> cast(attrs, [:title, :start_date, :end_date, :status, :project_id])
+    |> validate_required([:title, :start_date, :end_date, :status, :project_id])
   end
 
   def get_default_sprints, do: @default_sprints

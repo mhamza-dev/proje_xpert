@@ -31,7 +31,7 @@ defmodule ProjeXpertWeb.BidsLive.Index do
     |> assign(:project, nil)
   end
 
-  defp apply_action(socket, :bids_new_task, _params) do
+  defp apply_action(socket, :new_task, _params) do
     socket
     |> assign(
       page_title: "New Task",

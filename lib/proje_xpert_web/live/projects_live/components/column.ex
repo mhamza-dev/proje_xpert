@@ -3,8 +3,8 @@ defmodule ProjeXpertWeb.ProjectsLive.Components.Column do
 
   alias ProjeXpert.Tasks
 
-  def update(%{column: column, project: project} = assigns, socket) do
-    changeset = Tasks.change_column(column, %{project_id: project.id})
+  def update(%{column: column, project: project, sprint: sprint} = assigns, socket) do
+    changeset = Tasks.change_column(column, %{project_id: project.id, sprint: sprint.id})
 
     if project.status == :completed do
       send(self(), {:return_to_home, project})
