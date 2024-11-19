@@ -153,7 +153,6 @@ defmodule ProjeXpert.Accounts.PaymentMethod do
   end
 
   defp check_date(exp_date, current_date) do
-
     if Date.compare(exp_date, current_date) == :gt do
       {:ok, "date"}
     else

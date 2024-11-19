@@ -1,6 +1,6 @@
 <!-- component -->
 <div>
-  <div class="flex items-center justify-between mb-4">
+  <div class="flex items-center justify-start my-3">
     <.live_component id="bread_crumb" module={ProjeXpertWeb.BreadCrumb} path={@current_path} />
     <%!-- <.link patch={~p"/channels/new"}>
       <button class="flex items-center justify-center w-1/2 px-5 py-2 text-sm tracking-wide text-white transition-colors duration-200 bg-blue-600 rounded-lg shrink-0 sm:w-auto gap-x-2 hover:bg-blue-600">
@@ -42,8 +42,13 @@
   <.live_component
     id="project-listing"
     module={ProjeXpertWeb.TableComponent}
-    headers={["Name", "Owner", "Project", "No. of Users"]}
-    has_actions?={is_client?(@current_user)}
+    headers={
+      if(is_client?(@current_user),
+        do: ["Name", "Project", "No. of Users"],
+        else: ["Name", "Project", "Owner"]
+      )
+    }
+    has_actions?={false}
   >
     <:table_cells>
       <tr :for={channel <- @channels} class="border-b-[1px] hover:bg-gray-100">
@@ -52,16 +57,20 @@
             <h2 class="font-medium text-gray-800 "><%= channel.name %></h2>
           </.link>
         </td>
-        <td class="p-3 text-sm font-medium">
-          <%= full_name(channel.created_by) %>
-        </td>
         <td class="p-3 text-sm">
           <p class="text-gray-500">
             <%= channel.project.title %>
           </p>
         </td>
+        <td
+          :if={is_freelancer?(@current_user)}
+          class="p-3 text-sm flex space-x-2 items-center text-gray-500"
+        >
+          <.dot_profile_image user={channel.created_by} class="w-8 h-8 rounded-full" />
+          <span><%= full_name(channel.created_by) %></span>
+        </td>
 
-        <td class="p-3 text-sm">
+        <td :if={is_client?(@current_user)} class="p-3 text-sm">
           <p class="text-gray-500 ml-6">
             <%= length(channel.joiners) %>
           </p>

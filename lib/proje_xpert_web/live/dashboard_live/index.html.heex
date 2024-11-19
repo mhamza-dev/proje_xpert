@@ -1,7 +1,9 @@
 <div>
-  <.live_component id="bread_crumb" module={ProjeXpertWeb.BreadCrumb} path={@current_path} />
+  <div class="my-3">
+    <.live_component id="bread_crumb" module={ProjeXpertWeb.BreadCrumb} path={@current_path} />
+  </div>
   <!-- Stats Grid -->
-  <div class="overflow-x-auto max-h-[calc(100vh-12vh)]">
+  <div class="overflow-x-auto max-h-[calc(100vh-13vh)]">
     <div class="overflow-y-scroll">
       <div class="my-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <div class="bg-white rounded-lg shadow p-6">
@@ -31,8 +33,8 @@
       </div>
       <!-- Charts -->
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-        <div class="bg-white rounded-lg shadow p-6">
-          <h2 class="text-xl font-semibold text-gray-900 mb-4">Project</h2>
+        <div class="bg-white rounded-lg shadow p-4">
+          <h2 class="text-xl font-semibold text-gray-900 mb-2">Project</h2>
           <canvas
             class="chart mx-auto"
             id="projects-chart"
@@ -41,8 +43,8 @@
           >
           </canvas>
         </div>
-        <div class="bg-white rounded-lg shadow p-6">
-          <h2 class="text-xl font-semibold text-gray-900 mb-4">Tasks</h2>
+        <div class="bg-white rounded-lg shadow p-4">
+          <h2 class="text-xl font-semibold text-gray-900 mb-2">Tasks</h2>
           <canvas
             class="chart mx-auto"
             id="tasks-chart"
@@ -54,7 +56,7 @@
       </div>
       <!-- Recent Projects Table -->
       <div class="bg-white rounded-lg shadow overflow-hidden">
-        <div class="px-6 py-4 border-b border-gray-200">
+        <div class="px-6 py-2 border-b border-gray-200">
           <h2 class="text-xl font-semibold text-gray-900">Recent Projects</h2>
         </div>
         <table class="min-w-full divide-y divide-gray-200">

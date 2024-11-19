@@ -1,5 +1,7 @@
 <div>
-  <.live_component id="bread_crumb" module={ProjeXpertWeb.BreadCrumb} path={@current_path} />
+  <div class="my-3">
+    <.live_component id="bread_crumb" module={ProjeXpertWeb.BreadCrumb} path={@current_path} />
+  </div>
   <div class="my-6">
     <ul class="flex space-x-2 mb-4 sm:mb-0">
       <.link navigate={~p"/settings"}>
@@ -76,12 +78,34 @@
                   upload_field={@uploads.profile}
                   class="mb-0"
                 />
-                <div class="flex space-x-2">
-                  <.input type="text" field={pc[:first_name]} label="First Name" class="w-full" />
-                  <.input type="text" field={pc[:last_name]} label="Last Name" class="w-full" />
+                <div class="flex justify-between">
+                  <.input
+                    type="text"
+                    field={pc[:first_name]}
+                    label="First Name"
+                    class="w-[18rem]"
+                  />
+                  <.input type="text" field={pc[:last_name]} label="Last Name" class="w-[18rem]" />
                 </div>
-                <div>
-                  <.input type="text" field={pc[:location]} label="Location" class="w-full" />
+                <div class="flex justify-between">
+                  <.input type="text" field={pc[:username]} label="Username" class="w-[18rem]" />
+                  <.input
+                    type="select"
+                    field={pc[:gender]}
+                    label="Gender"
+                    class="w-[18rem]"
+                    prompt="Select Gender"
+                    options={[
+                      Male: :male,
+                      Female: :female,
+                      Other: :other,
+                      "Prefer not to say": :prefer_not_to_say
+                    ]}
+                  />
+                </div>
+                <div class="flex justify-between">
+                  <.input type="text" field={pc[:location]} label="Location" class="w-[18rem]" />
+                  <.input type="date" field={pc[:birthdate]} label="Birthdate" class="w-[18rem]" />
                 </div>
                 <.button class="w-full" type="submit" phx-disable-with="Updating...">
                   Update Profile

@@ -8,7 +8,7 @@ defmodule ProjeXpertWeb.PaymentsLive.Components.Payment do
   end
 
   def handle_event("release_payment", %{"payment" => params}, socket) do
-    case Tasks.create_payment_with_stripe(params) do
+    case Tasks.create_payment_with_stripe(socket.assigns.current_user, params) do
       {:ok, _} ->
         {:noreply,
          socket

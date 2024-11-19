@@ -1,6 +1,6 @@
 <!-- component -->
 <div>
-  <div class="flex items-center justify-between mb-4">
+  <div class="flex items-center justify-start my-3">
     <.live_component id="bread_crumb" module={ProjeXpertWeb.BreadCrumb} path={@current_path} />
     <%!-- <.link patch={~p"/channels/new"}>
       <button class="flex items-center justify-center w-1/2 px-5 py-2 text-sm tracking-wide text-white transition-colors duration-200 bg-blue-600 rounded-lg shrink-0 sm:w-auto gap-x-2 hover:bg-blue-600">
@@ -44,8 +44,8 @@
     module={ProjeXpertWeb.TableComponent}
     headers={
       if is_freelancer?(@current_user),
-        do: ["Description", "Payer", "Task Title", "Status", "Transaction Time"],
-        else: ["Description", "Receiver", "Task Title", "Status", "Transaction Time"]
+        do: ["Description", "Amount", "Payer", "Task Title", "Status", "Transaction Time"],
+        else: ["Description", "Amount", "Receiver", "Task Title", "Status", "Transaction Time"]
     }
     has_actions?={false}
   >
@@ -55,6 +55,9 @@
           <%!-- <.link navigate={~p"/payments/#{payment.id}/show"}> --%>
           <h2 class="font-medium text-gray-800 "><%= payment.description %></h2>
           <%!-- </.link> --%>
+        </td>
+        <td class="p-3 text-sm text-gray-500">
+          <%= Number.Currency.number_to_currency(payment.amount) %>
         </td>
         <td :if={is_client?(@current_user)} class="p-3 text-sm font-medium">
           <%= full_name(payment.receiver) %>

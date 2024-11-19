@@ -1,104 +1,17 @@
-<header class="px-6 sm:px-8 lg:px-10 border border-b-2">
-  <div class="flex items-center justify-between">
-    <.link navigate="/">
-      <div class="flex justify-center items-center space-x-2">
-        <img src={~p"/images/logo_3_croped.png"} alt="ProjeXpert Logo" class="h-12 w-12" />
-        <span class="text-left text-2xl text-blue-600 font-bold">ProjeXpert</span>
-      </div>
-    </.link>
-    <div :if={!@current_user} class="flex items-center space-x-2">
-      <.link
-        :if={@socket.view != ProjeXpertWeb.UserLoginLive}
-        navigate="/log_in"
-        type="button"
-        class="hidden md:inline-flex font-semibold text-blue-600"
-      >
-        Log In
-      </.link>
-      <.link
-        :if={@socket.view != ProjeXpertWeb.UserRegistrationLive}
-        navigate="/register/freelancer"
-        type="button"
-        class="hidden md:inline-flex font-semibold text-blue-600"
-      >
-        Sign Up
-      </.link>
-    </div>
-    <div :if={@current_user} class="flex items-center space-x-4">
-      <.live_component
-        module={ProjeXpertWeb.NotificationBell}
-        current_user={@current_user}
-        notification_count={@notification_count}
-        drawer_notifications={@drawer_notifications}
-        all_notifications={@all_notifications}
-        id={"notification_bell_for_#{@current_user.id}"}
-      />
-      <div>
-        <svg
-          class="w-9 h-9 text-gray-800"
-          aria-hidden="true"
-          xmlns="http://www.w3.org/2000/svg"
-          width="24"
-          height="24"
-          fill="none"
-          viewBox="0 0 24 24"
-        >
-          <path
-            stroke="currentColor"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="1.5"
-            d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"
-          />
-        </svg>
-      </div>
-      <div x-data="{ open: false }">
-        <button
-          @click="open = !open"
-          @click.outside="open = false"
-          type="button"
-          class="relative flex space-x-2"
-        >
-          <.dot_profile_image user={@current_user} />
-          <div class="flex flex-col text-left">
-            <p class="text-gray-600 text-md font-medium">
-              <%= full_name(@current_user) %>
-            </p>
-            <p class="text-gray-400 text-sm font-medium">
-              <%= camel_case_string(@current_user.role) %>
-            </p>
-          </div>
-        </button>
-        <div
-          x-show="open"
-          class="absolute right-10 z-[60] mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
-        >
-          <li class="block px-4 py-2 text-lg text-gray-600 hover:bg-gray-100 cursor-pointer">
-            <.icon name="hero-user-circle" class="w-6 h-6" /> Your Profile
-          </li>
-          <li class="block px-4 py-2 text-lg text-gray-600 hover:bg-gray-100 cursor-pointer">
-            <.icon name="hero-cog-8-tooth" class="w-6 h-6" /> Settings
-          </li>
-          <.link
-            href="/log_out"
-            method="delete"
-            class="block px-4 py-2 text-lg text-gray-600 hover:bg-gray-100"
-          >
-            <.icon name="hero-arrow-left-end-on-rectangle" class="w-6 h-6" /> Sign out
-          </.link>
-        </div>
-      </div>
-    </div>
-  </div>
-</header>
 <main class={
   [!@current_user && "min-h-[94vh] flex items-center justify-center"] |> Enum.join(" ")
 }>
   <.flash_group flash={@flash} />
-  <div :if={@current_user} class="flex space-x-3 min-h-[94vh]">
+  <div :if={@current_user} class="flex min-h-screen">
     <!-- aside -->
-    <div class="w-[18%]">
-      <aside class="flex flex-col h-full space-y-2 border-r-2 border-gray-200 bg-white p-2">
+    <div class="w-[15%]">
+      <.link navigate="/">
+        <div class="flex justify-center items-center space-x-2 my-[10px]">
+          <img src={~p"/images/logo.png"} alt="ProjeXpert Logo" class="h-10 w-10" />
+          <span class="text-left text-2xl text-blue-600 font-bold">ProjeXpert</span>
+        </div>
+      </.link>
+      <aside class="flex flex-col border-r-2 border-gray-200 bg-white p-2 h-[calc(100vh-7vh)] space-y-2">
         <.link
           navigate="/dashboard"
           class={[
@@ -320,11 +233,14 @@
         </.link>
       </aside>
     </div>
-    <div class="w-[82%] py-3 px-4 sm:py-4 sm:px-6 lg:py-4 lg:px-8">
-      <%= @inner_content %>
+    <div class="w-[85%]">
+      <.topnav assigns={assigns} />
+      <div class="border-t-2 sm:px-6 lg:px-6">
+        <%= @inner_content %>
+      </div>
     </div>
   </div>
-  <div :if={!@current_user} class="w-full flex items-center justify-center">
+  <div :if={!@current_user} class="min-w-full">
     <%= @inner_content %>
   </div>
 </main>

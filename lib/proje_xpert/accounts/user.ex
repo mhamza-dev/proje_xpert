@@ -15,7 +15,17 @@ defmodule ProjeXpert.Accounts.User do
   ]
   @register_cast [:first_name, :last_name, :email, :password, :role, :rating, :location, :bio]
   @oauth_cast [:email, :first_name, :last_name, :role, :provider]
-  @profile_cast [:first_name, :last_name, :profile_image, :location, :bio]
+  @profile_cast [
+    :first_name,
+    :last_name,
+    :profile_image,
+    :location,
+    :bio,
+    :username,
+    :birthdate,
+    :gender,
+    :terms
+  ]
   @derive {Jason.Encoder, only: Enum.uniq(@register_cast ++ @profile_cast)}
   schema "users" do
     field :first_name, :string
@@ -32,6 +42,10 @@ defmodule ProjeXpert.Accounts.User do
     field :location, :string
     field :bio, :string
     field :stripe_customer_id, :string
+    field :username, :string
+    field :birthdate, :date
+    field :gender, Ecto.Enum, values: [:male, :female, :other, :prefer_not_to_say]
+    field :terms, :boolean, default: false
 
     # Associations
     has_one :notification_preference, ProjeXpert.Accounts.NotificationPreference,

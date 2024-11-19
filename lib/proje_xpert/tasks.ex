@@ -4,6 +4,8 @@ defmodule ProjeXpert.Tasks do
   """
 
   import Ecto.Query, warn: false
+  import ProjeXpertWeb.LiveHelpers
+  alias ProjeXpert.Stripe.PaymentIntent
   alias ProjeXpert.Repo
   alias ProjeXpert.Tasks.{Bid, Comment, Column, Project, Payment, Task, Projectfreelancer}
 
@@ -33,6 +35,7 @@ defmodule ProjeXpert.Tasks do
   def list_client_projects(id, filters) do
     from(p in Project, where: p.client_id == ^id)
     |> filter_projects_query(filters)
+    |> filter_projects_by_tab(filters)
     |> preload([:client, :project_freelancers, tasks: [:column, :freelancer, bids: :freelancer]])
     |> Repo.all()
   end
@@ -44,6 +47,7 @@ defmodule ProjeXpert.Tasks do
       where: t.freelancer_id == ^id
     )
     |> filter_projects_query(filters)
+    |> filter_projects_by_tab(filters)
     |> distinct([p, _wp, _t, _wt], p.id)
     |> preload([:client, :project_freelancers, tasks: [:column, :freelancer, bids: :freelancer]])
     |> Repo.all()
@@ -54,6 +58,12 @@ defmodule ProjeXpert.Tasks do
   end
 
   defp filter_projects_query(query, _filter), do: query
+
+  defp filter_projects_by_tab(query, %{"tab" => tab}) do
+    from(q in query, where: q.status == ^tab)
+  end
+
+  defp filter_projects_by_tab(query, _filter), do: query
 
   @doc """
   Gets a single project.
@@ -158,22 +168,22 @@ defmodule ProjeXpert.Tasks do
     Repo.all(Task) |> Repo.preload([:freelancer, :comments, project: :client])
   end
 
-  def list_tasks_for_freelancer(freelancer, params) do
+  def list_tasks_for_freelancer(freelancer, filters) do
     from(t in Task,
       where: t.find_freelancer? == true,
       where: t.freelancer_id != ^freelancer.id
     )
-    |> task_query_for_fragment(params)
+    |> task_query_for_fragment(filters)
     |> Repo.all()
     |> Repo.preload([:freelancer, :comments, project: :client])
   end
 
-  def list_tasks_for_client(client, params) do
+  def list_tasks_for_client(client, filters) do
     from(t in Task,
       join: p in assoc(t, :project),
       where: p.client_id == ^client.id
     )
-    |> task_query_for_fragment(params)
+    |> task_query_for_fragment(filters)
     |> Repo.all()
     |> Repo.preload([:freelancer, :comments, project: :client])
   end
@@ -315,6 +325,7 @@ defmodule ProjeXpert.Tasks do
       where: p.client_id == ^id
     )
     |> filter_bids_query(filters)
+    |> filter_bids_by_tab(filters)
     |> preload([:freelancer, task: :project])
     |> Repo.all()
   end
@@ -326,6 +337,7 @@ defmodule ProjeXpert.Tasks do
       where: wt.freelancer_id == ^id
     )
     |> filter_bids_query(filters)
+    |> filter_bids_by_tab(filters)
     |> preload([:freelancer, task: :project])
     |> Repo.all()
   end
@@ -339,6 +351,12 @@ defmodule ProjeXpert.Tasks do
   end
 
   defp filter_bids_query(query, _filter), do: query
+
+  defp filter_bids_by_tab(query, %{"tab" => tab}) do
+    from(q in query, where: q.status == ^tab)
+  end
+
+  defp filter_bids_by_tab(query, _filter), do: query
 
   @doc """
   Gets a single bid.
@@ -434,17 +452,25 @@ defmodule ProjeXpert.Tasks do
     Repo.all(Payment)
   end
 
-  def list_payments_for_freelancer(freelancer_id, _params) do
+  def list_payments_for_freelancer(freelancer_id, filters) do
     from(p in Payment, where: p.receiver_id == ^freelancer_id)
+    |> filter_payments_by_tab(filters)
     |> preload([:receiver, :payer, :task])
     |> Repo.all()
   end
 
-  def list_payments_for_client(client_id, _params) do
+  def list_payments_for_client(client_id, filters) do
     from(p in Payment, where: p.payer_id == ^client_id)
+    |> filter_payments_by_tab(filters)
     |> preload([:receiver, :payer, :task])
     |> Repo.all()
   end
+
+  defp filter_payments_by_tab(query, %{"tab" => tab}) do
+    from(q in query, where: q.status == ^tab)
+  end
+
+  defp filter_payments_by_tab(query, _filter), do: query
 
   @doc """
   Gets a single payment.
@@ -480,15 +506,29 @@ defmodule ProjeXpert.Tasks do
     |> Repo.insert()
   end
 
-  def create_payment_with_stripe(attrs) do
-    with {:ok, _} <- Stripe.Charge.create(attrs),
+  def create_payment_with_stripe(user, attrs) do
+    with {:ok, _} <- PaymentIntent.create(payment_intent_params(user, attrs)),
          {:ok, payment} <- create_payment(attrs) do
       {:ok, payment}
     else
-      {:error, %Stripe.Error{message: msg}} -> {:error, "Stripe Error: #{msg}"}
       {:error, changeset} -> {:error, changeset}
       _ -> {:error, "Unknown error occurred"}
     end
+  end
+
+  defp payment_intent_params(user, attrs) do
+    %{
+      amount: dollars_to_cents(attrs["amount"]),
+      currency: "USD",
+      customer: user.stripe_customer_id,
+      payment_method: get_default_pm_of_user(user).card_id,
+      confirm: true,
+      receipt_email: user.email,
+      automatic_payment_methods: %{
+        enabled: true,
+        allow_redirects: "never"
+      }
+    }
   end
 
   @doc """
@@ -946,4 +986,9 @@ defmodule ProjeXpert.Tasks do
   def change_reply(%Reply{} = reply, attrs \\ %{}) do
     Reply.changeset(reply, attrs)
   end
+
+  def dollars_to_cents(dollars) when is_binary(dollars),
+    do: dollars_to_cents(String.to_float(dollars))
+
+  def dollars_to_cents(dollars) when is_float(dollars), do: round(dollars * 100)
 end

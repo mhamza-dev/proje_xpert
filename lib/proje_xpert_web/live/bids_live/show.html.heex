@@ -1,5 +1,5 @@
 <div>
-  <div class="flex items-center justify-start mb-4">
+  <div class="flex items-center justify-start my-3">
     <.live_component
       id="bread_crumb"
       module={ProjeXpertWeb.BreadCrumb}
@@ -44,10 +44,7 @@
   <div class="shadow-lg px-6 py-4">
     <div class="flex justify-between items-center">
       <span class="text-gray-600">Submitted on: <%= relative_time(@bid.inserted_at) %></span>
-      <.button
-        phx-click="accept-bid"
-        class="bg-blue-600 hover:bg-blue-600-dark text-white font-bold py-2 px-4 rounded"
-      >
+      <.button phx-click="accept-bid" type="submit">
         Accept Bid
       </.button>
     </div>

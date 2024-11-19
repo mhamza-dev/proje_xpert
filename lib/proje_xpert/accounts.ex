@@ -4,10 +4,12 @@ defmodule ProjeXpert.Accounts do
   """
 
   import Ecto.Query, warn: false
-  alias ProjeXpertWeb.LiveHelpers
+  import ProjeXpertWeb.LiveHelpers
   alias ProjeXpert.Repo
 
   alias ProjeXpert.Accounts.{NotificationPreference, PaymentMethod, User, UserToken, UserNotifier}
+  alias ProjeXpert.Stripe.PaymentMethod, as: StripePM
+  alias ProjeXpert.Stripe.Customer, as: StripeCustomer
 
   ## Database getters
 
@@ -307,9 +309,10 @@ defmodule ProjeXpert.Accounts do
   If the token matches, the user account is marked as confirmed
   and the token is deleted.
   """
-  def confirm_user(token) do
+  def confirm_user(%{"token" => token} = params) do
     with {:ok, query} <- UserToken.verify_email_token_query(token, "confirm"),
          %User{} = user <- Repo.one(query),
+         {:ok, user} <- update_user_profile(user, params),
          {:ok, %{user: user}} <- Repo.transaction(confirm_user_multi(user)) do
       {:ok, user}
     else
@@ -711,21 +714,23 @@ defmodule ProjeXpert.Accounts do
     with %User{} = user <- get_user!(attrs["user_id"]),
          {:ok, %{id: id}} <- create_stripe_customer_if_not_exist(user),
          {:ok, _user} <- update_user(user, %{"stripe_customer_id" => id}),
-         {:ok, spm} <- Stripe.PaymentMethod.create(spm_params(attrs)),
-         {:ok, _spm} <- Stripe.PaymentMethod.attach(spm, %{"customer" => id}),
+         {:ok, spm} <- StripePM.create(spm_params(attrs)),
+         {:ok, _spm} <- StripePM.attach(spm.id, %{customer: id}),
          {:ok, payment_method} <- create_payment_method(pm_params(attrs, spm)) do
       {:ok, payment_method}
     else
-      {:error, %Stripe.Error{message: msg}} -> {:error, "Stripe Error: #{msg}"}
-      {:error, changeset} -> {:error, changeset}
-      _ -> {:error, "Unknown error occurred"}
+      {:error, changeset} ->
+        {:error, changeset}
+
+      _ ->
+        {:error, "Unknown error occurred"}
     end
   end
 
   defp create_stripe_customer_if_not_exist(%{stripe_customer_id: nil} = user) do
-    Stripe.Customer.create(%{
+    StripeCustomer.create(%{
       email: user.email,
-      name: LiveHelpers.full_name(user)
+      name: full_name(user)
     })
   end
 
@@ -740,17 +745,41 @@ defmodule ProjeXpert.Accounts do
     })
   end
 
-  defp spm_params(attrs) do
-    [month, year] = String.split(attrs["expiry"], "/")
+  # defp spm_params(attrs) do
+  #   [month, year] = String.split(attrs["expiry"], "/")
 
+  #   %{
+  #     type: "card",
+  #     card: %{
+  #       number: attrs["last_four_digits"],
+  #       exp_month: String.to_integer(month),
+  #       exp_year: String.to_integer(year),
+  #       cvc: attrs["cvv"]
+  #     }
+  #   }
+  # end
+
+  defp spm_params(attrs) do
     %{
       type: "card",
       card: %{
-        number: attrs["last_four_digits"],
-        exp_month: month,
-        exp_year: year,
-        cvc: attrs["cvv"]
+        token: get_card_token(attrs["last_four_digits"])
       }
     }
+  end
+
+  def get_card_token(key) do
+    Map.get(
+      %{
+        "4242424242424242" => "tok_visa",
+        "4000056655665556" => "tok_visa_debit",
+        "5555555555554444" => "tok_mastercard",
+        "2223003122003222" => "tok_mastercard_debit",
+        "378282246310005" => "tok_amex",
+        "6011111111111117" => "tok_discover"
+      },
+      key,
+      "tok_visa"
+    )
   end
 end
