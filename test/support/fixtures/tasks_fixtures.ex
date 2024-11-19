@@ -121,4 +121,20 @@ defmodule ProjeXpert.TasksFixtures do
 
     reply
   end
+
+  @doc """
+  Generate a sprint.
+  """
+  def sprint_fixture(attrs \\ %{}) do
+    {:ok, sprint} =
+      attrs
+      |> Enum.into(%{
+        end_date: ~D[2024-11-18],
+        start_date: ~D[2024-11-18],
+        title: "some title"
+      })
+      |> ProjeXpert.Tasks.create_sprint()
+
+    sprint
+  end
 end

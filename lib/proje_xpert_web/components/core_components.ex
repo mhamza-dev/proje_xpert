@@ -835,7 +835,7 @@ defmodule ProjeXpertWeb.CoreComponents do
           [
             @with_dots && "text-gray-500 transition-colors duration-200 rounded-lg hover:bg-gray-100",
             !@with_dots &&
-              "w-full px-4 py-2 bg-blue-600 hover:bg-blue-500 shadow-lg rounded-lg text-zinc-900 sm:text-sm sm:leading-6 focus:border-blue-400 focus:ring-blue-300 focus:outline-none focus:ring focus:ring-opacity-40"
+              "w-full h-[38px] mt-2 px-4 py-2 bg-blue-600 hover:bg-blue-500 rounded-lg text-zinc-900 focus:border-blue-400 focus:ring-blue-300 focus:outline-none focus:ring focus:ring-opacity-40"
           ]
           |> Enum.join(" ")
         }
@@ -857,12 +857,9 @@ defmodule ProjeXpertWeb.CoreComponents do
             d="M12 6.75a.75.75 0 110-1.5.75.75 0 010 1.5zM12 12.75a.75.75 0 110-1.5.75.75 0 010 1.5zM12 18.75a.75.75 0 110-1.5.75.75 0 010 1.5z"
           />
         </svg>
-        <div>
-          <span :if={!@with_dots} class="mr-3 text-white"><%= @label %></span>
-          <span
-            :if={!@with_dots}
-            class="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none"
-          >
+        <div :if={!@with_dots}>
+          <span class="mr-3 text-white text-sm"><%= @label %></span>
+          <span class="absolute inset-y-0 mt-2 right-0 flex items-center pr-2 pointer-events-none">
             <svg
               class="w-5 h-5 text-white"
               x-bind:class="{'transform rotate-180': open}"

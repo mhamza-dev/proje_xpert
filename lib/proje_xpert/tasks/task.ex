@@ -3,7 +3,7 @@ defmodule ProjeXpert.Tasks.Task do
   import Ecto.Changeset
 
   alias ProjeXpert.Accounts.User
-  alias ProjeXpert.Tasks.{Bid, Comment, Column, Project}
+  alias ProjeXpert.Tasks.{Bid, Comment, Column, Project, Sprint}
   alias ProjeXpertWeb.LiveHelpers
 
   @default_cast [
@@ -17,10 +17,19 @@ defmodule ProjeXpert.Tasks.Task do
     :deadline,
     :ask_for_payment,
     :project_id,
+    :sprint_id,
     :freelancer_id,
     :column_id
   ]
-  @default_required [:title, :description, :is_completed?, :budget, :deadline, :project_id]
+  @default_required [
+    :title,
+    :description,
+    :is_completed?,
+    :budget,
+    :deadline,
+    :project_id,
+    :sprint_id
+  ]
   @experiences [:beginner, :intermediate, :expert]
 
   schema "tasks" do
@@ -36,6 +45,7 @@ defmodule ProjeXpert.Tasks.Task do
     field :ask_for_payment, :boolean, default: false
 
     belongs_to :project, Project, foreign_key: :project_id
+    belongs_to :sprint, Sprint, foreign_key: :sprint_id
     belongs_to :column, Column, foreign_key: :column_id
     belongs_to :freelancer, User, foreign_key: :freelancer_id
     has_many :bids, Bid

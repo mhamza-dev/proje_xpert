@@ -24,6 +24,7 @@ alias ProjeXpert.Tasks.{
   Column,
   Project,
   # Payment,
+  Sprint,
   Task,
   Reply
 }
@@ -1350,11 +1351,10 @@ create_bids = fn task, project, client, columns ->
   end
 end
 
-create_tasks = fn project, columns, client ->
-  number_of_tasks = Enum.random(20..40)
-  budget_for_each_task = project.budget / number_of_tasks
+create_tasks = fn project, columns, client, sprint ->
+  budget_for_each_task = project.budget / length(task_list)
 
-  for {task, index} <- Enum.with_index(Enum.take_random(task_list, number_of_tasks)) do
+  for {task, index} <- Enum.with_index(Enum.take_random(task_list, 8)) do
     deadline = Date.new!(2025, Enum.random(1..12), Enum.random(1..28))
     find_freelancer? = Enum.random([true, false])
 
@@ -1373,6 +1373,7 @@ create_tasks = fn project, columns, client ->
         find_freelancer?: find_freelancer?,
         budget: budget_for_each_task,
         deadline: deadline,
+        sprint_id: sprint.id,
         column_id: hd(columns).id,
         project_id: project.id,
         attachments: attachments,
@@ -1403,22 +1404,40 @@ created_projects = fn ->
         updated_at: proj_date
       })
 
-    columns =
-      Enum.map(
-        Column.get_default_columns(),
-        fn name ->
-          col_date = random_date_with_initail_state.(project.inserted_at)
+    Sprint.get_default_sprints()
+    |> Enum.with_index()
+    |> Enum.map(fn {title, index} ->
+      ss_date = project.inserted_at |> DateTime.add((index + 1) * 7, :day) |> DateTime.to_date()
+      se_date = Date.add(ss_date, 6)
+      sprint_date = random_date_with_initail_state.(project.inserted_at)
 
-          Repo.insert!(%Column{
-            name: name,
-            project_id: project.id,
-            inserted_at: col_date,
-            updated_at: col_date
-          })
-        end
-      )
+      sprint =
+        Repo.insert!(%Sprint{
+          title: title,
+          project_id: project.id,
+          start_date: ss_date,
+          end_date: se_date,
+          inserted_at: sprint_date,
+          updated_at: sprint_date
+        })
 
-    create_tasks.(project, columns, client)
+      columns =
+        Enum.map(
+          Column.get_default_columns(),
+          fn name ->
+            col_date = random_date_with_initail_state.(sprint.inserted_at)
+
+            Repo.insert!(%Column{
+              name: name,
+              sprint_id: sprint.id,
+              inserted_at: col_date,
+              updated_at: col_date
+            })
+          end
+        )
+
+      create_tasks.(project, columns, client, sprint)
+    end)
 
     create_channels.(project, client)
   end

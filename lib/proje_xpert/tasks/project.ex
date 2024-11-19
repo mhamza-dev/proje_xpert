@@ -15,7 +15,7 @@ defmodule ProjeXpert.Tasks.Project do
     # Associations
     belongs_to :client, ProjeXpert.Accounts.User, foreign_key: :client_id
     has_many :tasks, ProjeXpert.Tasks.Task
-    has_many :columns, ProjeXpert.Tasks.Column
+    has_many :sprints, ProjeXpert.Tasks.Sprint
     has_one :channel, ProjeXpert.Chats.Channel
     has_many :project_freelancers, ProjeXpert.Tasks.Projectfreelancer, foreign_key: :project_id
 

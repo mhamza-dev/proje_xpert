@@ -2,13 +2,13 @@ defmodule ProjeXpert.Tasks.Column do
   use ProjeXpert.Schema
   import Ecto.Changeset
 
-  @default_cast [:name, :project_id]
-  @default_validte [:name, :project_id]
+  @default_cast [:name, :sprint_id]
+  @default_validte [:name, :sprint_id]
   @default_columns ["Backlog", "In Progress", "Completed"]
   schema "columns" do
     field :name, :string
 
-    belongs_to :project, ProjeXpert.Tasks.Project, foreign_key: :project_id
+    belongs_to :sprint, ProjeXpert.Tasks.Sprint, foreign_key: :sprint_id
     has_many :tasks, ProjeXpert.Tasks.Task
 
     timestamps(type: :utc_datetime)

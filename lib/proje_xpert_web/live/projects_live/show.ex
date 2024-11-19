@@ -9,15 +9,24 @@ defmodule ProjeXpertWeb.ProjectsLive.Show do
 
   def mount(%{"id" => id}, _session, socket) do
     if connected?(socket), do: Phoenix.PubSub.subscribe(ProjeXpert.PubSub, "project:#{id}")
-    {:ok, socket}
+    {:ok, assign(socket, kanban_board: false)}
   end
 
   def handle_params(%{"id" => id} = params, _url, socket) do
+    project = Tasks.get_project!(id)
+
+    selected_sprint =
+      Enum.find(project.sprints, fn sprint ->
+        sprint.start_date >= Date.utc_today() and sprint.start_date <= Date.utc_today()
+      end) || Enum.at(project.sprints, 0)
+
     {:noreply,
      socket
      |> assign(
-       project: Tasks.get_project!(id),
-       columns: Enum.map(Tasks.project_columns(id), &{&1.name, &1.id})
+       project: project,
+       columns: Enum.map(Tasks.sprint_columns(selected_sprint.id), &{&1.name, &1.id}),
+       sprint_options: get_sprints(project),
+       selected_sprint: selected_sprint
      )
      |> apply_action(socket.assigns.live_action, params)}
   end
@@ -78,6 +87,20 @@ defmodule ProjeXpertWeb.ProjectsLive.Show do
       page_title: "New Channel",
       channel: %Channel{}
     )
+  end
+
+  def handle_event("kanban_board", _params, socket) do
+    {:noreply, assign(socket, kanban_board: !socket.assigns.kanban_board)}
+  end
+
+  def handle_event("select_sprint", %{"select_sprint" => %{"sprint_id" => id}}, socket) do
+    selected_sprint = Tasks.get_sprint!(id)
+
+    {:noreply,
+     assign(socket,
+       selected_sprint: selected_sprint,
+       columns: Enum.map(Tasks.sprint_columns(selected_sprint.id), &{&1.name, &1.id})
+     )}
   end
 
   def handle_event("ask_for_payment", %{"id" => task_id}, socket) do
@@ -228,5 +251,9 @@ defmodule ProjeXpertWeb.ProjectsLive.Show do
         <p><strong>#{full_name(task.freelancer)}</strong> asked to release payment for the task #{task.title} associated with the project #{project.title} </p>
       """
     })
+  end
+
+  defp get_sprints(project) do
+    project.sprints |> Enum.sort_by(& &1.title, :asc) |> Enum.map(&{&1.title, &1.id})
   end
 end
