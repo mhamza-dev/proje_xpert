@@ -37,11 +37,20 @@ defmodule ProjeXpertWeb.ProjectsLive.Components.Task do
     {:ok, socket |> assign(assigns) |> assign(changeset: changeset)}
   end
 
-  def update(%{task: task, projects: projects} = assigns, socket) do
+  def update(
+        %{task: task, projects: projects, selected_sprint: selected_sprint} = assigns,
+        socket
+      ) do
     project = List.first(projects)
-    columns = Tasks.project_columns(project.id)
+    columns = Tasks.sprint_columns(selected_sprint.id)
     column = List.first(columns)
-    changeset = Tasks.change_task(task, %{project_id: project.id, column_id: column.id})
+
+    changeset =
+      Tasks.change_task(task, %{
+        project_id: project.id,
+        column_id: column.id,
+        sprint_id: selected_sprint.id
+      })
 
     {:ok,
      socket

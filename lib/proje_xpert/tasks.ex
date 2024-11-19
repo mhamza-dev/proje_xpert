@@ -87,7 +87,7 @@ defmodule ProjeXpert.Tasks do
         :tasks,
         :channel,
         project_freelancers: [:freelancer],
-        columns: [tasks: [:freelancer, bids: :freelancer]]
+        sprints: [columns: [tasks: [:freelancer, bids: :freelancer]]]
       ])
 
   @doc """
@@ -692,9 +692,9 @@ defmodule ProjeXpert.Tasks do
     Repo.all(Column)
   end
 
-  def project_columns(id) do
+  def sprint_columns(id) do
     Column
-    |> where([c], c.project_id == ^id)
+    |> where([c], c.sprint_id == ^id)
     |> Repo.all()
   end
 
@@ -991,4 +991,113 @@ defmodule ProjeXpert.Tasks do
     do: dollars_to_cents(String.to_float(dollars))
 
   def dollars_to_cents(dollars) when is_float(dollars), do: round(dollars * 100)
+
+  alias ProjeXpert.Tasks.Sprint
+
+  @doc """
+  Returns the list of sprints.
+
+  ## Examples
+
+      iex> list_sprints()
+      [%Sprint{}, ...]
+
+  """
+  def list_sprints do
+    Repo.all(Sprint)
+  end
+
+  @doc """
+  Gets a single sprint.
+
+  Raises `Ecto.NoResultsError` if the Sprint does not exist.
+
+  ## Examples
+
+      iex> get_sprint!(123)
+      %Sprint{}
+
+      iex> get_sprint!(456)
+      ** (Ecto.NoResultsError)
+
+  """
+  def get_sprint!(id),
+    do:
+      Repo.get!(Sprint, id)
+      |> Repo.preload([:project, columns: [tasks: [:freelancer, bids: :freelancer]]])
+
+  def get_sprint(id) do
+    from(s in Sprint,
+      join: c in assoc(s, :columns),
+      where: s.id == ^id,
+      order_by: [asc: c.id],
+      preload: [:project, columns: [tasks: [:freelancer, bids: :freelancer]]]
+    )
+    |> Repo.one()
+  end
+
+  @doc """
+  Creates a sprint.
+
+  ## Examples
+
+      iex> create_sprint(%{field: value})
+      {:ok, %Sprint{}}
+
+      iex> create_sprint(%{field: bad_value})
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def create_sprint(attrs \\ %{}) do
+    %Sprint{}
+    |> Sprint.changeset(attrs)
+    |> Repo.insert()
+  end
+
+  @doc """
+  Updates a sprint.
+
+  ## Examples
+
+      iex> update_sprint(sprint, %{field: new_value})
+      {:ok, %Sprint{}}
+
+      iex> update_sprint(sprint, %{field: bad_value})
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def update_sprint(%Sprint{} = sprint, attrs) do
+    sprint
+    |> Sprint.changeset(attrs)
+    |> Repo.update()
+  end
+
+  @doc """
+  Deletes a sprint.
+
+  ## Examples
+
+      iex> delete_sprint(sprint)
+      {:ok, %Sprint{}}
+
+      iex> delete_sprint(sprint)
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def delete_sprint(%Sprint{} = sprint) do
+    Repo.delete(sprint)
+  end
+
+  @doc """
+  Returns an `%Ecto.Changeset{}` for tracking sprint changes.
+
+  ## Examples
+
+      iex> change_sprint(sprint)
+      %Ecto.Changeset{data: %Sprint{}}
+
+  """
+  def change_sprint(%Sprint{} = sprint, attrs \\ %{}) do
+    Sprint.changeset(sprint, attrs)
+  end
 end

@@ -491,4 +491,67 @@ defmodule ProjeXpert.TasksTest do
       assert %Ecto.Changeset{} = Tasks.change_reply(reply)
     end
   end
+
+  describe "sprints" do
+    alias ProjeXpert.Tasks.Sprint
+
+    import ProjeXpert.TasksFixtures
+
+    @invalid_attrs %{title: nil, start_date: nil, end_date: nil}
+
+    test "list_sprints/0 returns all sprints" do
+      sprint = sprint_fixture()
+      assert Tasks.list_sprints() == [sprint]
+    end
+
+    test "get_sprint!/1 returns the sprint with given id" do
+      sprint = sprint_fixture()
+      assert Tasks.get_sprint!(sprint.id) == sprint
+    end
+
+    test "create_sprint/1 with valid data creates a sprint" do
+      valid_attrs = %{title: "some title", start_date: ~D[2024-11-18], end_date: ~D[2024-11-18]}
+
+      assert {:ok, %Sprint{} = sprint} = Tasks.create_sprint(valid_attrs)
+      assert sprint.title == "some title"
+      assert sprint.start_date == ~D[2024-11-18]
+      assert sprint.end_date == ~D[2024-11-18]
+    end
+
+    test "create_sprint/1 with invalid data returns error changeset" do
+      assert {:error, %Ecto.Changeset{}} = Tasks.create_sprint(@invalid_attrs)
+    end
+
+    test "update_sprint/2 with valid data updates the sprint" do
+      sprint = sprint_fixture()
+
+      update_attrs = %{
+        title: "some updated title",
+        start_date: ~D[2024-11-19],
+        end_date: ~D[2024-11-19]
+      }
+
+      assert {:ok, %Sprint{} = sprint} = Tasks.update_sprint(sprint, update_attrs)
+      assert sprint.title == "some updated title"
+      assert sprint.start_date == ~D[2024-11-19]
+      assert sprint.end_date == ~D[2024-11-19]
+    end
+
+    test "update_sprint/2 with invalid data returns error changeset" do
+      sprint = sprint_fixture()
+      assert {:error, %Ecto.Changeset{}} = Tasks.update_sprint(sprint, @invalid_attrs)
+      assert sprint == Tasks.get_sprint!(sprint.id)
+    end
+
+    test "delete_sprint/1 deletes the sprint" do
+      sprint = sprint_fixture()
+      assert {:ok, %Sprint{}} = Tasks.delete_sprint(sprint)
+      assert_raise Ecto.NoResultsError, fn -> Tasks.get_sprint!(sprint.id) end
+    end
+
+    test "change_sprint/1 returns a sprint changeset" do
+      sprint = sprint_fixture()
+      assert %Ecto.Changeset{} = Tasks.change_sprint(sprint)
+    end
+  end
 end
