@@ -4,8 +4,9 @@ defmodule ProjeXpertWeb.ProjectsLive.Components.Project do
   alias ProjeXpert.Tasks
   alias ProjeXpert.Tasks.{Column, Project, Sprint}
 
+  @default_params %{sprints: [%{title: ""}]}
   def update(%{project: project} = assigns, socket) do
-    changeset = Tasks.change_project(project, %{})
+    changeset = Project.create_changeset(project, @default_params)
 
     if project.status == :completed do
       send(self(), {:return_to_home, project})
@@ -14,10 +15,22 @@ defmodule ProjeXpertWeb.ProjectsLive.Components.Project do
     {:ok, socket |> assign(assigns) |> assign(changeset: changeset)}
   end
 
+  def handle_event("add_sprint", _params, %{assigns: %{changeset: changeset}}= socket) do
+    changeset = add_new_changeset(%Project{}, @default_params, changeset, :sprints)
+
+    {:noreply, assign(socket, :changeset, changeset)}
+  end
+
+  def handle_event("remove_sprint", %{"index" => index}, socket) do
+    changeset = remove_changeset(socket.assigns.changeset, :sprints, index)
+
+    {:noreply, assign(socket, :changeset, changeset)}
+  end
+
   def handle_event("validate", %{"project" => project_params}, socket) do
     changeset =
       socket.assigns.project
-      |> Tasks.change_project(project_params)
+      |> Project.create_changeset(project_params)
       |> Map.put(:action, :validate)
 
     {:noreply, socket |> assign(changeset: changeset)}
@@ -35,7 +48,7 @@ defmodule ProjeXpertWeb.ProjectsLive.Components.Project do
 
   defp create_project(project_params, socket) do
     with {:ok, project} <- Tasks.create_project(project_params),
-         :ok <- create_sprints(project) do
+         :ok <- create_columns(project) do
       {:noreply,
        socket
        |> put_flash(:info, "Project created successfully")
@@ -65,20 +78,10 @@ defmodule ProjeXpertWeb.ProjectsLive.Components.Project do
     end
   end
 
-  defp create_sprints(project) do
-    Enum.each(
-      Sprint.get_default_sprints(),
-      fn sprint ->
-        Tasks.create_sprint(%{title: sprint, project_id: project.id})
-        create_columns(project, sprint)
-      end
-    )
-  end
-
-  defp create_columns(project, sprint) do
+  defp create_columns(project) do
     Enum.each(
       Column.get_default_columns(),
-      &Tasks.create_column(%{name: &1, project_id: project.id, sprint_id: sprint.id})
+      &Tasks.create_column(%{name: &1, project_id: project.id, sprint_id: hd(project.sprints).id})
     )
   end
 end

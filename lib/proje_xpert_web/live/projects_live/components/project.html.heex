@@ -1,7 +1,7 @@
 <div class="bg-white flex flex-col items-center justify-center">
-  <div class="flex flex-col lg:px-10 py-8 rounded-3xl w-full">
-    <div class="font-medium self-center text-xl sm:text-3xl text-gray-900 mb-12">
-      <%= @title %>
+  <div class="flex flex-col px-4 rounded-3xl w-full max-w-4xl">
+    <div class="flex items-center justify-center p-6 border-b">
+      <h2 class="text-2xl font-semibold text-gray-800"><%= @title %></h2>
     </div>
     <.form
       :let={f}
@@ -11,63 +11,131 @@
       phx-change="validate"
       phx-submit="save"
     >
-      <div class="flex flex-col mb-5">
-        <div class="form-control">
-          <.input
-            label="Project Title"
-            type="text"
-            field={f[:title]}
-            placeholder="e.g: Time Management"
-            class="w-full"
-          />
+      <.input type="hidden" field={f[:client_id]} value={@current_user.id} />
+      <div class="p-6 space-y-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="col-span-2">
+            <.input
+              label="Project Title"
+              type="text"
+              field={f[:title]}
+              placeholder="e.g: Time Management"
+              class="w-full"
+            />
+          </div>
+          <div class="col-span-2">
+            <.text_editor
+              label="Project Description"
+              field={f[:description]}
+              id="project-description"
+              disabled={@action == :show_task}
+            />
+          </div>
+
+          <div>
+            <.input
+              label="Status"
+              type="select"
+              field={f[:status]}
+              options={
+                Project.statuses_as_options()
+                |> Enum.filter(&(elem(&1, 1) in [:in_progress, :on_hold]))
+              }
+              prompt="Select Status"
+              class="w-full"
+            />
+          </div>
+
+          <div>
+            <.input
+              label="Budget"
+              type="text"
+              field={f[:budget]}
+              placeholder="e.g: 1000"
+              class="w-full"
+            />
+          </div>
+          <div class="col-span-2">
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="text-lg font-semibold">Sprints</h3>
+              <button
+                type="button"
+                phx-click="add_sprint"
+                phx-target={@myself}
+                class="px-4 py-2 text-sm bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                Add Sprint
+              </button>
+            </div>
+            <div id="sprints-container" class="flex flex-col space-y-4">
+              <.inputs_for :let={sp} field={f[:sprints]}>
+                <div class="sprint-item border rounded-lg p-4 relative">
+                  <button
+                    type="button"
+                    phx-click="remove_sprint"
+                    phx-value-index={sp.index}
+                    phx-target={@myself}
+                    class="absolute top-2 right-2 text-gray-400 hover:text-red-500"
+                  >
+                    ✕
+                  </button>
+                  <div class="grid grid-cols-2 gap-4">
+                    <div>
+                      <.input
+                        field={sp[:title]}
+                        type="text"
+                        placeholder="Sprint 1"
+                        label="Title"
+                        class="w-full"
+                      />
+                    </div>
+                    <div>
+                      <.input
+                        label="Status"
+                        type="select"
+                        field={sp[:status]}
+                        options={Sprint.statuses_as_options()}
+                        prompt="Select Status"
+                        class="w-full"
+                      />
+                    </div>
+                    <div>
+                      <.input
+                        field={sp[:start_date]}
+                        type="date"
+                        label="Start Date"
+                        class="w-full"
+                      />
+                    </div>
+                    <div>
+                      <.input field={sp[:end_date]} type="date" label="End Date" class="w-full" />
+                    </div>
+                  </div>
+                </div>
+              </.inputs_for>
+            </div>
+          </div>
         </div>
 
-        <div class="form-control">
-          <.text_editor
-            label="Project Description"
-            field={f[:description]}
-            id="project-description"
-            disabled={@action == :show_task}
-          />
-        </div>
-
-        <div class="form-control flex justify-between space-x-2">
-          <.input
-            label="Status"
-            type="select"
-            field={f[:status]}
-            options={
-              Project.statuses_as_options()
-              |> Enum.filter(&(elem(&1, 1) in [:in_progress, :on_hold]))
-            }
-            prompt="Select Status"
-            class="w-[350px]"
-          />
-          <.input
-            label="Budget"
-            type="text"
-            field={f[:budget]}
-            placeholder="e.g: 1000"
-            class="w-[350px]"
-          />
-        </div>
-        <.input type="hidden" field={f[:client_id]} value={@current_user.id} />
-
-        <div class="mt-4 flex justify-end">
-          <button
-            type="submit"
-            phx_disable_with="Saving..."
-            disabled={!@changeset.valid?}
-            class={[
-              "flex items-center justify-center w-1/2 px-5 py-2 text-sm tracking-wide text-white transition-colors duration-200 bg-blue-600 rounded-lg shrink-0 sm:w-auto gap-x-2 hover:bg-blue-600",
-              !@changeset.valid? && "bg-gray-400 hover:bg-gray-400 cursor-not-allowed"
-            ]}
+        <div class="flex items-center justify-end gap-4 py-6 border-t">
+          <.link
+            patch={@return_to}
+            class="px-4 py-1.5 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
           >
-            <span class="mr-2 uppercase">
-              <%= if @action == :new, do: "Create", else: "Update" %>
-            </span>
-            <.icon name="hero-arrow-right-circle" class="w-8 h-8" />
-          </button>
+            Cancel
+          </.link>
+          <.button type="submit">
+            <%= if(@action == :new, do: "Create", else: "Update") %>
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="1.5"
+                d="M9 5l7 7-7 7"
+              >
+              </path>
+            </svg>
+          </.button>
         </div>
       </div>
     </.form>

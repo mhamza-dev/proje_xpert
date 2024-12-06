@@ -1,332 +1,341 @@
 <div class="bg-white flex flex-col items-center justify-center">
-  <div class="flex flex-col py-8 px-4 rounded-3xl w-full">
-    <div class="font-medium self-center text-xl sm:text-3xl text-gray-900">
-      <%= @title %>
+  <div
+    :if={@action != :show_task}
+    class="max-w-5xl"
+    class="flex flex-col px-4 rounded-3xl w-full max-w-3xl"
+  >
+    <div class="flex items-center justify-center p-6 border-b">
+      <h2 class="text-2xl font-semibold text-gray-800"><%= @title %></h2>
     </div>
     <.form
       :let={f}
-      :if={@action != :show_task}
+      :if={@action in [:new_task, :edit_task]}
       for={@changeset}
       id="project-form"
       phx-target={@myself}
       phx-change="validate"
       phx-submit="save"
     >
-      <div class="flex flex-col space-y-4">
-        <div class="form-control flex justify-between space-x-2">
-          <.input
-            label="Title"
-            type="text"
-            field={f[:title]}
-            placeholder="e.g: Update something..."
-            class="w-[350px]"
-          />
-          <.input label="Deadline" type="date" field={f[:deadline]} class="w-[350px]" />
-        </div>
+      <div class="p-6 space-y-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="col-span-2">
+            <.input
+              label="Title"
+              type="text"
+              field={f[:title]}
+              placeholder="e.g: Update something..."
+              class="w-full"
+            />
+          </div>
 
-        <div class="form-control flex justify-between space-x-2">
-          <.input
-            :if={@action in [:new_task, :edit_task]}
-            label="Sprint"
-            type="select"
-            class="w-[350px]"
-            field={f[:sprint_id]}
-            options={get_sprints(@project)}
-          />
-          <.input
-            :if={@action in [:new_task, :edit_task]}
-            label="Column"
-            type="select"
-            class="w-[350px]"
-            field={f[:column_id]}
-            options={@columns}
-          />
-        </div>
+          <div>
+            <.input label="Deadline" type="date" field={f[:deadline]} class="w-full" />
+          </div>
 
-        <.input
-          :if={@action in [:new_task, :edit_task]}
-          type="hidden"
-          field={f[:project_id]}
-          value={@project.id}
-        />
-        <div class="form-control flex items-end">
-          <.input
-            label="Budget"
-            type="text"
-            field={f[:budget]}
-            placeholder="e.g: 1000"
-            class="w-[350px]"
-          />
-          <div class="flex flex-col space-y-2 items-start">
+          <div>
+            <.input
+              label="Sprint"
+              type="select"
+              class="w-full"
+              field={f[:sprint_id]}
+              options={get_sprints(@project)}
+            />
+          </div>
+
+          <div class="col-span-2">
+            <.input
+              label="Column"
+              type="select"
+              class="w-full"
+              field={f[:column_id]}
+              options={@columns}
+            />
+          </div>
+
+          <.input type="hidden" field={f[:project_id]} value={@project.id} />
+
+          <div class="col-span-2">
+            <.text_editor label="Description" field={f[:description]} id="task-description" />
+          </div>
+          <div>
+            <.input
+              label="Budget"
+              type="text"
+              field={f[:budget]}
+              placeholder="e.g: 1000"
+              class="w-full"
+            />
+          </div>
+          <div>
+            <.input
+              :if={@assigners?}
+              label="Assign to"
+              type="select"
+              field={f[:freelancer_id]}
+              options={@assigners}
+              class="w-full"
+            />
+          </div>
+
+          <div class="col-span-2 flex items-center justify-between">
             <.input label="List to find freelancer?" type="checkbox" field={f[:find_freelancer?]} />
 
             <.input label="Mark as completed" type="checkbox" field={f[:is_completed?]} />
           </div>
         </div>
-        <div class="form-control">
-          <.text_editor label="Description" field={f[:description]} id="task-description" />
-        </div>
 
-        <div class="mt-4 flex justify-end">
-          <button
-            type="submit"
-            phx_disable_with="Saving..."
-            disabled={!@changeset.valid?}
-            class={[
-              "flex items-center justify-center w-1/2 px-5 py-2 text-sm tracking-wide text-white transition-colors duration-200 bg-blue-600 rounded-lg shrink-0 sm:w-auto gap-x-2 hover:bg-blue-600",
-              !@changeset.valid? && "bg-gray-400 hover:bg-gray-400 cursor-not-allowed"
-            ]}
+        <div class="flex items-center justify-end gap-4 py-6 border-t">
+          <.link
+            patch={@return_to}
+            class="px-4 py-1.5 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
           >
-            <span class="mr-2 uppercase">
-              <%= if @action in [:new_task, :new],
-                do: "Create",
-                else: "Update" %>
-            </span>
-            <.icon name="hero-arrow-right-circle" class="w-8 h-8" />
-          </button>
+            Cancel
+          </.link>
+          <.button type="submit">
+            <%= if(@action == :new_task, do: "Create", else: "Update") %>
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="1.5"
+                d="M9 5l7 7-7 7"
+              >
+              </path>
+            </svg>
+          </.button>
         </div>
       </div>
     </.form>
   </div>
-  <div :if={@action == :show_task} class="overflow-hidden">
-    <div class="grid grid-cols-12 gap-6">
+  <div :if={@action == :show_task} class="max-w-5xl">
+    <div class="flex items-center justify-center p-6 border-b">
+      <h2 class="text-2xl font-semibold text-gray-800"><%= @title %></h2>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-2">
       <!-- Task Details -->
-      <div class="col-span-5 py-3 px-4">
-        <h3 class="text-lg leading-6 font-medium text-gray-900 text-center mb-4">
-          Title: <%= @task.title %>
-        </h3>
-        <hr class="border-b border-gray-100 my-2" />
-        <div class="px-4 py-5 sm:px-6">
-          <dl class="grid grid-cols-1 gap-x-4 gap-y-4">
-            <div class="sm:col-span-1">
-              <dt class="text-md font-medium text-gray-500 flex items-center">
-                <svg
-                  class="mr-1 h-4 w-4"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                  >
-                  </path>
-                </svg>
-                Task Budget
-              </dt>
-              <dd class="mt-1 text-md text-gray-900">
+      <div class="p-6 border-r overflow-y-auto">
+        <div class="space-y-6">
+          <h1 class="text-2xl font-semibold">Title: <%= @task.title %></h1>
+
+          <div class="space-y-2">
+            <div class="flex items-center gap-2">
+              <span class="text-gray-600">Task Budget</span>
+              <span class="font-semibold">
                 <%= Number.Currency.number_to_currency(@task.budget) %>
-              </dd>
+              </span>
             </div>
-            <div class="sm:col-span-1">
-              <dt class="text-md font-medium text-gray-500 flex items-center">
-                <svg
-                  class="mr-1 h-4 w-4"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                  >
-                  </path>
-                </svg>
-                Posted Date
-              </dt>
-              <dd class="mt-1 text-md text-gray-900">
-                <%= relative_time(@task.inserted_at) %>
-              </dd>
+
+            <div class="flex items-center gap-2">
+              <span class="text-gray-600">Posted Date</span>
+              <span class="text-gray-700"><%= relative_time(@task.inserted_at) %></span>
             </div>
-            <div class="sm:col-span-2">
-              <dt class="text-md font-medium text-gray-500">Description</dt>
-              <dd class="mt-1 text-md text-gray-900" x-data="{ isTruncated: true }">
-                <div class="antialiased font-normal leading-normal text-gray-700 max-h-[calc(100vh-60vh)] overflow-y-scroll">
-                  <%= raw(@task.description) %>
-                </div>
-              </dd>
+          </div>
+
+          <div class="space-y-2">
+            <h3 class="font-semibold">Description</h3>
+            <div class="antialiased font-normal leading-normal text-gray-700 max-h-[calc(100vh-55vh)] overflow-y-scroll">
+              <%= raw(@task.description) %>
             </div>
-            <div
-              :if={is_client?(@current_user)}
-              class="flex items-center justify-between sm:col-span-2"
-            >
-              <dt class="text-md font-medium text-gray-500">Assigned to:</dt>
-              <dd class="mt-1 text-md text-gray-900">
+          </div>
+
+          <div class="space-y-2">
+            <div class="flex items-center gap-2">
+              <span class="text-gray-600">Assigned to:</span>
+              <span class="font-semibold">
                 <%= if @task.freelancer == @current_user.id,
                   do: "You",
                   else: if(is_nil(@task.freelancer), do: "N/A", else: full_name(@task.freelancer)) %>
-              </dd>
-            </div>
-            <div
-              :if={is_client?(@current_user) and @task.ask_for_payment}
-              class="flex items-center justify-end sm:col-span-2"
-            >
-              <span
-                phx-click="release_payment"
-                phx-value-id={@task.id}
-                phx-target={@myself}
-                class="mt-1 text-md text-gray-900 cursor-pointer hover:text-blue-500 hover:underline"
-              >
-                Release Payment
               </span>
             </div>
-          </dl>
+
+            <div class="flex items-center gap-2">
+              <span class="text-gray-600">Dealine</span>
+              <span class="text-gray-700"><%= @task.deadline %></span>
+            </div>
+          </div>
+
+          <div
+            :if={is_client?(@current_user) and @task.ask_for_payment}
+            class="flex items-center gap-2"
+          >
+            <span
+              phx-click="release_payment"
+              phx-value-id={@task.id}
+              phx-target={@myself}
+              class="text-gray-700"
+            >
+              Release Payment
+            </span>
+          </div>
         </div>
       </div>
       <!-- Comments and Replies -->
-      <div class="col-span-7 py-3 px-4">
-        <h3 class="text-lg leading-6 font-medium text-gray-900 text-center mb-4">
-          Ticket Comments
-        </h3>
-        <hr class="border-b border-gray-100 my-2" />
-        <div :if={!@add_new_comment} class="text-end p-4">
-          <span
-            class="cursor-pointer text-gray-500 hover:text-blue-600 hover:underline hover:underline-offset-2"
+      <div class="bg-gray-50 p-6 overflow-y-auto">
+        <div class="flex justify-between mb-6">
+          <h3 class="text-xl font-semibold">Ticket Comments</h3>
+          <h4
+            :if={!@add_new_comment}
+            class="text-md text-gray-600 cursor-pointer"
             phx-click="add_new_comment"
             phx-target={@myself}
           >
             Add New Comment
-          </span>
+          </h4>
         </div>
-        <!-- Add New Comment Form -->
-        <.form
-          :let={cc}
-          :if={@add_new_comment}
-          for={@cc}
-          phx-change="validate_comment"
-          phx-submit="save_comment"
-          phx-target={@myself}
-          as={:comment}
-        >
-          <.input type="hidden" field={cc[:user_id]} value={@current_user.id} />
-          <.input type="hidden" field={cc[:task_id]} value={@task.id} />
-          <.text_editor class="m-3" label="Comment" field={cc[:message]} id="message-comment" />
-          <div class="flex justify-end mr-3">
-            <div class="flex space-x-3">
-              <button
+        <div class="mb-8">
+          <.form
+            :let={cc}
+            :if={@add_new_comment}
+            for={@cc}
+            phx-change="validate_comment"
+            phx-submit="save_comment"
+            phx-target={@myself}
+            as={:comment}
+            class="bg-white rounded-lg shadow-sm p-4"
+          >
+            <.input type="hidden" field={cc[:user_id]} value={@current_user.id} />
+            <.input type="hidden" field={cc[:task_id]} value={@task.id} />
+            <.text_editor label="Comment" field={cc[:message]} id="message-comment" />
+            <div class="mt-3 flex justify-end space-x-2">
+              <.button
                 type="button"
                 phx-click="add_new_comment"
                 phx-target={@myself}
                 style="secondary"
               >
                 Cancel
-              </button>
-              <.button type="submit">Add Comment</.button>
+              </.button>
+              <.button type="submit">Post Comment</.button>
             </div>
-          </div>
-        </.form>
-
-        <div class="py-3 px-2 border rounded-md">
-          <ul class="space-y-4 max-h-[calc(100vh-45vh)] overflow-y-scroll">
-            <li :for={comment <- Enum.sort_by(@comments, & &1.inserted_at, :desc)} class="mb-2">
-              <div class="flex items-start space-x-4">
-                <.dot_profile_image user={comment.user} />
-                <div class="flex-1 min-w-0">
-                  <p class="text-lg font-medium text-gray-500">
-                    <%= if @current_user.id == comment.user.id,
-                      do: "You",
-                      else: full_name(comment.user) %>
-                  </p>
-                  <p class="text-gray-500 mt-1">
+          </.form>
+        </div>
+        <div class={
+          [
+            "space-y-6 overflow-y-scroll",
+            @add_new_comment && "max-h-[calc(100vh-62vh)]",
+            !@add_new_comment && "max-h-[calc(100vh-30vh)]"
+          ]
+          |> combine_classes()
+        }>
+          <!-- Original Comment -->
+          <%= for comment <- Enum.sort_by(@comments, & &1.inserted_at, :desc) do %>
+            <div class="bg-white rounded-lg shadow-sm p-4">
+              <div class="flex items-start gap-3">
+                <.dot_profile_image
+                  user={comment.user}
+                  class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center flex-shrink-0"
+                />
+                <div class="flex-1">
+                  <div class="flex items-center justify-between mb-1">
+                    <span class="font-semibold">
+                      <%= if(@current_user.id == comment.user.id,
+                        do: "You",
+                        else: full_name(comment.user)
+                      ) %>
+                    </span>
+                    <span class="text-sm text-gray-500">
+                      <%= relative_time(comment.inserted_at) %>
+                    </span>
+                  </div>
+                  <div class="text-gray-700">
                     <%= raw(comment.message) %>
-                  </p>
-                  <span class="text-sm text-gray-500 mt-2 inline-block">
-                    <%= relative_time(comment.inserted_at) %>
-                  </span>
+                  </div>
                 </div>
               </div>
-              <!-- Replies -->
-              <ul class="mt-6 space-y-6">
-                <li
-                  :for={reply <- Enum.sort_by(comment.replies, & &1.inserted_at, :asc)}
-                  class="rounded-lg p-4 ml-10 relative before:absolute before:top-0 before:-left-5 before:w-px before:h-full before:bg-blue-600/50"
-                >
-                  <div class="flex items-start space-x-3">
-                    <.dot_profile_image user={reply.user} />
-                    <div>
-                      <p class="text-gray-500 font-medium">
-                        <%= if @current_user.id == reply.user.id,
-                          do: "You",
-                          else: full_name(reply.user) %>
-                      </p>
-                      <p class="text-gray-500 mt-1">
+            </div>
+            <!-- Nested Replies -->
+            <!-- Old Replies -->
+            <div class="ml-8 space-y-6 relative before:absolute before:left-4 before:top-0 before:bottom-0 before:w-0.5 before:bg-gray-200">
+              <%= for reply <- Enum.sort_by(comment.replies, & &1.inserted_at, :asc) do %>
+                <div class="bg-white rounded-lg shadow-sm p-4 relative">
+                  <div class="flex items-start gap-3">
+                    <.dot_profile_image
+                      user={reply.user}
+                      class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center flex-shrink-0"
+                    />
+                    <div class="flex-1">
+                      <div class="flex items-center justify-between mb-1">
+                        <span class="font-semibold">
+                          <%= if(@current_user.id == reply.user.id,
+                            do: "You",
+                            else: full_name(reply.user)
+                          ) %>
+                        </span>
+                        <span class="text-sm text-gray-500">
+                          <%= relative_time(reply.inserted_at) %>
+                        </span>
+                      </div>
+                      <div class="text-gray-700">
                         <%= raw(reply.message) %>
-                      </p>
-                      <span class="text-sm text-gray-500 mt-2 inline-block">
-                        <%= relative_time(reply.inserted_at) %>
-                      </span>
+                      </div>
                     </div>
                   </div>
-                </li>
-                <li
-                  :for={reply <- Enum.sort_by(@new_replies, & &1.inserted_at, :asc)}
-                  :if={reply.comment_id == comment.id}
-                  class="rounded-lg p-4 ml-10 relative before:absolute before:top-0 before:-left-5 before:w-px before:h-full before:bg-blue-600/50"
-                >
-                  <div class="flex items-start space-x-3">
-                    <.dot_profile_image user={reply.user} />
-                    <div>
-                      <p class="text-gray-500 font-medium">
-                        <%= if @current_user.id == reply.user.id,
-                          do: "You",
-                          else: full_name(reply.user) %>
-                      </p>
-                      <p class="text-gray-500 mt-1">
+                </div>
+              <% end %>
+              <!-- New Replies -->
+              <%= for reply <- Enum.sort_by(@new_replies, & &1.inserted_at, :asc) do %>
+                <div class="bg-white rounded-lg shadow-sm p-4 relative">
+                  <div class="flex items-start gap-3">
+                    <.dot_profile_image
+                      user={reply.user}
+                      class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center flex-shrink-0"
+                    />
+                    <div class="flex-1">
+                      <div class="flex items-center justify-between mb-1">
+                        <span class="font-semibold">
+                          <%= if(@current_user.id == reply.user.id,
+                            do: "You",
+                            else: full_name(reply.user)
+                          ) %>
+                        </span>
+                        <span class="text-sm text-gray-500">
+                          <%= relative_time(reply.inserted_at) %>
+                        </span>
+                      </div>
+                      <div class="text-gray-700">
                         <%= raw(reply.message) %>
-                      </p>
-                      <span class="text-sm text-gray-500 mt-2 inline-block">
-                        <%= relative_time(reply.inserted_at) %>
-                      </span>
+                      </div>
                     </div>
                   </div>
-                </li>
-              </ul>
-              <div :if={!@add_new_reply} class="text-start p-4 ml-10">
-                <span
-                  class="cursor-pointer text-gray-500 hover:text-blue-600 hover:underline hover:underline-offset-2"
+                </div>
+              <% end %>
+            </div>
+            <h4
+              :if={!@add_new_reply}
+              class="text-md text-gray-600 text-left ml-10 cursor-pointer"
+              phx-click="add_new_reply"
+              phx-value-id={comment.id}
+              phx-target={@myself}
+            >
+              Add New Reply
+            </h4>
+            <!-- Add New Reply Form -->
+            <.form
+              :let={cfc}
+              :if={@add_new_reply and @selected_comment == comment.id}
+              for={@rc}
+              phx-change="validate_reply"
+              phx-submit="save_reply"
+              phx-target={@myself}
+              as={:reply}
+            >
+              <.input type="hidden" field={cfc[:user_id]} value={@current_user.id} />
+              <.input type="hidden" field={cfc[:comment_id]} value={@selected_comment} />
+              <.text_editor class="m-3" label="Reply" field={cfc[:message]} id="message-reply" />
+              <div class="mt-3 flex justify-end space-x-2">
+                <.button
+                  type="button"
+                  style="secondary"
                   phx-click="add_new_reply"
-                  phx-value-id={comment.id}
+                  phx-value-id="0"
                   phx-target={@myself}
                 >
-                  Add New Reply
-                </span>
+                  Cancel
+                </.button>
+                <.button type="submit">Post Reply</.button>
               </div>
-              <!-- Add New Reply Form -->
-              <.form
-                :let={cfc}
-                :if={@add_new_reply and @selected_comment == comment.id}
-                for={@rc}
-                phx-change="validate_reply"
-                phx-submit="save_reply"
-                phx-target={@myself}
-                as={:reply}
-              >
-                <.input type="hidden" field={cfc[:user_id]} value={@current_user.id} />
-                <.input type="hidden" field={cfc[:comment_id]} value={@selected_comment} />
-                <.text_editor class="m-3" label="Reply" field={cfc[:message]} id="message-reply" />
-                <div class="flex justify-end mr-3">
-                  <div class="flex space-x-3">
-                    <button
-                      type="button"
-                      style="secondary"
-                      phx-click="add_new_reply"
-                      phx-value-id="0"
-                      phx-target={@myself}
-                    >
-                      Cancel
-                    </button>
-                    <.button type="submit">Add Reply</.button>
-                  </div>
-                </div>
-              </.form>
-            </li>
-          </ul>
+            </.form>
+          <% end %>
         </div>
       </div>
     </div>

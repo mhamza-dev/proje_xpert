@@ -41,7 +41,6 @@ defmodule ProjeXpertWeb.CoreComponents do
   attr(:id, :string, required: true)
   attr(:show, :boolean, default: false)
   attr(:on_cancel, JS, default: %JS{})
-  attr(:max_width, :string, default: "max-w-3xl")
   slot(:inner_block, required: true)
 
   def modal(assigns) do
@@ -53,7 +52,7 @@ defmodule ProjeXpertWeb.CoreComponents do
       data-cancel={JS.exec(@on_cancel, "phx-remove")}
       class="relative z-50 hidden"
     >
-      <div id={"#{@id}-bg"} class="bg-zinc-50/90 fixed inset-0 transition-opacity" aria-hidden="true" />
+      <div id={"#{@id}-bg"} class="bg-transparent fixed inset-0 transition-opacity" aria-hidden="true" />
       <div
         class="fixed inset-0 overflow-y-auto"
         aria-labelledby={"#{@id}-title"}
@@ -62,23 +61,19 @@ defmodule ProjeXpertWeb.CoreComponents do
         aria-modal="true"
         tabindex="0"
       >
-        <div class="flex min-h-full items-center justify-center">
-          <div class="p-4 sm:p-6 lg:py-8">
+        <div class="flex items-center justify-end">
+          <div>
             <.focus_wrap
               id={"#{@id}-container"}
               phx-window-keydown={JS.exec("data-cancel", to: "##{@id}")}
               phx-key="escape"
               phx-click-away={JS.exec("data-cancel", to: "##{@id}")}
-              class={[
-                "shadow-zinc-700/10 ring-zinc-700/10 relative hidden rounded-2xl bg-white p-10 shadow-lg ring-1 transition",
-                @max_width
-              ]}
-            >
-              <div class="absolute top-6 right-5">
+              class="w-full min-h-[100vh] shadow-zinc-700/10 ring-zinc-700/10 relative hidden rounded-md bg-white p-10 shadow-lg ring-1 transition">
+              <div class="absolute top-0 left-[-0.750rem]">
                 <button
                   phx-click={JS.exec("data-cancel", to: "##{@id}")}
                   type="button"
-                  class="-m-3 flex-none p-3 opacity-20 hover:opacity-40"
+                  class="-m-3 flex-none h-6 w-6 bg-white rounded-sm shadow-lg scale-125 hover:scale-100 hover:bg-gray-50 "
                   aria-label={gettext("close")}
                 >
                   <.icon name="hero-x-mark-solid" class="h-5 w-5" />
@@ -256,7 +251,7 @@ defmodule ProjeXpertWeb.CoreComponents do
     <button
       type={@type}
       class={[
-        "w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50",
+        "inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50",
         @class,
         if(!is_nil(Map.get(@rest, :disabled)), do: "cursor-not-allowed opacity-50", else: "")
       ]}
@@ -342,7 +337,7 @@ defmodule ProjeXpertWeb.CoreComponents do
 
     ~H"""
     <div class={@div_class}>
-      <div class="flex items-center space-x-4">
+      <div class="flex items-center">
         <input type="hidden" name={@name} value="false" disabled={@rest[:disabled]} />
         <input
           type="checkbox"
@@ -358,7 +353,7 @@ defmodule ProjeXpertWeb.CoreComponents do
           ]}
           {@rest}
         />
-        <label class={["block text-md font-medium text-gray-700", @label_class]}><%= @label %></label>
+        <label class={["block ml-4 text-md font-medium text-gray-700", @label_class]}><%= @label %></label>
       </div>
       <.error :for={msg <- @errors}><%= msg %></.error>
     </div>
@@ -660,7 +655,7 @@ defmodule ProjeXpertWeb.CoreComponents do
     <div>
       <.link
         navigate={@navigate}
-        class="flex items-center space-x-2 text-xl font-bold text-blue-600 hover:text-blue-600/50"
+        class="flex items-center space-x-2 text-xl font-bold text-blue-600 hover:text-blue-500"
       >
         <.icon name="hero-arrow-left-micro" class="h-4 w-4 font-bold" />
         <%= render_slot(@inner_block) %>

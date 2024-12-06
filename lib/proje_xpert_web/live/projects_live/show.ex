@@ -20,6 +20,7 @@ defmodule ProjeXpertWeb.ProjectsLive.Show do
         sprint.start_date >= Date.utc_today() and sprint.start_date <= Date.utc_today()
       end) || Enum.at(project.sprints, 0)
 
+    dbg(selected_sprint)
     {:noreply,
      socket
      |> assign(
@@ -27,101 +28,91 @@ defmodule ProjeXpertWeb.ProjectsLive.Show do
        columns: Enum.map(Tasks.sprint_columns(selected_sprint.id), &{&1.name, &1.id}),
        sprint_options: get_sprints(project),
        selected_sprint: selected_sprint,
-       kanban_board: Map.get(params, "kanban_board", "false") == "true"
+       kanban_board: true
      )
      |> apply_action(socket.assigns.live_action, params)}
   end
 
-  defp apply_action(socket, :show, params) do
+  defp apply_action(socket, :show, _params) do
     socket
     |> assign(
-      page_title: "Project Detail",
-      kanban_board: Map.get(params, "kanban_board", "false") == "true"
+      page_title: "Project Detail"
     )
   end
 
-  defp apply_action(socket, :edit, params) do
+  defp apply_action(socket, :edit, _params) do
     socket
     |> assign(
-      page_title: "Edit Project",
-      kanban_board: Map.get(params, "kanban_board", "false") == "true"
+      page_title: "Edit Project"
     )
   end
 
-  defp apply_action(socket, :new_column, params) do
+  defp apply_action(socket, :new_column, _params) do
     socket
     |> assign(
       page_title: "New Column",
-      column: %Column{},
-      kanban_board: Map.get(params, "kanban_board", "false") == "true"
+      column: %Column{}
     )
   end
 
-  defp apply_action(socket, :edit_column, %{"column_id" => column_id} = params) do
+  defp apply_action(socket, :edit_column, %{"column_id" => column_id} = _params) do
     socket
     |> assign(
       page_title: "Edit Column",
-      column: Tasks.get_column!(column_id),
-      kanban_board: Map.get(params, "kanban_board", "false") == "true"
+      column: Tasks.get_column!(column_id)
     )
   end
 
-  defp apply_action(socket, :new_sprint, params) do
+  defp apply_action(socket, :new_sprint, _params) do
     socket
     |> assign(
       page_title: "New sprint",
       sprint: %Sprint{},
-      column: %Column{},
-      kanban_board: Map.get(params, "kanban_board", "false") == "true"
+      column: %Column{}
     )
   end
 
-  defp apply_action(socket, :edit_sprint, %{"sprint_id" => id} = params) do
+  defp apply_action(socket, :edit_sprint, %{"sprint_id" => id} = _params) do
     socket
     |> assign(
       page_title: "Edit Sprint",
       sprint: Tasks.get_sprint!(id),
-      column: %Column{},
-      kanban_board: Map.get(params, "kanban_board", "false") == "true"
+      column: %Column{}
     )
   end
 
-  defp apply_action(socket, :new_task, params) do
+  defp apply_action(socket, :new_task, _params) do
     socket
     |> assign(
       page_title: "New Task",
       task: %Task{},
-      column: %Column{},
-      kanban_board: Map.get(params, "kanban_board", "false") == "true"
+      column: %Column{}
     )
   end
 
-  defp apply_action(socket, :edit_task, %{"task_id" => task_id} = params) do
+  defp apply_action(socket, :edit_task, %{"task_id" => task_id} = _params) do
     socket
     |> assign(
       page_title: "Edit Task",
       task: Tasks.get_task!(task_id),
-      column: %Column{},
-      kanban_board: Map.get(params, "kanban_board", "false") == "true"
+      column: %Column{}
     )
   end
 
-  defp apply_action(socket, :show_task, %{"task_id" => task_id} = params) do
+  defp apply_action(socket, :show_task, %{"task_id" => task_id} = _params) do
     socket
     |> assign(
       page_title: "Task Details",
       task: Tasks.get_task!(task_id),
-      column: %Column{},
-      kanban_board: Map.get(params, "kanban_board", "false") == "true"
+      column: %Column{}
     )
   end
 
-  defp apply_action(socket, :new_channel, params) do
+  defp apply_action(socket, :new_channel, _params) do
     socket
     |> assign(
       page_title: "New Channel",
-      channel: %Channel{},
-      kanban_board: Map.get(params, "kanban_board", "false") == "true"
+      channel: %Channel{}
     )
   end
 
@@ -157,13 +148,13 @@ defmodule ProjeXpertWeb.ProjectsLive.Show do
          :info,
          "\"#{sprint.title}\" has been completed successfully"
        )
-       |> push_patch(to: ~p"/projects/#{socket.assigns.project.id}/show?kanban_board=true")}
+       |> push_patch(to: ~p"/projects/#{socket.assigns.project.id}/show")}
     else
       _ ->
         {:noreply,
          socket
          |> put_flash(:error, "Something went wrong while completing sprint")
-         |> push_patch(to: ~p"/projects/#{socket.assigns.project.id}/show?kanban_board=true")}
+         |> push_patch(to: ~p"/projects/#{socket.assigns.project.id}/show")}
     end
   end
 
@@ -327,7 +318,7 @@ defmodule ProjeXpertWeb.ProjectsLive.Show do
         Accounts.create_notification(%{
           "type" => "push",
           "user_id" => task.freelancer_id,
-          "link" => "/projects/#{project.id}/show?kanban_board=true",
+          "link" => "/projects/#{project.id}/show",
           "message" => """
             <p>Dear <strong>#{full_name(task.freelancer)}</strong>,</p>
             <p>The sprint <strong>#{sprint.title}</strong> for the project <strong>#{project.title}</strong> has been successfully completed. Please check the sprint details for any pending tasks or updates.</p>

@@ -6,7 +6,34 @@ defmodule ProjeXpertWeb.ProjectsLive.Components.Task do
   alias ProjeXpert.Tasks.{Comment, Reply}
 
   def update(
-        %{task: task, project: project, sprint: sprint, action: :show_task} = assigns,
+        %{task: task, project: project, sprint: sprint, action: :new_task} = assigns,
+        socket
+      ) do
+    changeset = Tasks.change_task(task, %{project_id: project.id, sprint_id: sprint.id})
+    cc = Tasks.change_comment(%Comment{})
+    rc = Tasks.change_reply(%Reply{})
+
+    {:ok,
+     socket
+     |> assign(assigns)
+     |> assign(
+       changeset: changeset,
+       cc: cc,
+       rc: rc,
+       comment: %Comment{},
+       reply: %Reply{},
+       add_new_comment: false,
+       add_new_reply: false,
+       selected_comment: nil,
+       comments: task.comments,
+       new_replies: [],
+       assigners: Enum.map(project.project_freelancers, &{full_name(&1.freelancer), &1.id}),
+       assigners?: true
+     )}
+  end
+
+  def update(
+        %{task: task, project: project, sprint: sprint} = assigns,
         socket
       ) do
     changeset = Tasks.change_task(task, %{project_id: project.id, sprint_id: sprint.id})
@@ -26,18 +53,10 @@ defmodule ProjeXpertWeb.ProjectsLive.Components.Task do
        add_new_reply: false,
        selected_comment: nil,
        comments: task.comments,
-       new_replies: []
+       new_replies: [],
+       assigners: Enum.map(project.project_freelancers, &{full_name(&1.freelancer), &1.id}),
+       assigners?: !task.find_freelancer?
      )}
-  end
-
-  def update(%{task: task, project: project, sprint: sprint, action: action} = assigns, socket) do
-    changeset = Tasks.change_task(task, %{project_id: project.id, sprint_id: sprint.id})
-
-    if action != :show_task and project.status == :completed do
-      send(self(), {:return_to_home, project})
-    end
-
-    {:ok, socket |> assign(assigns) |> assign(changeset: changeset)}
   end
 
   def update(%{task: task, projects: projects, sprint: sprint} = assigns, socket) do
@@ -84,7 +103,8 @@ defmodule ProjeXpertWeb.ProjectsLive.Components.Task do
      socket
      |> assign(
        changeset: changeset,
-       columns: Enum.map(Tasks.sprint_columns(task_params["sprint_id"]), &{&1.name, &1.id})
+       columns: Enum.map(Tasks.sprint_columns(task_params["sprint_id"]), &{&1.name, &1.id}),
+       assigners?: !(Map.get(task_params, "find_freelancer?", "true") == "true")
      )}
   end
 

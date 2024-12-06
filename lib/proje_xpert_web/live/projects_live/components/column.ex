@@ -53,7 +53,7 @@ defmodule ProjeXpertWeb.ProjectsLive.Components.Column do
 
   defp update_column(column_params, socket) do
     case Tasks.update_column(socket.assigns.column, column_params) do
-      {:ok, column} ->
+      {:ok, _column} ->
         Phoenix.PubSub.broadcast!(
           ProjeXpert.PubSub,
           "project:#{socket.assigns.project.id}",
@@ -63,7 +63,7 @@ defmodule ProjeXpertWeb.ProjectsLive.Components.Column do
         {:noreply,
          socket
          |> put_flash(:info, "Column updated successfully")
-         |> push_navigate(to: ~p"/projects/#{column.project_id}/show")}
+         |> push_navigate(to: ~p"/projects/#{socket.assigns.project.id}/show")}
 
       {:error, changeset} ->
         {:noreply, socket |> assign(changeset: changeset)}

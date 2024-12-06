@@ -104,7 +104,7 @@ defmodule ProjeXpert.Tasks do
   """
   def create_project(attrs \\ %{}) do
     %Project{}
-    |> Project.changeset(attrs)
+    |> Project.create_changeset(attrs)
     |> Repo.insert()
   end
 

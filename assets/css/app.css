@@ -70,8 +70,8 @@ trix-editor {
     border-radius: 0 0 0.375rem 0.375rem;
     margin: 0;
     padding: 1rem 1.25rem;
-    min-height: 120px;
-    max-height: 50vh;
+    min-height: 10vh;
+    max-height: 30vh;
     outline: none;
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
     font-size: 0.9375rem;
@@ -80,6 +80,7 @@ trix-editor {
     background-color: #ffffff;
     transition: all 200ms ease;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+    overflow-y: scroll;
   }
 
   trix-editor:focus {

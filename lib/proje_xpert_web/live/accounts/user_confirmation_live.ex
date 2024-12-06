@@ -6,7 +6,7 @@ defmodule ProjeXpertWeb.UserConfirmationLive do
 
   def render(%{live_action: :edit} = assigns) do
     ~H"""
-    <div class="mx-auto w-md h-[calc(100vh-10vh)] overflow-y-scroll">
+    <div class="mx-auto max-w-3xl h-[calc(100vh-10vh)] overflow-y-scroll">
       <h1 class="text-3xl font-bold text-center my-8">Confirm Your Account</h1>
       <.form
         :let={f}

@@ -50,7 +50,7 @@
         <ul>
           <li class="p-2 text-lg text-gray-600 hover:bg-gray-100 cursor-pointer group">
             <.link
-              patch={~p"/projects/show/#{@project.id}/edit?kanban_board=#{@kanban_board}"}
+              patch={~p"/projects/show/#{@project.id}/edit"}
               class="flex w-auto p-1 text-sm tracking-wide space-x-2"
             >
               <svg
@@ -106,7 +106,7 @@
           >
             <.link
               patch={
-                ~p"/projects/#{@project.id}/sprints/#{@selected_sprint.id}/edit?kanban_board=#{@kanban_board}"
+                ~p"/projects/#{@project.id}/sprints/#{@selected_sprint.id}/edit"
               }
               class="flex w-auto p-1 text-sm tracking-wide space-x-2"
             >
@@ -131,7 +131,7 @@
           <li class="p-2 text-lg text-gray-600 hover:bg-gray-100 cursor-pointer group">
             <.link
               :if={@project.status != :completed}
-              patch={~p"/projects/#{@project.id}/new_sprint?kanban_board=#{@kanban_board}"}
+              patch={~p"/projects/#{@project.id}/new_sprint"}
               class="flex w-auto p-1 text-sm tracking-wide space-x-2"
             >
               <svg
@@ -154,7 +154,7 @@
           <li class="p-2 text-lg text-gray-600 hover:bg-gray-100 cursor-pointer group">
             <.link
               :if={@project.status != :completed}
-              patch={~p"/projects/#{@project.id}/new_column?kanban_board=#{@kanban_board}"}
+              patch={~p"/projects/#{@project.id}/new_column"}
               class="flex w-auto p-1 text-sm tracking-wide space-x-2"
             >
               <svg
@@ -177,7 +177,7 @@
           <li class="p-2 text-lg text-gray-600 hover:bg-gray-100 cursor-pointer group">
             <.link
               :if={@project.status != :completed}
-              patch={~p"/projects/#{@project.id}/new_task?kanban_board=#{@kanban_board}"}
+              patch={~p"/projects/#{@project.id}/new_task"}
               class="flex w-auto p-1 text-sm tracking-wide space-x-2"
             >
               <svg
@@ -365,12 +365,12 @@
                 <ul>
                   <.link
                     patch={
-                      ~p"/projects/#{@project.id}/column/#{column.id}/edit?kanban_board=#{@kanban_board}"
+                      ~p"/projects/#{@project.id}/column/#{column.id}/edit"
                     }
                     class="flex items-center space-x-2 px-4 py-2 text-[1rem] text-gray-600 hover:bg-gray-100 cursor-pointer group"
                   >
                     <svg
-                      class="w-6 h-6 group-hover:text-blue-600/50"
+                      class="w-6 h-6 group-hover:text-blue-500"
                       aria-hidden="true"
                       xmlns="http://www.w3.org/2000/svg"
                       width="24"
@@ -386,7 +386,7 @@
                         d="m14.304 4.844 2.852 2.852M7 7H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-4.5m2.409-9.91a2.017 2.017 0 0 1 0 2.853l-6.844 6.844L8 14l.713-3.565 6.844-6.844a2.015 2.015 0 0 1 2.852 0Z"
                       />
                     </svg>
-                    <span class="group-hover:text-blue-600/50">Edit</span>
+                    <span class="group-hover:text-blue-500">Edit</span>
                   </.link>
                   <li
                     class="flex items-center space-x-2 px-4 py-2 text-[1rem] text-gray-600 hover:bg-gray-100 cursor-pointer group"
@@ -431,16 +431,16 @@
                       <div class="flex items-center justify-between mb-2">
                         <.link
                           patch={
-                            ~p"/projects/#{@project.id}/tasks/#{task.id}/show?kanban_board=#{@kanban_board}"
+                            ~p"/projects/#{@project.id}/tasks/#{task.id}/show"
                           }
-                          class="hover:text-blue-600/50"
+                          class="hover:text-blue-500"
                         >
                           <p class="block font-sans text-base antialiased font-medium leading-relaxed text-blue-gray-900">
                             <%= task.title %>
                           </p>
                         </.link>
                         <.dropdown
-                          :if={is_freelancer?(@current_user) and column.name == "Completed"}
+                          :if={is_freelancer?(@current_user) and String.contains?(column.name, "Completed")}
                           ticket_dropdown="right-[1.5rem] w-48"
                         >
                           <ul>
@@ -477,12 +477,12 @@
                           <ul>
                             <.link
                               patch={
-                                ~p"/projects/#{@project.id}/tasks/#{task.id}/edit?kanban_board=#{@kanban_board}"
+                                ~p"/projects/#{@project.id}/tasks/#{task.id}/edit"
                               }
                               class="flex items-center space-x-2 px-4 py-2 text-[1rem] text-gray-600 hover:bg-gray-100 cursor-pointer group"
                             >
                               <svg
-                                class="w-6 h-6 group-hover:text-blue-600/50"
+                                class="w-6 h-6 group-hover:text-blue-500"
                                 aria-hidden="true"
                                 xmlns="http://www.w3.org/2000/svg"
                                 width="24"
@@ -498,7 +498,7 @@
                                   d="m14.304 4.844 2.852 2.852M7 7H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-4.5m2.409-9.91a2.017 2.017 0 0 1 0 2.853l-6.844 6.844L8 14l.713-3.565 6.844-6.844a2.015 2.015 0 0 1 2.852 0Z"
                                 />
                               </svg>
-                              <span class="group-hover:text-blue-600/50">Edit</span>
+                              <span class="group-hover:text-blue-500">Edit</span>
                             </.link>
                             <li
                               class="flex items-center space-x-2 px-4 py-2 text-[1rem] text-gray-600 hover:bg-gray-100 cursor-pointer group"
@@ -548,8 +548,7 @@
     :if={@live_action in [:new_column, :edit_column]}
     show={@live_action in [:new_column, :edit_column]}
     id="project_modal"
-    max_width="max-w-5xl"
-    on_cancel={JS.navigate(~p"/projects/#{@project.id}/show?kanban_board=#{@kanban_board}")}
+    on_cancel={JS.navigate(~p"/projects/#{@project.id}/show")}
   >
     <.live_component
       module={Components.Column}
@@ -560,14 +559,14 @@
       column={@column}
       sprint={@selected_sprint}
       current_user={@current_user}
+      return_to={~p"/projects/#{@project.id}/show"}
     />
   </.modal>
   <.modal
     :if={@live_action in [:new_sprint, :edit_sprint]}
     show={@live_action in [:new_sprint, :edit_sprint]}
     id="task_modal"
-    max_width="max-w-7xl"
-    on_cancel={JS.navigate(~p"/projects/#{@project.id}/show?kanban_board=#{@kanban_board}")}
+    on_cancel={JS.navigate(~p"/projects/#{@project.id}/show")}
   >
     <.live_component
       module={Components.Sprint}
@@ -577,14 +576,14 @@
       sprint={@sprint}
       project={@project}
       current_user={@current_user}
+      return_to={~p"/projects/#{@project.id}/show"}
     />
   </.modal>
   <.modal
     :if={@live_action in [:new_task, :edit_task, :show_task]}
     show={@live_action in [:new_task, :edit_task, :show_task]}
     id="task_modal"
-    max_width="max-w-7xl"
-    on_cancel={JS.navigate(~p"/projects/#{@project.id}/show?kanban_board=#{@kanban_board}")}
+    on_cancel={JS.navigate(~p"/projects/#{@project.id}/show")}
   >
     <.live_component
       module={Components.Task}
@@ -596,14 +595,14 @@
       columns={@columns}
       task={@task}
       current_user={@current_user}
+      return_to={~p"/projects/#{@project.id}/show"}
     />
   </.modal>
   <.modal
     :if={@live_action == :edit}
     show={@live_action == :edit}
     id="project_modal"
-    max_width="max-w-5xl"
-    on_cancel={JS.navigate(~p"/projects/#{@project.id}/show?kanban_board=#{@kanban_board}")}
+    on_cancel={JS.navigate(~p"/projects/#{@project.id}/show")}
   >
     <.live_component
       module={Components.Project}
@@ -612,14 +611,14 @@
       action={@live_action}
       project={@project}
       current_user={@current_user}
+      return_to={~p"/projects/#{@project.id}/show"}
     />
   </.modal>
   <.modal
     :if={@live_action == :new_channel}
     show={@live_action == :new_channel}
     id="channel_modal"
-    max_width="max-w-3xl"
-    on_cancel={JS.navigate(~p"/projects/#{@project.id}/show?kanban_board=#{@kanban_board}")}
+    on_cancel={JS.navigate(~p"/projects/#{@project.id}/show")}
   >
     <.live_component
       module={Components.Channel}
@@ -629,6 +628,7 @@
       project={@project}
       channel={@channel}
       current_user={@current_user}
+      return_to={~p"/projects/#{@project.id}/show"}
     />
   </.modal>
 </div>

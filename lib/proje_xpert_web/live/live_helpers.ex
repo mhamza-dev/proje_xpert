@@ -1,4 +1,5 @@
 defmodule ProjeXpertWeb.LiveHelpers do
+  import Ecto.Changeset
   alias ProjeXpert.Chats
   alias ProjeXpert.Chats.Channel
   alias ProjeXpert.Tasks.Task
@@ -293,6 +294,20 @@ defmodule ProjeXpertWeb.LiveHelpers do
     project.sprints |> Enum.sort_by(& &1.title, :asc) |> Enum.map(&{&1.title, &1.id})
   end
 
+  def add_new_changeset(struct, default_params, changeset, field) do
+    invite_user_changeset = change(struct, default_params)
+
+    new_invite_user = (changeset.changes[field] || []) ++ [invite_user_changeset]
+    put_in(changeset.changes[field], new_invite_user)
+  end
+
+  def remove_changeset(changeset, field, index) do
+    invite_users =
+      remove_field(changeset.changes[field] |> Enum.reject(&(&1.action == :replace)), index)
+
+    put_in(changeset.changes[field], invite_users)
+  end
+
   defp get_initials(%{first_name: fname, last_name: lname}),
     do: String.at(fname, 0) <> String.at(lname, 0)
 
@@ -312,4 +327,10 @@ defmodule ProjeXpertWeb.LiveHelpers do
 
   defp get_function_by_resource(Channel, :client), do: &Chats.list_channels_for_client/2
   defp get_function_by_resource(Channel, :freelancer), do: &Chats.list_channels_for_freelancer/2
+
+  defp remove_field(changeset_list, index) do
+    changeset_list
+    |> Enum.with_index()
+    |> Enum.reduce([], fn {value, i}, acc -> if "#{i}" == index, do: acc, else: acc ++ [value] end)
+  end
 end

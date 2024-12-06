@@ -1,7 +1,7 @@
 <div class="bg-white flex flex-col items-center justify-center">
-  <div class="flex flex-col lg:px-10 py-8 rounded-3xl w-full">
-    <div class="font-medium self-center text-xl sm:text-3xl text-gray-900 mb-12">
-      <%= @title %>
+  <div class="flex flex-col px-4 rounded-3xl w-full max-w-3xl">
+    <div class="flex items-center justify-center p-6 border-b">
+      <h2 class="text-2xl font-semibold text-gray-800"><%= @title %></h2>
     </div>
     <.form
       :let={f}
@@ -11,33 +11,47 @@
       phx-change="validate"
       phx-submit="save"
     >
-      <div class="flex flex-col mb-5">
-        <div class="form-control">
-          <.input
-            label="Sprint Title"
-            type="text"
-            field={f[:title]}
-            placeholder="e.g: Sprint 1"
-            class="w-[350px]"
-          />
-        </div>
-        <.input type="hidden" field={f[:project_id]} value={@project.id} />
+      <.input type="hidden" field={f[:project_id]} value={@project.id} />
+      <div class="p-6 space-y-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="col-span-2">
+            <.input
+              label="Sprint Title"
+              type="text"
+              field={f[:title]}
+              placeholder="e.g: Sprint 1"
+              class="w-full"
+            />
+          </div>
 
-        <div class="mt-4 flex justify-end">
-          <button
-            type="submit"
-            phx_disable_with="Saving..."
-            disabled={!@changeset.valid?}
-            class={[
-              "flex items-center justify-center w-1/2 px-5 py-2 text-sm tracking-wide text-white transition-colors duration-200 bg-blue-600 rounded-lg shrink-0 sm:w-auto gap-x-2 hover:bg-blue-600",
-              !@changeset.valid? && "bg-gray-400 hover:bg-gray-400 cursor-not-allowed"
-            ]}
+          <div>
+            <.input label="Start Date" type="date" field={f[:start_date]} class="w-full" />
+          </div>
+
+          <div>
+            <.input label="End Date" type="date" field={f[:end_date]} class="w-full" />
+          </div>
+        </div>
+
+        <div class="flex items-center justify-end gap-4 py-6 border-t">
+          <.link
+            patch={@return_to}
+            class="px-4 py-1.5 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
           >
-            <span class="mr-2 uppercase">
-              <%= if @action == :new_sprint, do: "Create", else: "Update" %>
-            </span>
-            <.icon name="hero-arrow-right-circle" class="w-8 h-8" />
-          </button>
+            Cancel
+          </.link>
+          <.button type="submit">
+            <%= if(@action == :new_sprint, do: "Create", else: "Update") %>
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="1.5"
+                d="M9 5l7 7-7 7"
+              >
+              </path>
+            </svg>
+          </.button>
         </div>
       </div>
     </.form>

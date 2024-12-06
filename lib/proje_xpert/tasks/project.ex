@@ -33,6 +33,14 @@ defmodule ProjeXpert.Tasks.Project do
     |> validate_required(@default_required)
   end
 
+  @doc false
+  def create_changeset(project, attrs) do
+    project
+    |> cast(attrs, @default_cast)
+    |> validate_required(@default_required)
+    |> cast_assoc(:sprints, required: true, with: &ProjeXpert.Tasks.Sprint.changeset/2)
+  end
+
   def all_statuses, do: @statuses
 
   def statuses_as_options,
