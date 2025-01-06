@@ -10,7 +10,7 @@ defmodule ProjeXpert.Tasks.Project do
     field :status, Ecto.Enum, values: @statuses, default: :pending
     field :description, :string
     field :title, :string
-    field :budget, :decimal
+    field :budget, :float
 
     # Associations
     belongs_to :client, ProjeXpert.Accounts.User, foreign_key: :client_id

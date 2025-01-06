@@ -19,7 +19,6 @@ defmodule ProjeXpert.Tasks.Column do
     column
     |> cast(attrs, @default_cast)
     |> validate_required(@default_validate)
-    |> dbg()
   end
 
   def get_default_columns, do: @default_columns

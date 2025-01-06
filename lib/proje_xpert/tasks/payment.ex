@@ -23,7 +23,7 @@ defmodule ProjeXpert.Tasks.Payment do
   ]
   schema "payments" do
     field :status, Ecto.Enum, values: @statuses, default: :pending
-    field :amount, :decimal
+    field :amount, :float
     field :description, :string
 
     belongs_to :task, ProjeXpert.Tasks.Task, foreign_key: :task_id

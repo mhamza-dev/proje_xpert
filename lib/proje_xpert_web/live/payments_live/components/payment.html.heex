@@ -73,12 +73,43 @@
         </div>
       </div>
 
-      <div class="flex justify-between items-center py-4 border-t border-gray-200">
-        <div class="text-gray-900">
-          <span class="font-medium">Payable</span>
+      <div class="bg-gray-50 rounded-xl p-4">
+        <div class="p-6 space-y-6">
+          <div class="flex justify-between items-center pb-4 border-b border-gray-200">
+            <div class="text-gray-700">
+              <span class="text-lg font-semibold">Payable</span>
+            </div>
+            <div class="text-3xl font-bold text-blue-600">
+              <%= Number.Currency.number_to_currency(@task.budget) %>
+            </div>
+          </div>
+
+          <div class="flex justify-between items-center pb-4 border-b border-gray-200">
+            <div class="text-gray-700">
+              <span class="text-lg font-semibold">Freelancer Amount</span>
+              <span class="text-sm text-gray-500 block mt-1">(80% of budget)</span>
+            </div>
+            <div class="text-3xl font-bold text-green-600">
+              <%= Number.Currency.number_to_currency(@task.budget * 0.8) %>
+            </div>
+          </div>
+
+          <div class="flex justify-between items-center">
+            <div class="text-gray-700">
+              <span class="text-lg font-semibold">Your Cut</span>
+              <span class="text-sm text-gray-500 block mt-1">(20% of budget)</span>
+            </div>
+            <div class="text-3xl font-bold text-red-600">
+              <%= Number.Currency.number_to_currency(@task.budget * 0.2) %>
+            </div>
+          </div>
         </div>
-        <div class="text-2xl font-semibold text-blue-600">
-          <%= Number.Currency.number_to_currency(@task.budget) %>
+
+        <div class="bg-gray-50 px-6 py-4">
+          <div class="text-sm text-gray-600">
+            <span class="font-medium">Note:</span>
+            The breakdown above shows the distribution of the task budget.
+          </div>
         </div>
       </div>
       <.form

@@ -37,7 +37,7 @@ defmodule ProjeXpert.Tasks.Task do
     field :title, :string
     field :find_freelancer?, :boolean, default: false
     field :deadline, :date
-    field :budget, :decimal
+    field :budget, :float
     field :attachments, {:array, :string}, default: []
     field :is_completed?, :boolean
     field :tags, {:array, :string}, default: []

@@ -507,8 +507,8 @@ defmodule ProjeXpert.Tasks do
   end
 
   def create_payment_with_stripe(user, attrs) do
-    with {:ok, _} <- PaymentIntent.create(payment_intent_params(user, attrs)),
-         {:ok, payment} <- create_payment(attrs) do
+    with {:ok, payment} <- create_payment(attrs),
+         {:ok, _} <- PaymentIntent.create(payment_intent_params(user, payment) |> dbg()) |> dbg() do
       {:ok, payment}
     else
       {:error, changeset} -> {:error, changeset}
@@ -516,9 +516,11 @@ defmodule ProjeXpert.Tasks do
     end
   end
 
-  defp payment_intent_params(user, attrs) do
+  defp payment_intent_params(user, payment) do
+    total_amount = dollars_to_cents(payment.amount)
     %{
-      amount: dollars_to_cents(attrs["amount"]),
+      metadata: %{"payment_id" => payment.id, "task_id" => payment.task_id},
+      amount: total_amount * 0.8,
       currency: "USD",
       customer: user.stripe_customer_id,
       payment_method: get_default_pm_of_user(user).card_id,
@@ -527,7 +529,8 @@ defmodule ProjeXpert.Tasks do
       automatic_payment_methods: %{
         enabled: true,
         allow_redirects: "never"
-      }
+      },
+      application_fee_amount: total_amount * 0.2
     }
   end
 

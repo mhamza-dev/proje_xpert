@@ -267,7 +267,6 @@
     :if={@live_action in [:edit]}
     show={@live_action in [:edit]}
     id="project_modal"
-    max_width="max-w-5xl"
     on_cancel={JS.navigate(~p"/bids")}
   >
     <.live_component
@@ -283,7 +282,6 @@
     :if={@live_action == :new_task}
     show={@live_action == :new_task}
     id="task_modal"
-    max_width="max-w-5xl"
     on_cancel={JS.navigate(~p"/bids")}
   >
     <.live_component

@@ -6,7 +6,7 @@ defmodule ProjeXpertWeb.PaymentsLive.Index do
 
   def mount(params, _session, %{assigns: assigns} = socket) do
     payments = get_resources_by_role(Payment, assigns.current_user, params)
-    {:ok, assign(socket, payments: payments)}
+    {:ok, assign(socket, payments: payments, params: params)}
   end
 
   def handle_params(params, _url, socket) do
@@ -22,5 +22,12 @@ defmodule ProjeXpertWeb.PaymentsLive.Index do
     socket
     |> assign(:page_title, "Release Payment")
     |> assign(:task, Tasks.get_task!(id))
+  end
+
+  def handle_info({:update_payment, p_id, status}, %{assigns: assigns} = socket) do
+    %Payment{} = payment = Tasks.get_project!(p_id)
+    {:ok, _payment} = Tasks.update_payment(payment, %{"status" => status})
+    payments = get_resources_by_role(Payment, assigns.current_user, assigns.params)
+    {:noreply, assign(socket, payments: payments)}
   end
 end

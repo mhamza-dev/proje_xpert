@@ -24,6 +24,11 @@ defmodule ProjeXpertWeb.Router do
     get "/", PageController, :home
   end
 
+  scope "/webhooks", ProjeXpertWeb do
+    pipe_through :browser
+    post "/stripe", WebhookController, :stripe
+  end
+
   # Other scopes may use custom stacks.
   # scope "/api", ProjeXpertWeb do
   #   pipe_through :api

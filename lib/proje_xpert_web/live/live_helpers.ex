@@ -158,7 +158,7 @@ defmodule ProjeXpertWeb.LiveHelpers do
     all_task_budget =
       Enum.map(client.projects_as_client, & &1.tasks)
       |> List.flatten()
-      |> Enum.map(&Decimal.to_float(&1.budget))
+      |> Enum.map(& &1.budget)
 
     Enum.sum(all_task_budget) / length(all_task_budget)
   end

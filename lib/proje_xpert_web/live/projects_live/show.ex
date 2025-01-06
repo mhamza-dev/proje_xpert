@@ -20,7 +20,6 @@ defmodule ProjeXpertWeb.ProjectsLive.Show do
         sprint.start_date >= Date.utc_today() and sprint.start_date <= Date.utc_today()
       end) || Enum.at(project.sprints, 0)
 
-    dbg(selected_sprint)
     {:noreply,
      socket
      |> assign(

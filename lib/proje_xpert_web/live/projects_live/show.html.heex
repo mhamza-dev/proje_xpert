@@ -105,9 +105,7 @@
             class="p-2 text-lg text-gray-600 hover:bg-gray-100 cursor-pointer group"
           >
             <.link
-              patch={
-                ~p"/projects/#{@project.id}/sprints/#{@selected_sprint.id}/edit"
-              }
+              patch={~p"/projects/#{@project.id}/sprints/#{@selected_sprint.id}/edit"}
               class="flex w-auto p-1 text-sm tracking-wide space-x-2"
             >
               <svg
@@ -364,9 +362,7 @@
               >
                 <ul>
                   <.link
-                    patch={
-                      ~p"/projects/#{@project.id}/column/#{column.id}/edit"
-                    }
+                    patch={~p"/projects/#{@project.id}/column/#{column.id}/edit"}
                     class="flex items-center space-x-2 px-4 py-2 text-[1rem] text-gray-600 hover:bg-gray-100 cursor-pointer group"
                   >
                     <svg
@@ -430,9 +426,7 @@
                     <div class="p-6">
                       <div class="flex items-center justify-between mb-2">
                         <.link
-                          patch={
-                            ~p"/projects/#{@project.id}/tasks/#{task.id}/show"
-                          }
+                          patch={~p"/projects/#{@project.id}/tasks/#{task.id}/show"}
                           class="hover:text-blue-500"
                         >
                           <p class="block font-sans text-base antialiased font-medium leading-relaxed text-blue-gray-900">
@@ -440,7 +434,10 @@
                           </p>
                         </.link>
                         <.dropdown
-                          :if={is_freelancer?(@current_user) and String.contains?(column.name, "Completed")}
+                          :if={
+                            is_freelancer?(@current_user) and
+                              String.contains?(column.name, "Completed")
+                          }
                           ticket_dropdown="right-[1.5rem] w-48"
                         >
                           <ul>
@@ -476,9 +473,7 @@
                         >
                           <ul>
                             <.link
-                              patch={
-                                ~p"/projects/#{@project.id}/tasks/#{task.id}/edit"
-                              }
+                              patch={~p"/projects/#{@project.id}/tasks/#{task.id}/edit"}
                               class="flex items-center space-x-2 px-4 py-2 text-[1rem] text-gray-600 hover:bg-gray-100 cursor-pointer group"
                             >
                               <svg
